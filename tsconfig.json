@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "module": "ES6",
+    "target": "ES6",
+    "allowJs": true,
+    "outDir": "dist",
+    "strict": true,
+    // "inlineSourceMap": true,
+    "allowSyntheticDefaultImports": true,
+    "strictNullChecks": false,
+    "lib": ["ES2016", "ES2017", "DOM"],
+    "noImplicitAny": false,
+    "declaration": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "typeRoots": [
+      "./npm_modules/@types/"
+    ]
+  },
+  "include": [
+    "src",
+  ],
+}
