@@ -8,7 +8,7 @@
     // "inlineSourceMap": true,
     "allowSyntheticDefaultImports": true,
     "strictNullChecks": false,
-    "lib": ["ES2016", "ES2017", "DOM"],
+    "lib": ["ES2016", "ES2017", "dom"],
     "noImplicitAny": false,
     "declaration": true,
     "moduleResolution": "node",

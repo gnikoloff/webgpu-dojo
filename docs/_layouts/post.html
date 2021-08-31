@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="{{ site.lang | default: "en-US" }}">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+{% seo %}
+    <link rel="stylesheet" href="{{ "/assets/css/style.css?v=" | append: site.github.build_revision | relative_url }}">
+    <!--[if lt IE 9]>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <![endif]-->
+    
+
+    <style>
+      * { margin: 0; padding: 0; }
+      .info {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 99;
+        color: white;
+      }
+    </style>
+    
+  </head>
+  <body>
+
+    <div class="info">
+      <a href="/">/</a>
+      <small>{{ page.date | date: "%-d %B %Y" }}</small>
+      <h1>{{ page.title }}</h1>
+
+      <p class="view">by {{ page.author | default: site.author }}</p>
+    </div>
+
+    {{content}}
+  </body>
+</html>
