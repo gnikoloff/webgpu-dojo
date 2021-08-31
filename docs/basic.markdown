@@ -7,4 +7,4 @@ categories: jekyll update
 
 <canvas id="gpu-c" />
 
-<script src="/dist/basic/bundle.js"></script>
+<script src="{{ site.baseurl }}/dist/basic/bundle.js"></script>
