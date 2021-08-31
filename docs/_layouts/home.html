@@ -9,7 +9,13 @@
 
     <main class="page-content" aria-label="Content">
       <div class="wrapper">
-        {{ content }}
+        <ul>
+          {% for example in site.data.EXAMPLES_DEFINITIONS %}
+            <li>
+              <a href="/{{ example.id }}">{{ example.id }}</a>
+            </li>
+          {% endfor %}
+          </ul>  
       </div>
     </main>
 
