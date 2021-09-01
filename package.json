@@ -1,16 +1,17 @@
 {
-  "name": "frontend-boilerplate",
+  "name": "webgpu-sketch-dojo",
   "version": "0.0.1",
-  "description": "Boilerplate skeleton for writing frontend app in rollup, typescript & express",
-  "main": "index.js",
+  "description": "WebGPU demos & examples written from scratch",
   "scripts": {
     "lint": "eslint src",
     "watch": "rollup --watch --c",
     "build": "NODE_ENV=production rollup --c",
-    "serve": "node server.js",
-    "start": "run-p build serve",
-    "start:local": "run-p watch serve",
-    "build:docs": "shx cp -r EXAMPLES_DEFINITIONS.json ./docs/_data/ && cd ./docs && bundler exec jekyll serve"
+    "start": "run-p build serve:docs",
+    "start:local": "run-p watch serve:docs",
+    "generate-demos": "node create-example-markdown-files.js",
+    "copy-examples-definitions": "shx cp -r EXAMPLES_DEFINITIONS.json ./docs/_data/",
+    "serve:docs": "cd ./docs && bundler exec jekyll serve",
+    "build:docs": "run-p generate-demos copy-examples-definitions serve:docs"
   },
   "repository": {
     "type": "git",
