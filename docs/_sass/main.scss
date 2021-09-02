@@ -37,3 +37,22 @@
   line-height: 24px;
   max-width: 500px;
 }
+
+.example-link {
+  list-style: none;
+  width: 33.33%;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.examples-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+}
+
+.example-thumb {
+  display: block;
+  margin-bottom: 10px;
+}
