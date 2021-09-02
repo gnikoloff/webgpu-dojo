@@ -1,5 +1,14 @@
 [
   {
-    "id": "basic"
+    "id": "hello-triangle",
+    "title": "Hello Triangle"
+  },
+  {
+    "id": "hello-triangle-2",
+    "title": "Hello Triangle 2"
+  },
+  {
+    "id": "hello-triangle-3",
+    "title": "Hello Triangle 3"
   }
 ]

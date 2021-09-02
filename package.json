@@ -6,12 +6,12 @@
     "lint": "eslint src",
     "watch": "rollup --watch --c",
     "build": "NODE_ENV=production rollup --c",
-    "start": "run-p build serve:docs",
-    "start:local": "run-p watch serve:docs",
+    "start": "run-s build build:docs serve:docs",
+    "start:local": "run-s build:docs serve:docs",
     "generate-demos": "node create-example-markdown-files.js",
     "copy-examples-definitions": "shx cp -r EXAMPLES_DEFINITIONS.json ./docs/_data/",
     "serve:docs": "cd ./docs && bundler exec jekyll serve",
-    "build:docs": "run-p generate-demos copy-examples-definitions serve:docs"
+    "build:docs": "run-s generate-demos copy-examples-definitions"
   },
   "repository": {
     "type": "git",

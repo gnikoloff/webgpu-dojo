@@ -2,20 +2,20 @@ const EXAMPLES_DEFINITIONS = require('./EXAMPLES_DEFINITIONS.json')
 
 const fs = require('fs')
 
-EXAMPLES_DEFINITIONS.map(({ id }) => {
+EXAMPLES_DEFINITIONS.map(({ id, title, description = '' }, i, self) => {
   fs.writeFile(
     `docs/${id}.markdown`,
     `
 ---
 layout: post
-title: 'Welcome to Jekyll!'
-date: 2021-08-31 15:36:23 +0300
-categories: jekyll update
+id: '${id}'
+title: '${title}'
+description: '${description}'
+prevDemoId: '${(self[i - 1] || self[self.length - 1]).id}'
+prevDemoTitle: '${(self[i - 1] || self[self.length - 1]).title}'
+nextDemoId: '${(self[i + 1] || self[0]).id}'
+nextDemoTitle: '${(self[i + 1] || self[0]).title}'
 ---
-
-<canvas id="gpu-c" />
-
-<script src="{{ site.baseurl }}/dist/basic/bundle.js"></script>
 `.trim(),
     () => {},
   )
