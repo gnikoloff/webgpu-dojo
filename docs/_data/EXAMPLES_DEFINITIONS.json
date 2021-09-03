@@ -4,11 +4,8 @@
     "title": "Hello Triangle"
   },
   {
-    "id": "hello-triangle-2",
-    "title": "Hello Triangle 2"
-  },
-  {
-    "id": "hello-triangle-3",
-    "title": "Hello Triangle 3"
+    "id": "hello-index-square",
+    "title": "Hello Indexed Square",
+    "description": "Render a quad using indices to reduce vertex definitions and an interleaved buffer holding both positions and colors for each vertex."
   }
 ]
