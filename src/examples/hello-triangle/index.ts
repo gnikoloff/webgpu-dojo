@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import '../index.css'
 
 const VERTEX_SHADER = `
@@ -41,17 +39,18 @@ const FRAGMENT_SHADER = `
   canvas.height = innerHeight * devicePixelRatio
   canvas.style.setProperty('width', `${innerWidth}px`)
   canvas.style.setProperty('height', `${innerHeight}px`)
-  // @ts-ignore
+
   const adapter = await navigator.gpu?.requestAdapter()
   const device = await adapter?.requestDevice()
   const context = canvas.getContext('webgpu')
-  const format = 'bgra8unorm'
+
+  const presentationFormat = context.getPreferredFormat(adapter)
 
   const primitiveType = 'triangle-list'
 
   context.configure({
     device,
-    format,
+    format: presentationFormat,
   })
 
   const triangleWidth = 1
@@ -120,7 +119,7 @@ const FRAGMENT_SHADER = `
       entryPoint: 'main',
       targets: [
         {
-          format,
+          format: presentationFormat,
         },
       ],
     },
