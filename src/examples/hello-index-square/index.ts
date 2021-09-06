@@ -1,3 +1,5 @@
+import { OrthographicCamera, Transform } from '../../lib/hwoa-rang-gl'
+
 import '../index.css'
 
 import VERTEX_SHADER from './shader.vert.wglsl'
@@ -14,7 +16,6 @@ import FRAGMENT_SHADER from './shader.frag.wglsl'
   const context = canvas.getContext('webgpu')
 
   const presentationFormat = context.getPreferredFormat(adapter)
-
   const primitiveType = 'triangle-list'
 
   context.configure({
@@ -22,14 +23,33 @@ import FRAGMENT_SHADER from './shader.frag.wglsl'
     format: presentationFormat,
   })
 
+  const orthoCamera = new OrthographicCamera(
+    0,
+    canvas.width,
+    canvas.height,
+    0,
+    0.1,
+    3,
+  )
+  orthoCamera.setPosition({ x: 0, y: 0, z: 2 })
+  orthoCamera.lookAt([0, 0, 0])
+  orthoCamera.updateProjectionMatrix()
+  orthoCamera.updateViewMatrix()
+
+  const quadTransform = new Transform()
+    .setPosition({ x: canvas.width / 2, y: canvas.height / 2, z: 0 })
+    .updateModelMatrix()
+
   // vertex positions & colors buffer
+  const planeWidth = 480
+  const planeHeight = 480
   // prettier-ignore
   const vertexData = new Float32Array([
-    // position     // color
-    -0.5, -0.5,     1.0, 0.0, 0.0, // index 0
-     0.5, -0.5,     0.0, 1.0, 0.0, // index 1
-     0.5,  0.5,     0.0, 0.0, 1.0, // index 2
-    -0.5,  0.5,     1.0, 1.0, 0.0, // index 3
+    // position                           // color
+    -planeWidth / 2, -planeHeight / 2,    1.0, 0.0, 0.0, // index 0
+     planeWidth / 2, -planeHeight / 2,    0.0, 1.0, 0.0, // index 1
+     planeWidth / 2,  planeHeight / 2,    0.0, 0.0, 1.0, // index 2
+    -planeWidth / 2,  planeHeight / 2,    1.0, 1.0, 0.0, // index 3
   ])
   const vertexBuffer = device.createBuffer({
     size: vertexData.byteLength,
@@ -90,22 +110,69 @@ import FRAGMENT_SHADER from './shader.frag.wglsl'
     },
   })
 
-  const commandEncoder = device.createCommandEncoder()
-  const textureView = context.getCurrentTexture().createView()
-  const renderPass = commandEncoder.beginRenderPass({
-    colorAttachments: [
+  const vertexUniformBuffer = device.createBuffer({
+    size: 16 * 3 * Float32Array.BYTES_PER_ELEMENT,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  })
+
+  const uniformBindGroup = device.createBindGroup({
+    layout: pipeline.getBindGroupLayout(0),
+    entries: [
       {
-        view: textureView,
-        loadValue: [0.1, 0.1, 0.1, 1.0],
-        storeOp: 'store',
+        binding: 0,
+        resource: {
+          buffer: vertexUniformBuffer,
+          offset: 0,
+          size: 16 * 3 * Float32Array.BYTES_PER_ELEMENT,
+        },
       },
     ],
   })
 
-  renderPass.setPipeline(pipeline)
-  renderPass.setVertexBuffer(0, vertexBuffer)
-  renderPass.setIndexBuffer(indexBuffer, 'uint32')
-  renderPass.drawIndexed(6)
-  renderPass.endPass()
-  device.queue.submit([commandEncoder.finish()])
+  let textureView
+
+  requestAnimationFrame(drawFrame)
+
+  function drawFrame(ts) {
+    ts /= 1000
+    requestAnimationFrame(drawFrame)
+
+    device.queue.writeBuffer(
+      vertexUniformBuffer,
+      0,
+      orthoCamera.projectionMatrix as ArrayBuffer,
+    )
+
+    device.queue.writeBuffer(
+      vertexUniformBuffer,
+      16 * Float32Array.BYTES_PER_ELEMENT,
+      orthoCamera.viewMatrix as ArrayBuffer,
+    )
+
+    device.queue.writeBuffer(
+      vertexUniformBuffer,
+      16 * 2 * Float32Array.BYTES_PER_ELEMENT,
+      quadTransform.modelMatrix as ArrayBuffer,
+    )
+
+    const commandEncoder = device.createCommandEncoder()
+    textureView = context.getCurrentTexture().createView()
+    const renderPass = commandEncoder.beginRenderPass({
+      colorAttachments: [
+        {
+          view: textureView,
+          loadValue: [0.1, 0.1, 0.1, 1.0],
+          storeOp: 'store',
+        },
+      ],
+    })
+
+    renderPass.setPipeline(pipeline)
+    renderPass.setVertexBuffer(0, vertexBuffer)
+    renderPass.setIndexBuffer(indexBuffer, 'uint32')
+    renderPass.setBindGroup(0, uniformBindGroup)
+    renderPass.drawIndexed(6)
+    renderPass.endPass()
+    device.queue.submit([commandEncoder.finish()])
+  }
 })()
