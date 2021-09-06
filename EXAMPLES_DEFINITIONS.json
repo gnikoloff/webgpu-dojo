@@ -7,5 +7,10 @@
     "id": "hello-index-square",
     "title": "Hello Indexed Square",
     "description": "Render a quad using indices to reduce vertex definitions and a single interleaved buffer holding both positions and colors for each vertex."
+  },
+  {
+    "id": "textured-cube",
+    "title": "Textured Cube",
+    "description": "Use the mouse to rotate / pan / zoom the camera. Shows multisampled rendering via a textured cube."
   }
 ]
