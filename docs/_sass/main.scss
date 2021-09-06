@@ -9,6 +9,7 @@
 }
 
 .info {
+  user-select: none;
   position: fixed;
   top: 0;
   left: 0;
@@ -18,6 +19,7 @@
 }
 
 #inner-nav {
+  user-select: none;
   position: fixed;
   bottom: 0;
   right: 0;
