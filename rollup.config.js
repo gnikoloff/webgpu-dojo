@@ -27,9 +27,6 @@ const plugins = [
     // declarationDir: 'dist/src',
   }),
   sourcemaps(),
-  copy({
-    targets: [{ src: `index.html`, dest: `dist` }],
-  }),
   glslify({
     include: [
       // '**/*.vs',
@@ -58,8 +55,22 @@ const plugins = [
     }),
 ]
 
-export default EXAMPLES_DEFINITIONS.map(({ id }) => ({
-  input: `src/examples/${id}/index.ts`,
-  output: [{ file: `docs/dist/${id}/bundle.js`, format: 'iife' }],
-  plugins,
-}))
+export default [
+  {
+    input: 'src/index.js',
+    output: {
+      file: 'docs/dist/index.js',
+      format: 'iife',
+    },
+    plugins: [
+      copy({
+        targets: [{ src: `src/assets/**/*`, dest: `docs/dist/assets/` }],
+      }),
+    ],
+  },
+  ...EXAMPLES_DEFINITIONS.map(({ id }) => ({
+    input: `src/examples/${id}/index.ts`,
+    output: [{ file: `docs/dist/${id}/bundle.js`, format: 'iife' }],
+    plugins,
+  })),
+]

@@ -1,3 +1,6 @@
+[[group(0), binding(1)]] var mySampler: sampler;
+[[group(0), binding(2)]] var myTexture: texture_2d<f32>;
+
 struct Input {
   [[location(0)]] uv: vec2<f32>;
 };
@@ -5,5 +8,5 @@ struct Input {
 [[stage(fragment)]]
 
 fn main (input: Input) -> [[location(0)]] vec4<f32> {
-  return vec4<f32>(input.uv, 0.0, 1.0);
+  return textureSample(myTexture, mySampler, vec2<f32>(input.uv.x, 1.0 - input.uv.y));
 }

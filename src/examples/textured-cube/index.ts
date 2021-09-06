@@ -110,6 +110,30 @@ import '../index.css'
     },
   })
 
+  const image = new Image()
+  image.src = '/webgpu-dojo/dist/assets/webgpu-logo-pot.png'
+  await image.decode()
+  const imageBitmap = await createImageBitmap(image)
+
+  const cubeTexture = device.createTexture({
+    size: [imageBitmap.width, imageBitmap.height, 1],
+    format: presentationFormat,
+    usage:
+      GPUTextureUsage.TEXTURE_BINDING |
+      GPUTextureUsage.COPY_DST |
+      GPUTextureUsage.RENDER_ATTACHMENT,
+  })
+  device.queue.copyExternalImageToTexture(
+    { source: imageBitmap },
+    { texture: cubeTexture },
+    [imageBitmap.width, imageBitmap.height],
+  )
+
+  const sampler = device.createSampler({
+    magFilter: 'linear',
+    minFilter: 'linear',
+  })
+
   const vertexUniformBuffer = device.createBuffer({
     size: (16 + 16) * Float32Array.BYTES_PER_ELEMENT,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
@@ -125,6 +149,14 @@ import '../index.css'
           offset: 0,
           size: (16 + 16) * Float32Array.BYTES_PER_ELEMENT,
         },
+      },
+      {
+        binding: 1,
+        resource: sampler,
+      },
+      {
+        binding: 2,
+        resource: cubeTexture.createView(),
       },
     ],
   })
