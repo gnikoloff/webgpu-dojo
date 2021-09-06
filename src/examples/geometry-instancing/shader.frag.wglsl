@@ -1,0 +1,12 @@
+[[group(0), binding(2)]] var mySampler: sampler;
+[[group(0), binding(3)]] var myTexture: texture_2d<f32>;
+
+struct Input {
+  [[location(0)]] normal: vec3<f32>;
+};
+
+[[stage(fragment)]]
+
+fn main (input: Input) -> [[location(0)]] vec4<f32> {
+  return textureSample(myTexture, mySampler, normalize(input.normal).xy * 0.5 + 0.5);
+}
