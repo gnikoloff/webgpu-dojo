@@ -9,6 +9,9 @@ import VERTEX_SHADER from './shader.vert.wglsl'
 import FRAGMENT_SHADER from './shader.frag.wglsl'
 
 import '../index.css'
+
+const SAMPLE_COUNT = 4
+
 ;(async () => {
   const canvas = document.getElementById('gpu-c') as HTMLCanvasElement
   canvas.width = innerWidth * devicePixelRatio
@@ -104,6 +107,9 @@ import '../index.css'
       stripIndexFormat: undefined,
       // cullMode: 'back',
     },
+    multisample: {
+      count: SAMPLE_COUNT,
+    },
     depthStencil: {
       format: 'depth24plus',
       depthWriteEnabled: true,
@@ -168,7 +174,7 @@ import '../index.css'
     0.1,
     100,
   )
-  perspCamera.setPosition({ x: 2, y: 2, z: 3 })
+  perspCamera.setPosition({ x: 1.5, y: 1.5, z: 3 })
   perspCamera.lookAt([0, 0, 0])
   perspCamera.updateProjectionMatrix()
   perspCamera.updateViewMatrix()
@@ -180,10 +186,18 @@ import '../index.css'
   const textureDepth = device.createTexture({
     size: [canvas.width, canvas.height, 1],
     format: 'depth24plus',
+    sampleCount: SAMPLE_COUNT,
     usage: GPUTextureUsage.RENDER_ATTACHMENT,
   })
 
-  let textureView
+  const renderTexture = device.createTexture({
+    size: [canvas.width, canvas.height],
+    sampleCount: SAMPLE_COUNT,
+    format: presentationFormat,
+    usage: GPUTextureUsage.RENDER_ATTACHMENT,
+  })
+  let textureView = renderTexture.createView()
+  // let textureView
 
   requestAnimationFrame(drawFrame)
 
@@ -195,13 +209,12 @@ import '../index.css'
     const speed = ts * 0.2
     cubeTransform.setRotation({ y: speed }).updateModelMatrix()
 
-    textureView = context.getCurrentTexture().createView()
-
     const commandEncoder = device.createCommandEncoder()
     const renderPass = commandEncoder.beginRenderPass({
       colorAttachments: [
         {
           view: textureView,
+          resolveTarget: context.getCurrentTexture().createView(),
           loadValue: [0.1, 0.1, 0.1, 1.0],
           storeOp: 'store',
         },
@@ -218,11 +231,6 @@ import '../index.css'
       vertexUniformBuffer,
       0,
       perspCamera.projectionMatrix as ArrayBuffer,
-    )
-    device.queue.writeBuffer(
-      vertexUniformBuffer,
-      16 * Float32Array.BYTES_PER_ELEMENT,
-      perspCamera.viewMatrix as ArrayBuffer,
     )
     device.queue.writeBuffer(
       vertexUniformBuffer,
