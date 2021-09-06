@@ -30,7 +30,27 @@ const plugins = [
   copy({
     targets: [{ src: `index.html`, dest: `dist` }],
   }),
-  glslify(),
+  glslify({
+    include: [
+      // '**/*.vs',
+      // '**/*.fs',
+      // '**/*.vert',
+      // '**/*.frag',
+      '**/*.glsl',
+      '**/*.wglsl',
+    ],
+    compress: false,
+    transform: [
+      [
+        (shaderPath, shaderSource, shaderOpts) => {
+          return shaderSource.replace('#define GLSLIFY 1', '')
+        },
+        {
+          post: true,
+        },
+      ],
+    ],
+  }),
   process.env.NODE_ENV === 'production' && uglify(),
   process.env.NODE_ENV === 'production' &&
     strip({

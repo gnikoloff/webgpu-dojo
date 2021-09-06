@@ -4,51 +4,10 @@ import {
   CameraController,
 } from '../../lib/hwoa-rang-gl'
 
+import VERTEX_SHADER from './shader.vert.wglsl'
+import FRAGMENT_SHADER from './shader.frag.wglsl'
+
 import '../index.css'
-
-const VERTEX_SHADER = `
-  [[block]]
-  struct Uniforms {
-    projectionMatrix : mat4x4<f32>;
-    viewMatrix : mat4x4<f32>;
-  };
-
-  [[group(0), binding(0)]]
-  var<uniform> uniforms: Uniforms;
-
-  struct Input {
-    [[location(0)]] position: vec4<f32>;
-    [[location(1)]] uv: vec2<f32>;
-  };
-
-  struct Output {
-    [[builtin(position)]] Position: vec4<f32>;
-    [[location(0)]] uv: vec2<f32>;
-  };
-
-  [[stage(vertex)]]
-  fn main (input: Input) -> Output {
-    var output: Output;
-
-    output.Position = uniforms.projectionMatrix * uniforms.viewMatrix * input.position;
-    output.uv = input.uv;
-
-    return output;
-  }
-`
-
-const FRAGMENT_SHADER = `
-  struct Input {
-    [[location(0)]] uv: vec2<f32>;
-  };
-
-  [[stage(fragment)]]
-
-  fn main (input: Input) -> [[location(0)]] vec4<f32> {
-    return vec4<f32>(input.uv, 0.0, 1.0);
-  }
-`
-
 ;(async () => {
   const canvas = document.getElementById('gpu-c') as HTMLCanvasElement
   canvas.width = innerWidth * devicePixelRatio

@@ -1,0 +1,9 @@
+struct Input {
+  [[location(0)]] uv: vec2<f32>;
+};
+
+[[stage(fragment)]]
+
+fn main (input: Input) -> [[location(0)]] vec4<f32> {
+  return vec4<f32>(input.uv, 0.0, 1.0);
+}

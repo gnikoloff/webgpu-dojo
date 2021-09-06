@@ -1,38 +1,7 @@
 import '../index.css'
 
-const VERTEX_SHADER = `
-  struct Input {
-    [[location(0)]] position: vec4<f32>;
-    [[location(1)]] color: vec3<f32>;
-  };
-
-  struct Output {
-    [[builtin(position)]] Position : vec4<f32>;
-    [[location(0)]] vColor: vec3<f32>;
-  };
-
-  [[stage(vertex)]]
-
-  fn main (input: Input) -> Output {
-    var output: Output;
-    output.Position = input.position;
-    output.vColor = input.color;
-    return output;
-  }
-`
-
-const FRAGMENT_SHADER = `
-  struct Input {
-    [[location(0)]] vColor: vec3<f32>;
-  };
-
-  [[stage(fragment)]]
-
-  fn main (input: Input) -> [[location(0)]] vec4<f32> {
-    return vec4<f32>(input.vColor, 1.0);
-  }
-`
-
+import VERTEX_SHADER from './shader.vert.wglsl'
+import FRAGMENT_SHADER from './shader.frag.wglsl'
 ;(async () => {
   const canvas = document.getElementById('gpu-c') as HTMLCanvasElement
   canvas.width = innerWidth * devicePixelRatio
