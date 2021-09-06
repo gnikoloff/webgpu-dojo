@@ -1,3 +1,5 @@
+import { OrthographicCamera, Transform } from '../../lib/hwoa-rang-gl'
+
 import '../index.css'
 
 import VERTEX_SHADER from './shader.vert.wglsl'
@@ -14,7 +16,6 @@ import FRAGMENT_SHADER from './shader.frag.wglsl'
   const context = canvas.getContext('webgpu')
 
   const presentationFormat = context.getPreferredFormat(adapter)
-
   const primitiveType = 'triangle-list'
 
   context.configure({
@@ -22,8 +23,25 @@ import FRAGMENT_SHADER from './shader.frag.wglsl'
     format: presentationFormat,
   })
 
-  const triangleWidth = 1
-  const triangleHeight = 1
+  const orthoCamera = new OrthographicCamera(
+    0,
+    canvas.width,
+    canvas.height,
+    0,
+    0.1,
+    3,
+  )
+  orthoCamera.setPosition({ x: 0, y: 0, z: 2 })
+  orthoCamera.lookAt([0, 0, 0])
+  orthoCamera.updateProjectionMatrix()
+  orthoCamera.updateViewMatrix()
+
+  const quadTransform = new Transform()
+    .setPosition({ x: canvas.width / 2, y: canvas.height / 2, z: 0 })
+    .updateModelMatrix()
+
+  const triangleWidth = 400
+  const triangleHeight = 400
   // prettier-ignore
   const vertices = new Float32Array([
     0.0, triangleHeight / 2,
@@ -97,6 +115,44 @@ import FRAGMENT_SHADER from './shader.frag.wglsl'
       stripIndexFormat: undefined,
     },
   })
+
+  const vertexUniformBuffer = device.createBuffer({
+    size: 16 * 3 * Float32Array.BYTES_PER_ELEMENT,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  })
+
+  const uniformBindGroup = device.createBindGroup({
+    layout: pipeline.getBindGroupLayout(0),
+    entries: [
+      {
+        binding: 0,
+        resource: {
+          buffer: vertexUniformBuffer,
+          offset: 0,
+          size: 16 * 3 * Float32Array.BYTES_PER_ELEMENT,
+        },
+      },
+    ],
+  })
+
+  device.queue.writeBuffer(
+    vertexUniformBuffer,
+    0,
+    orthoCamera.projectionMatrix as ArrayBuffer,
+  )
+
+  device.queue.writeBuffer(
+    vertexUniformBuffer,
+    16 * Float32Array.BYTES_PER_ELEMENT,
+    orthoCamera.viewMatrix as ArrayBuffer,
+  )
+
+  device.queue.writeBuffer(
+    vertexUniformBuffer,
+    16 * 2 * Float32Array.BYTES_PER_ELEMENT,
+    quadTransform.modelMatrix as ArrayBuffer,
+  )
+
   const commandEncoder = device.createCommandEncoder()
   const textureView = context.getCurrentTexture().createView()
   const renderPass = commandEncoder.beginRenderPass({
@@ -111,6 +167,7 @@ import FRAGMENT_SHADER from './shader.frag.wglsl'
   renderPass.setPipeline(pipeline)
   renderPass.setVertexBuffer(0, vertexBuffer)
   renderPass.setVertexBuffer(1, colorsBuffer)
+  renderPass.setBindGroup(0, uniformBindGroup)
   renderPass.draw(3)
   renderPass.endPass()
 

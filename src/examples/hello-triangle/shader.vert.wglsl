@@ -1,3 +1,13 @@
+[[block]]
+struct Transform {
+  projectionMatrix: mat4x4<f32>;
+  viewMatrix: mat4x4<f32>;
+  modelMatrix: mat4x4<f32>;
+};
+
+[[group(0), binding(0)]]
+var <uniform> transforms: Transform;
+
 struct Input {
   [[location(0)]] position: vec4<f32>;
   [[location(1)]] color: vec3<f32>;
@@ -12,7 +22,12 @@ struct Output {
 
 fn main (input: Input) -> Output {
   var output: Output;
-  output.Position = input.position;
+  
+  output.Position = transforms.projectionMatrix *
+                    transforms.viewMatrix *
+                    transforms.modelMatrix *
+                    input.position;
+
   output.vColor = input.color;
   return output;
 }
