@@ -2,6 +2,7 @@ import {
   PerspectiveCamera,
   GeometryUtils,
   CameraController,
+  Transform,
 } from '../../lib/hwoa-rang-gl'
 
 import VERTEX_SHADER from './shader.vert.wglsl'
@@ -135,7 +136,7 @@ import '../index.css'
   })
 
   const vertexUniformBuffer = device.createBuffer({
-    size: (16 + 16) * Float32Array.BYTES_PER_ELEMENT,
+    size: 16 * 3 * Float32Array.BYTES_PER_ELEMENT,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   })
 
@@ -147,7 +148,7 @@ import '../index.css'
         resource: {
           buffer: vertexUniformBuffer,
           offset: 0,
-          size: (16 + 16) * Float32Array.BYTES_PER_ELEMENT,
+          size: 16 * 3 * Float32Array.BYTES_PER_ELEMENT,
         },
       },
       {
@@ -167,12 +168,14 @@ import '../index.css'
     0.1,
     100,
   )
-  perspCamera.setPosition({ x: 2, y: 0, z: 3 })
+  perspCamera.setPosition({ x: 2, y: 2, z: 3 })
   perspCamera.lookAt([0, 0, 0])
   perspCamera.updateProjectionMatrix()
   perspCamera.updateViewMatrix()
 
   new CameraController(perspCamera)
+
+  const cubeTransform = new Transform()
 
   const textureDepth = device.createTexture({
     size: [canvas.width, canvas.height, 1],
@@ -184,8 +187,13 @@ import '../index.css'
 
   requestAnimationFrame(drawFrame)
 
-  function drawFrame() {
+  function drawFrame(ts) {
     requestAnimationFrame(drawFrame)
+
+    ts /= 1000
+
+    const speed = ts * 0.2
+    cubeTransform.setRotation({ y: speed }).updateModelMatrix()
 
     textureView = context.getCurrentTexture().createView()
 
@@ -216,6 +224,17 @@ import '../index.css'
       16 * Float32Array.BYTES_PER_ELEMENT,
       perspCamera.viewMatrix as ArrayBuffer,
     )
+    device.queue.writeBuffer(
+      vertexUniformBuffer,
+      16 * Float32Array.BYTES_PER_ELEMENT,
+      perspCamera.viewMatrix as ArrayBuffer,
+    )
+    device.queue.writeBuffer(
+      vertexUniformBuffer,
+      16 * 2 * Float32Array.BYTES_PER_ELEMENT,
+      cubeTransform.modelMatrix as ArrayBuffer,
+    )
+
     renderPass.setPipeline(pipeline)
     renderPass.setVertexBuffer(0, vertexBuffer)
     renderPass.setVertexBuffer(1, uvBuffer)
