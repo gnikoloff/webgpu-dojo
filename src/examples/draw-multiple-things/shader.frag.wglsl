@@ -1,0 +1,9 @@
+struct Input {
+  [[location(0)]] normal: vec3<f32>;
+};
+
+[[stage(fragment)]]
+
+fn main (input: Input) -> [[location(0)]] vec4<f32> {
+  return vec4<f32>(normalize(input.normal) * 0.5 + 0.5, 1.0);
+}
