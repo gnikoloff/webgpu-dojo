@@ -21,7 +21,10 @@ const plugins = [
     'process.env.NODE_ENV': JSON.stringify('production'),
   }),
   commonjs(),
-  nodeResolve(),
+  nodeResolve({
+    browser: true,
+    main: true,
+  }),
   typescript({
     useTsconfigDeclarationDir: true,
     // declarationDir: 'dist/src',
