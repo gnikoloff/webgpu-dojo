@@ -9,20 +9,23 @@
 
     <main class="page-content" aria-label="Content">
       <div class="wrapper">
-        <ul class="examples-wrapper">
-          {% for example in site.data.EXAMPLES_DEFINITIONS %}
-            <li class="example-link">
-              <a href="{{ example.id }}">
-                <img
-                  class="example-thumb"
-                  src="{{ site.baseurl }}/assets/images/{{ example.id }}.png"
-                  alt="Preview render thumbnail for {{ example.title }}"
-                />
-                <h4>{{ example.title }}</h4>
-              </a>
-            </li>
+          {% for section in site.data.EXAMPLES_DEFINITIONS %}
+            <h3>{{ section.title }}</h3>
+            <ul class="examples-wrapper">
+              {% for example in section.entries %}
+                <li class="example-link">
+                  <a href="{{ example.id }}">
+                    <img
+                      class="example-thumb"
+                      src="{{ site.baseurl }}/assets/images/{{ example.id }}.png"
+                      alt="Preview render thumbnail for {{ example.title }}"
+                    />
+                    <h4>{{ example.title }}</h4>
+                  </a>
+                </li>
+              {% endfor %}
+            </ul>  
           {% endfor %}
-          </ul>  
       </div>
     </main>
 

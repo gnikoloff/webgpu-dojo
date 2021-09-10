@@ -71,9 +71,11 @@ export default [
       }),
     ],
   },
-  ...EXAMPLES_DEFINITIONS.map(({ id }) => ({
-    input: `src/examples/${id}/index.ts`,
-    output: [{ file: `docs/dist/${id}/bundle.js`, format: 'iife' }],
-    plugins,
-  })),
+  ...EXAMPLES_DEFINITIONS.map(({ entries }) => entries)
+    .flat()
+    .map(({ id }) => ({
+      input: `src/examples/${id}/index.ts`,
+      output: [{ file: `docs/dist/${id}/bundle.js`, format: 'iife' }],
+      plugins,
+    })),
 ]

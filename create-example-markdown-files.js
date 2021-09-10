@@ -2,10 +2,12 @@ const EXAMPLES_DEFINITIONS = require('./EXAMPLES_DEFINITIONS.json')
 
 const fs = require('fs')
 
-EXAMPLES_DEFINITIONS.map(({ id, title, description = '' }, i, self) => {
-  fs.writeFile(
-    `docs/${id}.markdown`,
-    `
+EXAMPLES_DEFINITIONS.map(({ entries }) => entries)
+  .flat()
+  .forEach(({ id, title, description = '' }, i, self) => {
+    fs.writeFile(
+      `docs/${id}.markdown`,
+      `
 ---
 layout: post
 id: '${id}'
@@ -17,6 +19,6 @@ nextDemoId: '${(self[i + 1] || self[0]).id}'
 nextDemoTitle: '${(self[i + 1] || self[0]).title}'
 ---
 `.trim(),
-    () => {},
-  )
-})
+      () => {},
+    )
+  })
