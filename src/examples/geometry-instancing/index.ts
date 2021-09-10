@@ -2,7 +2,6 @@ import { mat4, vec3 } from 'gl-matrix'
 import {
   PerspectiveCamera,
   GeometryUtils,
-  CameraController,
   Transform,
 } from '../../lib/hwoa-rang-gl'
 
@@ -217,8 +216,6 @@ const NUM_INSTANCES = COUNT_X * COUNT_Y
   perspCamera.updateProjectionMatrix()
   perspCamera.updateViewMatrix()
 
-  new CameraController(perspCamera)
-
   const cubeTransform = new Transform()
 
   const textureDepth = device.createTexture({
@@ -235,21 +232,27 @@ const NUM_INSTANCES = COUNT_X * COUNT_Y
     usage: GPUTextureUsage.RENDER_ATTACHMENT,
   })
   let textureView = renderTexture.createView()
-  // let textureView
 
   const mousePos = new Float32Array([0, 0])
   const mousePosTarget = new Float32Array([0, 0])
 
+  let clickFactor = 0
+  let clickFactorTarget = clickFactor
   let oldTime = 0
 
   requestAnimationFrame(drawFrame)
   document.body.addEventListener('mousemove', onMouseMove)
+  canvas.addEventListener('click', onMouseClick)
 
   function onMouseMove(e) {
     const x = ((e.pageX / innerWidth) * 2 - 1) * WORLD_SIZE_X
     const y = ((1 - e.pageY / innerHeight) * 2 - 1) * WORLD_SIZE_Y
     mousePosTarget[0] = x
     mousePosTarget[1] = y
+  }
+
+  function onMouseClick() {
+    clickFactorTarget++
   }
 
   function drawFrame(ts) {
@@ -259,6 +262,11 @@ const NUM_INSTANCES = COUNT_X * COUNT_Y
 
     const dt = ts - oldTime
     oldTime = ts
+
+    const clickMoveSpeed = dt * 5
+
+    clickFactorTarget += -clickFactorTarget * clickMoveSpeed
+    clickFactor += (clickFactorTarget - clickFactor) * clickMoveSpeed
 
     const commandEncoder = device.createCommandEncoder()
     const renderPass = commandEncoder.beginRenderPass({
@@ -302,9 +310,18 @@ const NUM_INSTANCES = COUNT_X * COUNT_Y
     const deltaY = WORLD_SIZE_Y / COUNT_Y
     for (let x = 0; x < COUNT_X; x++) {
       for (let y = 0; y < COUNT_Y; y++) {
-        const worldX = x * deltaX - WORLD_SIZE_X / 2 + 0.5
-        const worldY = y * deltaY - WORLD_SIZE_Y / 2 + 0.5
-        const worldXYZ = vec3.fromValues(worldX, worldY, 0)
+        const offsetX = Math.cos(n) * 2
+        const offsetY = Math.sin(n) * 2
+        const offsetZ = Math.sin(n * 2) * n
+        const worldX =
+          x * deltaX - WORLD_SIZE_X / 2 + 0.5 + offsetX * clickFactor
+        const worldY =
+          y * deltaY - WORLD_SIZE_Y / 2 + 0.5 + offsetY * clickFactor
+        const mixX = worldX + (offsetX - worldX) * clickFactor
+        const mixY = worldY + (offsetY - worldY) * clickFactor
+        const mixZ = offsetZ * clickFactor
+
+        const worldXYZ = vec3.fromValues(mixX, mixY, mixZ)
         mat4.identity(tempEyeTransformMatrix)
         mat4.translate(tempEyeTransformMatrix, tempEyeTransformMatrix, worldXYZ)
         mat4.targetTo(
