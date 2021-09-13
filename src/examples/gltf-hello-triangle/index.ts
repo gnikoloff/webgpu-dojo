@@ -51,7 +51,8 @@ const SAMPLE_COUNT = 4
   const indexBuffer = device.createBuffer({
     // indices.bytLength takes up 6 bytes, but we need it to be 8 bytes aligned
     // thats why we need to add 2 bytes extra padding - Uint16Array.BYTES_PER_ELEMENT
-    size: indices.byteLength + Uint16Array.BYTES_PER_ELEMENT,
+    // round it up to the nearest higher value of 8
+    size: Math.ceil(indices.byteLength / 8) * 8,
     usage: GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST,
     mappedAtCreation: true,
   })
