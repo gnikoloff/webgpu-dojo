@@ -1,0 +1,20 @@
+[[block]]
+struct Material {
+  color: vec3<f32>;
+};
+
+[[group(2), binding(0)]]
+var <uniform> material: Material;
+
+struct Input {
+  [[location(0)]] normal: vec3<f32>;
+};
+
+[[stage(fragment)]]
+
+fn main (input: Input) -> [[location(0)]] vec4<f32> {
+  return vec4<f32>(
+    (normalize(input.normal) * 0.5 + 0.5) * material.color,
+    1.0
+  );
+}

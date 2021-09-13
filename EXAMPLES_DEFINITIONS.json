@@ -16,6 +16,10 @@
         "title": "Draw Multiple Things"
       },
       {
+        "id": "scene-graph",
+        "title": "Scene Graph"
+      },
+      {
         "id": "textured-cube",
         "title": "Textured Cube",
         "description": "Use the mouse to rotate / pan / zoom the camera. Shows multisampled rendering via a textured cube."
@@ -32,7 +36,7 @@
       {
         "id": "gltf-hello-triangle",
         "title": "Hello glTF Triangle",
-        "description": "Parse the simplest glTF containing a single triangle with positions and indices."
+        "description": "Load and parse the simplest glTF containing a single triangle with positions and indices."
       },
       {
         "id": "gltf-two-cyllinder-engine",
