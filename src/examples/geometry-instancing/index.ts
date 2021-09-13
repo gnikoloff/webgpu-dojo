@@ -210,6 +210,10 @@ const NUM_INSTANCES = COUNT_X * COUNT_Y
   const cameraFOV = (45 * Math.PI) / 180
   const cameraAspect = canvas.width / canvas.height
   const cameraPosZ = 7
+
+  const cameraFrustumHeight = 2 * Math.tan(cameraFOV / 2) * cameraPosZ // visible height
+  const cameraFrustumWidth = cameraFrustumHeight * (innerWidth / innerHeight)
+
   const perspCamera = new PerspectiveCamera(cameraFOV, cameraAspect, 0.1, 100)
   perspCamera.setPosition({ x: 0, y: 0, z: cameraPosZ })
   perspCamera.lookAt([0, 0, 0])
@@ -245,8 +249,8 @@ const NUM_INSTANCES = COUNT_X * COUNT_Y
   canvas.addEventListener('click', onMouseClick)
 
   function onMouseMove(e) {
-    const x = ((e.pageX / innerWidth) * 2 - 1) * WORLD_SIZE_X
-    const y = ((1 - e.pageY / innerHeight) * 2 - 1) * WORLD_SIZE_Y
+    const x = ((e.pageX / innerWidth) * 2 - 1) * cameraFrustumWidth * 0.5
+    const y = ((1 - e.pageY / innerHeight) * 2 - 1) * cameraFrustumHeight * 0.5
     mousePosTarget[0] = x
     mousePosTarget[1] = y
   }
