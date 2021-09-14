@@ -1,0 +1,14 @@
+struct Input {
+  [[location(0)]] uv: vec2<f32>;
+};
+
+[[group(2), binding(0)]] var mySampler: sampler;
+[[group(2), binding(1)]] var myTexture: texture_2d<f32>;
+
+[[stage(fragment)]]
+
+fn main (input: Input) -> [[location(0)]] vec4<f32> {
+  let result: vec4<f32> = textureSample(myTexture, mySampler, input.uv);
+  let resultInverted: vec4<f32> = vec4<f32>(vec3<f32>(1.0) - result.rgb, 1.0);
+  return mix(result, resultInverted, 0.0);
+}
