@@ -2333,11 +2333,29 @@
         }
     }
 
+    const testForWebGPUSupport = () => __awaiter(void 0, void 0, void 0, function* () {
+        var _a;
+        const adapter = yield ((_a = navigator.gpu) === null || _a === void 0 ? void 0 : _a.requestAdapter());
+        if (!adapter) {
+            document.body.innerHTML += `
+      <div id="no-webgpu-wrapper">
+        <div id="no-webgpu">
+          WebGPU is available for now in Chrome Canary on desktop behind an experimental flag. You can enable it at <code>chrome://flags/#enable-unsafe-webgpu</code>.
+          <br />
+          <br />
+          The API is constantly changing and currently unsafe. As GPU sandboxing isn't implemented yet for the WebGPU API, it is possible to read GPU data for other processes! Don't browse the web with it enabled.
+        </div>
+      </div>
+    `;
+        }
+    });
+
     var VERTEX_SHADER = "\n[[block]]\nstruct Camera {\n  projectionMatrix: mat4x4<f32>;\n  viewMatrix: mat4x4<f32>;\n};\n\n[[group(0), binding(0)]]\nvar<uniform> camera: Camera;\n\n[[block]]\nstruct Transform {\n  modelMatrix: mat4x4<f32>;\n};\n\n[[group(1), binding(0)]]\nvar <uniform> transform: Transform;\n\nstruct Input {\n  [[location(0)]] position: vec4<f32>;\n  [[location(1)]] normal: vec3<f32>;\n  [[location(2)]] uv: vec2<f32>;\n};\n\nstruct Output {\n  [[builtin(position)]] Position: vec4<f32>;\n  [[location(0)]] normal: vec3<f32>;\n};\n\n[[stage(vertex)]]\nfn main (input: Input) -> Output {\n  var output: Output;\n\n  output.Position = camera.projectionMatrix *\n                    camera.viewMatrix *\n                    transform.modelMatrix *\n                    input.position;\n                    \n  output.normal = input.normal;\n\n  return output;\n}\n"; // eslint-disable-line
 
     var FRAGMENT_SHADER = "\n[[block]]\nstruct Material {\n  color: vec3<f32>;\n};\n\n[[group(2), binding(0)]]\nvar <uniform> material: Material;\n\nstruct Input {\n  [[location(0)]] normal: vec3<f32>;\n};\n\n[[stage(fragment)]]\n\nfn main (input: Input) -> [[location(0)]] vec4<f32> {\n  return vec4<f32>(\n    (normalize(input.normal) * 0.5 + 0.5) * material.color,\n    1.0\n  );\n}\n"; // eslint-disable-line
 
     const SAMPLE_COUNT = 4;
+    testForWebGPUSupport();
     class RenderNode extends Node {
         constructor(device, pipeline, geometry) {
             super();

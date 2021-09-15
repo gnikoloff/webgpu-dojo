@@ -4,6 +4,7 @@ import {
   GeometryUtils,
   Transform,
 } from '../../lib/hwoa-rang-gl'
+import { testForWebGPUSupport } from '../shared/test-for-webgpu-support'
 
 import VERTEX_SHADER from './shader.vert.wglsl'
 import FRAGMENT_SHADER from './shader.frag.wglsl'
@@ -18,6 +19,7 @@ const WORLD_SIZE_X = 5
 const WORLD_SIZE_Y = 5
 const NUM_INSTANCES = COUNT_X * COUNT_Y
 
+testForWebGPUSupport()
 ;(async () => {
   const canvas = document.getElementById('gpu-c') as HTMLCanvasElement
   canvas.width = innerWidth * devicePixelRatio

@@ -6,6 +6,8 @@ import {
 
 import { Node } from '../../shared/node'
 
+import { testForWebGPUSupport } from '../shared/test-for-webgpu-support'
+
 import VERTEX_SHADER from './shader.vert.wglsl'
 import FRAGMENT_SHADER from './shader.frag.wglsl'
 
@@ -13,6 +15,7 @@ import '../index.css'
 
 const SAMPLE_COUNT = 4
 
+testForWebGPUSupport()
 class RenderNode extends Node {
   device: GPUDevice = null
   indexBuffer: GPUBuffer = null

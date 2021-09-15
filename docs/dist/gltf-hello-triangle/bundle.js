@@ -7059,11 +7059,29 @@ ${String.fromCharCode(dataView.getUint8(byteOffset + 3))}`;
     }
     PerspectiveCamera.UP_VECTOR = [0, 1, 0];
 
+    const testForWebGPUSupport = () => __awaiter(void 0, void 0, void 0, function* () {
+        var _a;
+        const adapter = yield ((_a = navigator.gpu) === null || _a === void 0 ? void 0 : _a.requestAdapter());
+        if (!adapter) {
+            document.body.innerHTML += `
+      <div id="no-webgpu-wrapper">
+        <div id="no-webgpu">
+          WebGPU is available for now in Chrome Canary on desktop behind an experimental flag. You can enable it at <code>chrome://flags/#enable-unsafe-webgpu</code>.
+          <br />
+          <br />
+          The API is constantly changing and currently unsafe. As GPU sandboxing isn't implemented yet for the WebGPU API, it is possible to read GPU data for other processes! Don't browse the web with it enabled.
+        </div>
+      </div>
+    `;
+        }
+    });
+
     var VERTEX_SHADER = "\n[[block]]\nstruct Transform {\n  projectionMatrix: mat4x4<f32>;\n  viewMatrix: mat4x4<f32>;\n  modelMatrix: mat4x4<f32>;\n};\n\n[[group(0), binding(0)]]\nvar<uniform> transforms: Transform;\n\nstruct Input {\n  [[location(0)]] position: vec4<f32>;\n};\n\nstruct Output {\n  [[builtin(position)]] Position: vec4<f32>;\n};\n\n[[stage(vertex)]]\nfn main (input: Input) -> Output {\n  var output: Output;\n\n  output.Position = transforms.projectionMatrix *\n                    transforms.viewMatrix *\n                    transforms.modelMatrix *\n                    input.position;\n\n  return output;\n}\n"; // eslint-disable-line
 
     var FRAGMENT_SHADER = "\n[[stage(fragment)]]\n\nfn main () -> [[location(0)]] vec4<f32> {\n  return vec4<f32>(1.0);\n}\n"; // eslint-disable-line
 
     const SAMPLE_COUNT = 4;
+    testForWebGPUSupport();
     (() => __awaiter(void 0, void 0, void 0, function* () {
         var _a;
         const gltf = yield load('/webgpu-dojo/dist/assets/Triangle.gltf', GLTFLoader);

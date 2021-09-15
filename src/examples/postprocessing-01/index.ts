@@ -12,12 +12,16 @@ import {
   generateInstanceMatrices,
 } from './helpers'
 
+import { testForWebGPUSupport } from '../shared/test-for-webgpu-support'
+
 import INSTANCED_MESH_VERTEX_SHADER from './instanced-shader.vert.wglsl'
 import INSTANCED_MESH_FRAGMENT_SHADER from './instanced-shader.frag.wglsl'
 import QUAD_VERTEX_SHADER from './quad-shader.vert.wglsl'
 import QUAD_FRAGMENT_SHADER from './quad-shader.frag.wglsl'
 
 import '../index.css'
+
+testForWebGPUSupport()
 
 const INSTANCES_COUNT = 500
 const WORLD_SIZE_X = 20

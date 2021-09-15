@@ -5,6 +5,8 @@ import {
   Transform,
 } from '../../lib/hwoa-rang-gl'
 
+import { testForWebGPUSupport } from '../shared/test-for-webgpu-support'
+
 import VERTEX_SHADER from './shader.vert.wglsl'
 import FRAGMENT_SHADER from './shader.frag.wglsl'
 
@@ -12,6 +14,7 @@ import '../index.css'
 
 const SAMPLE_COUNT = 4
 
+testForWebGPUSupport()
 ;(async () => {
   const canvas = document.getElementById('gpu-c') as HTMLCanvasElement
   canvas.width = innerWidth * devicePixelRatio

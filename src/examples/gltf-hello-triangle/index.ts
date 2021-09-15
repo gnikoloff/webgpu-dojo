@@ -3,10 +3,11 @@ import { GLTFLoader } from '@loaders.gl/gltf/dist/esm/gltf-loader'
 
 import {
   PerspectiveCamera,
-  GeometryUtils,
   CameraController,
   Transform,
 } from '../../lib/hwoa-rang-gl'
+
+import { testForWebGPUSupport } from '../shared/test-for-webgpu-support'
 
 import VERTEX_SHADER from './shader.vert.wglsl'
 import FRAGMENT_SHADER from './shader.frag.wglsl'
@@ -15,6 +16,7 @@ import '../index.css'
 
 const SAMPLE_COUNT = 4
 
+testForWebGPUSupport()
 ;(async () => {
   const gltf = await load('/webgpu-dojo/dist/assets/Triangle.gltf', GLTFLoader)
 

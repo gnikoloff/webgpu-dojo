@@ -4831,6 +4831,23 @@
         };
     };
 
+    const testForWebGPUSupport = () => __awaiter(void 0, void 0, void 0, function* () {
+        var _a;
+        const adapter = yield ((_a = navigator.gpu) === null || _a === void 0 ? void 0 : _a.requestAdapter());
+        if (!adapter) {
+            document.body.innerHTML += `
+      <div id="no-webgpu-wrapper">
+        <div id="no-webgpu">
+          WebGPU is available for now in Chrome Canary on desktop behind an experimental flag. You can enable it at <code>chrome://flags/#enable-unsafe-webgpu</code>.
+          <br />
+          <br />
+          The API is constantly changing and currently unsafe. As GPU sandboxing isn't implemented yet for the WebGPU API, it is possible to read GPU data for other processes! Don't browse the web with it enabled.
+        </div>
+      </div>
+    `;
+        }
+    });
+
     var INSTANCED_MESH_VERTEX_SHADER = "\n[[block]]\nstruct Camera {\n  projectionMatrix: mat4x4<f32>;\n  viewMatrix: mat4x4<f32>;\n};\n\n[[group(0), binding(0)]]\nvar<uniform> camera: Camera;\n\nstruct Input {\n  [[location(0)]] position: vec4<f32>;\n  [[location(1)]] normal: vec3<f32>;\n\n  [[location(2)]] instanceModelMatrix0: vec4<f32>;\n  [[location(3)]] instanceModelMatrix1: vec4<f32>;\n  [[location(4)]] instanceModelMatrix2: vec4<f32>;\n  [[location(5)]] instanceModelMatrix3: vec4<f32>;\n\n  [[location(6)]] instanceNormalMatrix0: vec4<f32>;\n  [[location(7)]] instanceNormalMatrix1: vec4<f32>;\n  [[location(8)]] instanceNormalMatrix2: vec4<f32>;\n  [[location(9)]] instanceNormalMatrix3: vec4<f32>;\n};\n\nstruct Output {\n  [[builtin(position)]] Position: vec4<f32>;\n  [[location(0)]] normal: vec4<f32>;\n};\n\n[[stage(vertex)]]\nfn main (input: Input) -> Output {\n  var output: Output;\n\n  let instanceModelMatrix: mat4x4<f32> = mat4x4<f32>(\n    input.instanceModelMatrix0,\n    input.instanceModelMatrix1,\n    input.instanceModelMatrix2,\n    input.instanceModelMatrix3\n  );\n\n  let instanceModelInverseTransposeMatrix: mat4x4<f32> = mat4x4<f32>(\n    input.instanceNormalMatrix0,\n    input.instanceNormalMatrix1,\n    input.instanceNormalMatrix2,\n    input.instanceNormalMatrix3\n  );\n\n  output.Position = camera.projectionMatrix *\n                    camera.viewMatrix *\n                    instanceModelMatrix *\n                    input.position;\n                    \n  output.normal = instanceModelInverseTransposeMatrix * vec4<f32>(input.normal, 0.0);\n\n  return output;\n}\n"; // eslint-disable-line
 
     var INSTANCED_MESH_FRAGMENT_SHADER = "\n[[block]]\nstruct Lighting {\n  position: vec3<f32>;\n};\n\n[[group(1), binding(0)]]\nvar <uniform> lighting: Lighting;\n\n[[block]]\nstruct Material {\n  baseColor: vec3<f32>;\n};\n\n[[group(2), binding(0)]]\nvar <uniform> material: Material;\n\nstruct Input {\n  [[location(0)]] normal: vec4<f32>;\n};\n\n[[stage(fragment)]]\n\nfn main (input: Input) -> [[location(0)]] vec4<f32> {\n  let lightDirection: vec3<f32> = normalize(lighting.position);\n  \n  let normal: vec3<f32> = normalize(input.normal.rgb);\n  let light: f32 = dot(normal, lightDirection);\n  \n  let baseColor: vec3<f32> = vec3<f32>(0.1, 0.2, 0.8);\n\n  return vec4<f32>(material.baseColor * light, 1.0);\n}\n"; // eslint-disable-line
@@ -4839,6 +4856,7 @@
 
     var QUAD_FRAGMENT_SHADER = "\nstruct Input {\n  [[location(0)]] uv: vec2<f32>;\n};\n\n[[group(2), binding(0)]] var mySampler: sampler;\n[[group(2), binding(1)]] var postFX0Texture: texture_2d<f32>;\n[[group(2), binding(2)]] var postFX1Texture: texture_2d<f32>;\n[[group(2), binding(3)]] var cutOffTexture: texture_2d<f32>;\n\n[[block]]\nstruct Tween {\n  factor: f32;\n};\n\n[[group(3), binding(0)]]\nvar <uniform> tween: Tween;\n\n[[stage(fragment)]]\n\nfn main (input: Input) -> [[location(0)]] vec4<f32> {\n  let result0: vec4<f32> = textureSample(postFX0Texture, mySampler, input.uv);\n  let result1: vec4<f32> = textureSample(postFX1Texture, mySampler, input.uv);\n\n  let cutoffResult: vec4<f32> = textureSample(cutOffTexture, mySampler, input.uv);\n\n  let mixFactor: f32 = step(tween.factor * 1.05, cutoffResult.r);\n\n  return mix(result0, result1, mixFactor);\n}\n"; // eslint-disable-line
 
+    testForWebGPUSupport();
     const INSTANCES_COUNT = 500;
     const WORLD_SIZE_X = 20;
     const WORLD_SIZE_Y = 20;
