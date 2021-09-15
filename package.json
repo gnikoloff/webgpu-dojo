@@ -32,6 +32,7 @@
     "@rollup/plugin-strip": "^2.0.1",
     "@webgpu/glslang": "0.0.15",
     "compression": "^1.7.4",
+    "dat.gui": "^0.7.7",
     "express": "^4.17.1",
     "gl-matrix": "^3.3.0",
     "rollup": "^2.51.2",
