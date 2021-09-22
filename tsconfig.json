@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "module": "ES6",
-    "target": "ES6",
+    "module": "esnext",
+    "target": "es6",
     "allowJs": true,
     "outDir": "dist",
     "strict": true,
@@ -14,9 +14,9 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "typeRoots": [
+      "node",
       "./node_modules/@webgpu/types",
-      "./src/types.d.ts",
-      "./npm_modules/@types/"
+      "src/lib/hwoa-rang-gpu/dist/@types"
     ]
   },
   "include": [

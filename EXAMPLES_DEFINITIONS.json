@@ -37,6 +37,25 @@
         "id": "gltf-hello-triangle",
         "title": "Hello glTF Triangle",
         "description": "Load and parse the simplest glTF containing a single triangle with positions and indices."
+      },
+      {
+        "id": "gltf-buggy",
+        "title": "glTF Buggy"
+      }
+    ]
+  },
+  {
+    "title": "Materials",
+    "entries": [
+      {
+        "id": "phong-material",
+        "title": "Blinn-Phong Material",
+        "description": [
+          "Implement Blinn-Phong reflection model from scratch with hwoa-rang-gpu",
+          "- <a href=\"http://multivis.net/lecture/phong.html\">http://multivis.net/lecture/phong.html</a>",
+          "- <a href=\"https://threejs.org/docs/#api/materials/MeshPhongMaterial\">https://threejs.org/docs/#api/materials/MeshPhongMaterial</a>",
+          "- <a href=\"https://en.wikipedia.org/wiki/Blinn%E2%80%93Phong_shading_model\">https://en.wikipedia.org/wiki/Blinn%E2%80%93Phong_shading_model</a>"
+        ]
       }
     ]
   },
