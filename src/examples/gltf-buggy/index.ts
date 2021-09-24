@@ -65,7 +65,7 @@ const SAMPLE_COUNT = 4
   perspCamera.updateProjectionMatrix()
   perspCamera.updateViewMatrix()
 
-  const ctrl = new CameraController(perspCamera)
+  const ctrl = new CameraController(perspCamera, document.body, false, 0.1)
   ctrl.lookAt([0, 0.5, 0])
 
   const textureDepth = device.createTexture({
@@ -109,19 +109,15 @@ const SAMPLE_COUNT = 4
       },
     })
 
-    renderSceneGraph(rootNode, renderPass, perspCamera)
+    rootNode.traverseGraph((node) => {
+      if (node.renderable) {
+        node.render(renderPass, perspCamera)
+      }
+    })
 
     renderPass.endPass()
 
     device.queue.submit([commandEncoder.finish()])
-  }
-
-  function renderSceneGraph(node, commandEncoder, camera) {
-    if (node instanceof Mesh) {
-      node.render(commandEncoder, camera)
-    }
-    const children = node.nodes || node.children
-    children.forEach((node) => renderSceneGraph(node, commandEncoder, camera))
   }
 
   function traverseSceneGraph(currentNode, parentNode = null) {

@@ -2,9 +2,8 @@ import {
   PerspectiveCamera,
   GeometryUtils,
   CameraController,
+  SceneObject,
 } from '../../lib/hwoa-rang-gl'
-
-import { Node } from '../../shared/node'
 
 import { testForWebGPUSupport } from '../shared/test-for-webgpu-support'
 
@@ -16,7 +15,7 @@ import '../index.css'
 const SAMPLE_COUNT = 4
 
 testForWebGPUSupport()
-class RenderNode extends Node {
+class RenderNode extends SceneObject {
   device: GPUDevice = null
   indexBuffer: GPUBuffer = null
   indices: Uint16Array | Uint32Array = null
@@ -228,34 +227,34 @@ class RenderNode extends Node {
 
   const sphereGeometry = GeometryUtils.createSphere({ radius: 1 })
 
-  const sunNodeOrbit = new Node()
+  const sunNodeOrbit = new SceneObject()
   const sunNode = new RenderNode(device, pipeline, sphereGeometry)
   sunNode.setParent(sunNodeOrbit)
 
-  const earthOrbitNode = new Node()
+  const earthOrbitNode = new SceneObject()
   earthOrbitNode.setParent(sunNodeOrbit)
 
   const earthNode = new RenderNode(device, pipeline, sphereGeometry)
   earthNode.setParent(earthOrbitNode)
 
-  const moonOrbitNode = new Node()
+  const moonOrbitNode = new SceneObject()
   moonOrbitNode.setParent(earthOrbitNode)
 
   const moonNode = new RenderNode(device, pipeline, sphereGeometry)
   moonNode.setParent(moonOrbitNode)
 
-  const moonSatelliteOrbitNode = new Node()
+  const moonSatelliteOrbitNode = new SceneObject()
   moonSatelliteOrbitNode.setParent(moonOrbitNode)
 
   const moonSatelliteNode = new RenderNode(device, pipeline, sphereGeometry)
   moonSatelliteNode.setParent(moonSatelliteOrbitNode)
 
-  const satellite0OrbitNode = new Node()
+  const satellite0OrbitNode = new SceneObject()
   satellite0OrbitNode.setParent(sunNodeOrbit)
   const satellite0Node = new RenderNode(device, pipeline, sphereGeometry)
   satellite0Node.setParent(satellite0OrbitNode)
 
-  const satellite1OrbitNode = new Node()
+  const satellite1OrbitNode = new SceneObject()
   satellite1OrbitNode.setParent(satellite0OrbitNode)
   const satellite1Node = new RenderNode(device, pipeline, sphereGeometry)
   satellite1Node.setParent(satellite1OrbitNode)
@@ -345,20 +344,20 @@ class RenderNode extends Node {
     renderPass.setBindGroup(0, cameraUniformBindGroup)
     renderPass.setPipeline(pipeline)
 
-    sunNodeOrbit.transform
+    sunNodeOrbit
       .setPosition({ x: Math.sin(ts) * 4, y: Math.cos(ts) * 4 })
       .setRotation({ z: ts })
       .updateModelMatrix()
 
-    sunNode.transform.updateModelMatrix()
+    sunNode.updateModelMatrix()
 
-    earthOrbitNode.transform
+    earthOrbitNode
       .setPosition({ x: 14 })
       .setRotation({ z: ts * 2 })
       .updateModelMatrix()
 
     const earthScale = Math.sin(ts) * 1 + 1.5
-    earthNode.transform
+    earthNode
       .setScale({
         x: earthScale,
         y: earthScale,
@@ -366,26 +365,24 @@ class RenderNode extends Node {
       })
       .updateModelMatrix()
 
-    moonOrbitNode.transform
+    moonOrbitNode
       .setPosition({ x: 8 })
       .setRotation({ z: ts * 4 })
       .updateModelMatrix()
-    moonNode.transform.setScale({ x: 0.8, y: 0.8, z: 0.8 }).updateModelMatrix()
+    moonNode.setScale({ x: 0.8, y: 0.8, z: 0.8 }).updateModelMatrix()
 
-    moonSatelliteOrbitNode.transform
+    moonSatelliteOrbitNode
       .setPosition({ x: 2.5 })
       .setScale({ x: 0.3, y: 0.3, z: 0.3 })
       .updateModelMatrix()
 
-    satellite0OrbitNode.transform
+    satellite0OrbitNode
       .setPosition({ x: -14 })
       .setRotation({ z: ts * -3 })
       .updateModelMatrix()
-    satellite0Node.transform
-      .setScale({ x: 0.3, y: 0.3, z: 0.3 })
-      .updateModelMatrix()
+    satellite0Node.setScale({ x: 0.3, y: 0.3, z: 0.3 }).updateModelMatrix()
 
-    satellite1OrbitNode.transform.setPosition({ x: 5 }).updateModelMatrix()
+    satellite1OrbitNode.setPosition({ x: 5 }).updateModelMatrix()
 
     sunNodeOrbit.updateWorldMatrix()
 
@@ -400,3 +397,4 @@ class RenderNode extends Node {
     device.queue.submit([commandEncoder.finish()])
   }
 })()
+//

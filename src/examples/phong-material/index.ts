@@ -38,8 +38,6 @@ const LIGHT_FRAGMENT_SNIPPET = `
     specular = pow(specAngle, inputUBO.lightShininessAndPower.r);
   }
 
-  let specularColor = vec3<f32>(0.9, 0.0, 0.5);
-
   var finalLight: vec3<f32>;
 
   if (inputUBO.mode == 0) {
@@ -304,7 +302,7 @@ const OPTIONS = {
 
     fragmentShaderSnippetMain: LIGHT_FRAGMENT_SNIPPET,
   })
-  rootNode.copyFromMatrix(duckGLTF.scene.nodes[0].matrix)
+  duckMesh.copyFromMatrix(duckGLTF.scene.nodes[0].matrix)
   duckMesh.setParent(rootNode)
   const duckScale = 0.03
   duckMesh

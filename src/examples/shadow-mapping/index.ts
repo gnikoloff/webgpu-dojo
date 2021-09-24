@@ -1,190 +1,63 @@
 import { load } from '@loaders.gl/core'
 import { GLTFLoader } from '@loaders.gl/gltf/dist/esm/gltf-loader'
+import parseColor from 'color-parse'
 
 import {
-  PerspectiveCamera,
-  GeometryUtils,
   CameraController,
-  Transform,
+  PerspectiveCamera,
+  Mesh,
+  Geometry,
+  SceneObject,
+  GeometryUtils,
   OrthographicCamera,
-} from '../../lib/hwoa-rang-gl'
-
-import VERTEX_SHADER from './shader.vert.wglsl'
-import FRAGMENT_SHADER from './shader.frag.wglsl'
+} from '../../lib/hwoa-rang-gpu'
 
 import '../index.css'
-import { Node } from '../../shared/node'
 
-class RenderNode extends Node {
-  device: GPUDevice
-  pipeline: GPURenderPipeline
-  commonUniformBlockBuffer: GPUBuffer
-  commonUniformBindGroup: GPUBindGroup
-  buffers: []
+const SAMPLE_COUNT = 4
 
-  constructor(
-    device: GPUDevice,
-    geometry,
-    vertexShaderSource: string,
-    fragmentShaderSource: string,
-    presentationFormat: GPUTextureFormat = 'bgra8unorm',
-    primitiveType: GPUPrimitiveTopology = 'triangle-list',
-  ) {
-    super()
+const BLINN_PHONG_LIGHT_SNIPPET = `
+  let N: vec3<f32> = normalize(input.normal.rgb);
+  let L: vec3<f32> = normalize(inputUBO.lightPosition.xyz - input.position.xyz);
 
-    this.device = device
+  // Lambert's cosine law
+  let lambertian = max(dot(N, L), 0.0);
 
-    this.pipeline = device.createRenderPipeline({
-      vertex: {
-        module: device.createShaderModule({
-          code: vertexShaderSource,
-        }),
-        entryPoint: 'main',
-        buffers: geometry
-          .filter(
-            ({ typedArray }) =>
-              !(
-                typedArray instanceof Uint16Array ||
-                typedArray instanceof Uint32Array
-              ),
-          )
-          .map(({ format, arrayStride }, i) => ({
-            arrayStride,
-            attributes: [
-              {
-                shaderLocation: i,
-                format,
-                offset: 0,
-              },
-            ],
-          })),
-      },
-      fragment: {
-        module: device.createShaderModule({
-          code: fragmentShaderSource,
-        }),
-        entryPoint: 'main',
-        targets: [
-          {
-            format: presentationFormat,
-          },
-        ],
-      },
-      primitive: {
-        topology: primitiveType,
-        stripIndexFormat: undefined,
-      },
-      depthStencil: {
-        format: 'depth24plus',
-        depthWriteEnabled: true,
-        depthCompare: 'less',
-      },
-    })
+  var specular = 0.0;
 
-    this.commonUniformBlockBuffer = device.createBuffer({
-      size: 16 * 3 * Float32Array.BYTES_PER_ELEMENT,
-      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-    })
-
-    this.commonUniformBindGroup = device.createBindGroup({
-      layout: this.pipeline.getBindGroupLayout(0),
-      entries: [
-        {
-          binding: 0,
-          resource: {
-            buffer: this.commonUniformBlockBuffer,
-            offset: 0,
-            size: 16 * 3 * Float32Array.BYTES_PER_ELEMENT,
-          },
-        },
-      ],
-    })
-
-    this.buffers = geometry.map(({ typedArray }) => {
-      if (
-        typedArray instanceof Uint16Array ||
-        typedArray instanceof Uint32Array
-      ) {
-        const indexBuffer = device.createBuffer({
-          // indices.bytLength takes up 6 bytes, but we need it to be 8 bytes aligned
-          // thats why we need to add 2 bytes extra padding - Uint16Array.BYTES_PER_ELEMENT
-          // round it up to the nearest higher value of 8
-          size: Math.ceil(typedArray.byteLength / 8) * 8,
-          usage: GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST,
-          mappedAtCreation: true,
-        })
-        if (typedArray instanceof Uint16Array) {
-          new Uint16Array(indexBuffer.getMappedRange()).set(typedArray)
-        } else {
-          new Uint32Array(indexBuffer.getMappedRange()).set(typedArray)
-        }
-        indexBuffer.unmap()
-        return {
-          isIndices: true,
-          typedArray,
-          buffer: indexBuffer,
-        }
-      }
-      const buffer = device.createBuffer({
-        size: typedArray.byteLength,
-        usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
-        mappedAtCreation: true,
-      })
-      new Float32Array(buffer.getMappedRange()).set(typedArray)
-      buffer.unmap()
-
-      return {
-        typedArray,
-        buffer,
-      }
-    })
+  if (lambertian > 0.0) {
+    let R: vec3<f32> = reflect(-L, N);
+    let V: vec3<f32> = normalize(inputUBO.cameraPosition.xyz - input.position.xyz);
+    
+    // Compute the specular term
+    let specAngle = max(dot(R, V), 0.0);
+    
+    let lightShininess = 10.0;
+    specular = pow(specAngle, lightShininess);
   }
 
-  render(
-    renderPass: GPURenderPassEncoder,
-    camera: PerspectiveCamera | OrthographicCamera,
-  ) {
-    renderPass.setPipeline(this.pipeline)
-    this.buffers.forEach(({ typedArray, buffer }, i) => {
-      if (
-        // @ts-ignore
-        typedArray instanceof Uint16Array ||
-        // @ts-ignore
-        typedArray instanceof Uint32Array
-      ) {
-        renderPass.setIndexBuffer(
-          buffer,
-          // @ts-ignore
-          typedArray instanceof Uint16Array ? 'uint16' : 'uint32',
-        )
-      } else {
-        renderPass.setVertexBuffer(i, buffer)
-      }
-    })
+  let lightPower = 90.0;
 
-    const indices = this.buffers.find(({ isIndices }) => isIndices)
+  var finalLight = vec3<f32>(
+    // inputUBO.ambientColor.rgb +
+    vec3<f32>(0.1, 0.1, 0.1) +
+    lambertian * inputUBO.diffuseColor.rgb +
+    specular * inputUBO.specularColor.rgb
+  );
 
-    this.device.queue.writeBuffer(
-      this.commonUniformBlockBuffer,
-      0,
-      camera.projectionMatrix as ArrayBuffer,
-    )
+  // var finalLight = lambertian * inputUBO.diffuseColor.rgb; // specular * inputUBO.specularColor.rgb;
+  
+`
 
-    this.device.queue.writeBuffer(
-      this.commonUniformBlockBuffer,
-      16 * Float32Array.BYTES_PER_ELEMENT,
-      camera.viewMatrix as ArrayBuffer,
-    )
+const normalizeRGB = (rgb) => rgb.map((channel) => channel / 255)
 
-    renderPass.setBindGroup(0, this.commonUniformBindGroup)
-    // @ts-ignore
-    renderPass.drawIndexed(indices.length)
-    renderPass.endPass()
-  }
-}
-
+//
 ;(async () => {
-  const gltf = await load('/webgpu-dojo/dist/assets/Duck.gltf', GLTFLoader)
+  const gltf = await load(
+    '/webgpu-dojo/dist/assets/2CylinderEngine.gltf',
+    GLTFLoader,
+  )
+  console.log(gltf)
 
   const canvas = document.getElementById('gpu-c') as HTMLCanvasElement
   canvas.width = innerWidth * devicePixelRatio
@@ -193,206 +66,250 @@ class RenderNode extends Node {
   canvas.style.setProperty('height', `${innerHeight}px`)
 
   const adapter = await navigator.gpu?.requestAdapter()
+
   const device = await adapter?.requestDevice()
   const context = canvas.getContext('webgpu')
 
   const presentationFormat = context.getPreferredFormat(adapter)
-  console.log(presentationFormat)
 
-  const primitiveType = 'triangle-list'
+  const primitiveType: GPUPrimitiveTopology = 'triangle-list'
 
   context.configure({
     device,
     format: presentationFormat,
   })
 
-  const rootNode = new Node()
-  traverseSceneGraph(gltf.scenes[0], rootNode)
-
-  rootNode.updateWorldMatrix()
-
-  function traverseSceneGraph(currentNode, parentNode = null) {
-    // handle mesh node
-    let sceneNode
-    if (currentNode.mesh) {
-      const primitive = currentNode.mesh.primitives[0]
-
-      const geometry = [
-        {
-          typedArray: primitive.attributes.POSITION.value,
-          format: 'float32x3',
-          arrayStride: primitive.attributes.POSITION.bytesPerElement,
-        },
-        {
-          typedArray: primitive.attributes.NORMAL.value,
-          format: 'float32x3',
-          arrayStride: primitive.attributes.NORMAL.bytesPerElement,
-        },
-        {
-          typedArray: primitive.attributes.TEXCOORD_0.value,
-          format: 'float32x2',
-          arrayStride: primitive.attributes.TEXCOORD_0.bytesPerElement,
-        },
-        {
-          typedArray: primitive.indices.value,
-        },
-      ]
-      sceneNode = new RenderNode(
-        device,
-        geometry,
-        VERTEX_SHADER,
-        FRAGMENT_SHADER,
-      )
-    } else {
-      sceneNode = new Node()
-    }
-    if (currentNode.matrix) {
-      sceneNode.transform.copyFromMatrix(currentNode.matrix)
-    }
-    if (parentNode) {
-      sceneNode.setParent(parentNode)
-    }
-    const children = currentNode.nodes || currentNode.children
-    if (children && children.length) {
-      children.forEach((childNode) => {
-        traverseSceneGraph(childNode, sceneNode)
-      })
-    }
-  }
-
-  // const { vertices, indices } = GeometryUtils.createBox()
-  const vertices = gltf.accessors[1].value
-  const vertexBuffer = device.createBuffer({
-    size: vertices.byteLength,
-    usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
-    mappedAtCreation: true,
-  })
-  new Float32Array(vertexBuffer.getMappedRange()).set(vertices)
-  vertexBuffer.unmap()
-
-  const indices = gltf.accessors[0].value
-  const indexBuffer = device.createBuffer({
-    // indices.bytLength takes up 6 bytes, but we need it to be 8 bytes aligned
-    // thats why we need to add 2 bytes extra padding - Uint16Array.BYTES_PER_ELEMENT
-    // round it up to the nearest higher value of 8
-    size: Math.ceil(indices.byteLength / 8) * 8,
-    usage: GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST,
-    mappedAtCreation: true,
-  })
-  if (indices instanceof Uint16Array) {
-    new Uint16Array(indexBuffer.getMappedRange()).set(indices)
-  } else {
-    new Uint32Array(indexBuffer.getMappedRange()).set(indices)
-  }
-
-  indexBuffer.unmap()
-
-  const pipeline = device.createRenderPipeline({
-    vertex: {
-      module: device.createShaderModule({
-        code: VERTEX_SHADER,
-      }),
-      entryPoint: 'main',
-      buffers: [
-        {
-          arrayStride: 3 * Float32Array.BYTES_PER_ELEMENT,
-          attributes: [
-            {
-              shaderLocation: 0,
-              format: 'float32x3',
-              offset: 0,
-            },
-          ],
-        },
-      ],
-    },
-    fragment: {
-      module: device.createShaderModule({
-        code: FRAGMENT_SHADER,
-      }),
-      entryPoint: 'main',
-      targets: [
-        {
-          format: presentationFormat,
-        },
-      ],
-    },
-    primitive: {
-      topology: primitiveType,
-      stripIndexFormat: undefined,
-      // cullMode: 'back',
-    },
-    depthStencil: {
-      format: 'depth24plus',
-      depthWriteEnabled: true,
-      depthCompare: 'less',
-    },
-  })
-
-  const vertexUniformBuffer = device.createBuffer({
-    size: 16 * 3 * Float32Array.BYTES_PER_ELEMENT,
-    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-  })
-
-  device.createBindGroup
-
-  const uniformBindGroup = device.createBindGroup({
-    layout: pipeline.getBindGroupLayout(0),
-    entries: [
-      {
-        binding: 0,
-        resource: {
-          buffer: vertexUniformBuffer,
-          offset: 0,
-          size: 16 * 3 * Float32Array.BYTES_PER_ELEMENT,
-        },
-      },
-    ],
-  })
-
+  // cameras
   const perspCamera = new PerspectiveCamera(
     (45 * Math.PI) / 180,
     canvas.width / canvas.height,
     0.1,
-    100,
+    400,
   )
-  perspCamera.setPosition({ x: 0, y: 0, z: 3 })
+  perspCamera.setPosition({ x: 46, y: 23, z: 132 })
   perspCamera.lookAt([0, 0, 0])
   perspCamera.updateProjectionMatrix()
   perspCamera.updateViewMatrix()
 
-  new CameraController(perspCamera)
+  const cameraTypedPosition = new Float32Array(perspCamera.position)
+  const lightTypedPosition = new Float32Array([40, 20, 40, 0])
 
-  const cubeTransform = new Transform()
+  const lightCamera = new PerspectiveCamera(
+    (90 * Math.PI) / 180,
+    canvas.width / canvas.height,
+    0.1,
+    200,
+  )
+  lightCamera.setPosition({
+    x: lightTypedPosition[0],
+    y: lightTypedPosition[1],
+    z: lightTypedPosition[2],
+  })
+  lightCamera.lookAt([0, 0, 0])
+  lightCamera.updateProjectionMatrix()
+  lightCamera.updateViewMatrix()
+
+  const orthoCamera = new OrthographicCamera(
+    -canvas.width / 2,
+    canvas.width / 2,
+    canvas.height / 2,
+    -canvas.height / 2,
+    0.1,
+    3,
+  )
+  orthoCamera.setPosition({ z: 2 })
+  orthoCamera.lookAt([0, 0, 0])
+  orthoCamera.updateProjectionMatrix()
+  orthoCamera.updateViewMatrix()
+
+  const ctrl = new CameraController(perspCamera, document.body, false)
+  ctrl.lookAt([0, 0.5, 0])
+
+  const lightUniforms = {
+    diffuseColor: {
+      type: 'vec4<f32>',
+      value: new Float32Array(normalizeRGB(parseColor('#aca5cf').values)),
+    },
+    specularColor: {
+      type: 'vec4<f32>',
+      value: new Float32Array(normalizeRGB(parseColor('#be355e').values)),
+    },
+    lightPosition: {
+      type: 'vec4<f32>',
+      value: lightTypedPosition,
+    },
+    cameraPosition: {
+      type: 'vec4<f32>',
+      value: cameraTypedPosition,
+    },
+  }
+
+  const rootNode = new SceneObject()
+  const lighedMeshesRoot = new SceneObject()
+  const gltfRootNode = new SceneObject()
+
+  lighedMeshesRoot.setParent(rootNode)
+
+  gltfRootNode
+    .setScale({ x: 0.1, y: 0.1, z: 0.1 })
+    .updateModelMatrix()
+    .setParent(lighedMeshesRoot)
+
+  // glTF
+  traverseSceneGraph(gltf.scene, gltfRootNode)
+
+  // Floor
+  const floorGeometry = new Geometry(device)
+  {
+    const { vertices, indices, normal } = GeometryUtils.createPlane({
+      width: 150,
+      height: 150,
+    })
+    floorGeometry
+      .addIndex(indices)
+      .addAttribute(
+        'position',
+        vertices,
+        3 * Float32Array.BYTES_PER_ELEMENT,
+        'float32x3',
+      )
+      .addAttribute(
+        'normal',
+        normal,
+        3 * Float32Array.BYTES_PER_ELEMENT,
+        'float32x3',
+      )
+  }
+  const floorMesh = new Mesh(device, {
+    geometry: floorGeometry,
+    multisample: {
+      count: SAMPLE_COUNT,
+    },
+    uniforms: {
+      ...lightUniforms,
+    },
+    vertexShaderSnippetMain: `
+      let worldPosition: vec4<f32> = transform.modelMatrix * input.position;
+      output.Position = transform.projectionMatrix *
+                        transform.viewMatrix *
+                        worldPosition;
+
+      output.normal = transform.normalMatrix * input.normal;
+      output.position = worldPosition;
+    `,
+    fragmentShaderSnippetMain: `
+      ${BLINN_PHONG_LIGHT_SNIPPET}
+      return vec4<f32>(finalLight, 1.0);
+    `,
+  })
+  floorMesh.setRotation({ x: -Math.PI / 2 }).setPosition({ y: -23 })
+  floorMesh.setParent(lighedMeshesRoot)
+
+  // light
+  const lightGeometry = new Geometry(device)
+  {
+    const { vertices, indices } = GeometryUtils.createSphere({ radius: 3 })
+    lightGeometry
+      .addIndex(indices)
+      .addAttribute(
+        'position',
+        vertices,
+        3 * Float32Array.BYTES_PER_ELEMENT,
+        'float32x3',
+      )
+  }
+  const lightMesh = new Mesh(device, {
+    geometry: lightGeometry,
+    multisample: {
+      count: SAMPLE_COUNT,
+    },
+    vertexShaderSnippetMain: `
+      let worldPosition: vec4<f32> = transform.modelMatrix * input.position;
+      output.Position = transform.projectionMatrix *
+                        transform.viewMatrix *
+                        worldPosition;
+
+      output.position = worldPosition;
+    `,
+    fragmentShaderSnippetMain: `
+      return vec4<f32>(1.0);
+    `,
+  })
+  lightMesh.setPosition({
+    x: lightTypedPosition[0],
+    y: lightTypedPosition[1],
+    z: lightTypedPosition[2],
+  })
+  lightMesh.setParent(rootNode)
+
+  const duckScale = 0.1
+  rootNode
+    // .setPosition({ x: -0.5, y: -0.1 })
+    // .setScale({ x: duckScale, y: duckScale, z: duckScale })
+    // .setRotation({ y: -Math.PI })
+    .updateModelMatrix()
+
+  rootNode.updateWorldMatrix()
+
+  // debug mesh
+  const debugPlaneGeometry = new Geometry(device)
+  const debugPlaneWidth = innerWidth * 0.2
+  const debugPlaneHeight = innerHeight * 0.2
+  const debugPlanePadding = 24
+  {
+    const { vertices, uv, indices } = GeometryUtils.createPlane({
+      width: debugPlaneWidth,
+      height: debugPlaneHeight,
+    })
+    debugPlaneGeometry
+      .addIndex(indices)
+      .addAttribute(
+        'position',
+        vertices,
+        3 * Float32Array.BYTES_PER_ELEMENT,
+        'float32x3',
+      )
+      .addAttribute('uv', uv, 2 * Float32Array.BYTES_PER_ELEMENT, 'float32x2')
+  }
+  const debugPlaneMesh = new Mesh(device, {
+    geometry: debugPlaneGeometry,
+    multisample: {
+      count: SAMPLE_COUNT,
+    },
+    vertexShaderSnippetMain: `
+      let worldPosition: vec4<f32> = transform.modelMatrix * input.position;
+      output.Position = transform.projectionMatrix *
+                        transform.viewMatrix *
+                        worldPosition;
+
+      output.position = worldPosition;
+      output.uv = input.uv;
+    `,
+    fragmentShaderSnippetMain: `
+      return vec4<f32>(input.uv, 0.0, 1.0);
+    `,
+  })
+    .setPosition({
+      x: -innerWidth / 2 + debugPlaneWidth / 2 + debugPlanePadding,
+      y: -innerHeight / 2 + debugPlaneHeight / 2 + debugPlanePadding,
+    })
+    .setRotation({ x: Math.PI })
+    .updateModelMatrix()
 
   const textureDepth = device.createTexture({
     size: [canvas.width, canvas.height, 1],
+    sampleCount: SAMPLE_COUNT,
     format: 'depth24plus',
     usage: GPUTextureUsage.RENDER_ATTACHMENT,
   })
 
   const renderTexture = device.createTexture({
     size: [canvas.width, canvas.height],
+    sampleCount: SAMPLE_COUNT,
     format: presentationFormat,
     usage: GPUTextureUsage.RENDER_ATTACHMENT,
   })
-  let textureView = renderTexture.createView()
-  // let textureView
-
-  // debugger
-
-  cubeTransform
-    .setPosition({
-      x: -gltf.accessors[0].max[0] / 4,
-      y: -gltf.accessors[0].max[0] / 4,
-    })
-    .updateModelMatrix()
-
-  device.queue.writeBuffer(
-    vertexUniformBuffer,
-    16 * 2 * Float32Array.BYTES_PER_ELEMENT,
-    cubeTransform.modelMatrix as ArrayBuffer,
-  )
+  let renderTextureView = renderTexture.createView()
 
   requestAnimationFrame(drawFrame)
 
@@ -405,8 +322,8 @@ class RenderNode extends Node {
     const renderPass = commandEncoder.beginRenderPass({
       colorAttachments: [
         {
-          view: textureView,
-          // resolveTarget: context.getCurrentTexture().createView(),
+          view: renderTextureView,
+          resolveTarget: context.getCurrentTexture().createView(),
           loadValue: [0.1, 0.1, 0.1, 1.0],
           storeOp: 'store',
         },
@@ -419,26 +336,147 @@ class RenderNode extends Node {
         stencilStoreOp: 'store',
       },
     })
-    device.queue.writeBuffer(
-      vertexUniformBuffer,
-      0,
-      perspCamera.projectionMatrix as ArrayBuffer,
-    )
-    device.queue.writeBuffer(
-      vertexUniformBuffer,
-      16 * Float32Array.BYTES_PER_ELEMENT,
-      perspCamera.viewMatrix as ArrayBuffer,
-    )
 
-    renderPass.setPipeline(pipeline)
-    renderPass.setVertexBuffer(0, vertexBuffer)
-    renderPass.setIndexBuffer(
-      indexBuffer,
-      indices instanceof Uint16Array ? 'uint16' : 'uint32',
-    )
-    renderPass.setBindGroup(0, uniformBindGroup)
-    renderPass.drawIndexed(indices.length)
+    lightTypedPosition[0] = Math.cos(ts) * 60
+    lightTypedPosition[2] = Math.sin(ts) * 60
+
+    lightMesh.setPosition({
+      x: lightTypedPosition[0],
+      z: lightTypedPosition[2],
+    })
+
+    cameraTypedPosition[0] = perspCamera.position[0]
+    cameraTypedPosition[1] = perspCamera.position[1]
+    cameraTypedPosition[2] = perspCamera.position[2]
+
+    rootNode.traverseGraph((node) => {
+      if (node.renderable) {
+        node.render(renderPass, perspCamera)
+      }
+    })
+
+    lighedMeshesRoot.traverseGraph((node) => {
+      if (node.renderable) {
+        node
+          .setUniform('lightPosition', lightTypedPosition)
+          .setUniform('cameraPosition', cameraTypedPosition)
+      }
+    })
+
+    debugPlaneMesh.render(renderPass, orthoCamera)
+
     renderPass.endPass()
+
     device.queue.submit([commandEncoder.finish()])
+  }
+
+  function traverseSceneGraph(currentNode, parentNode = null) {
+    // handle mesh node
+    let sceneNode = new SceneObject()
+    if (currentNode.mesh) {
+      currentNode.mesh.primitives.map((primitive) => {
+        const geometry = new Geometry(device)
+
+        if (primitive.attributes.POSITION) {
+          geometry.addAttribute(
+            'position',
+            primitive.attributes.POSITION.value,
+            primitive.attributes.POSITION.bytesPerElement,
+            'float32x3',
+          )
+        }
+
+        if (primitive.attributes.NORMAL) {
+          geometry.addAttribute(
+            'normal',
+            primitive.attributes.NORMAL.value,
+            primitive.attributes.NORMAL.bytesPerElement,
+            'float32x3',
+          )
+        }
+        if (primitive.attributes.TEXCOORD_0) {
+          geometry.addAttribute(
+            'uv',
+            primitive.attributes.TEXCOORD_0.value,
+            primitive.attributes.TEXCOORD_0.bytesPerElement,
+            'float32x2',
+          )
+        }
+
+        geometry.addIndex(primitive.indices.value)
+
+        const {
+          material: {
+            pbrMetallicRoughness: { baseColorFactor },
+          },
+        } = currentNode.mesh.primitives[0]
+
+        const mesh = new Mesh(device, {
+          geometry,
+          uniforms: {
+            ...lightUniforms,
+            baseColor: {
+              type: 'vec4<f32>',
+              value: new Float32Array(baseColorFactor),
+            },
+          },
+          multisample: {
+            count: SAMPLE_COUNT,
+          },
+          vertexShaderSnippetMain: `
+          let worldPosition: vec4<f32> = transform.modelMatrix * input.position;
+          output.Position = transform.projectionMatrix *
+                            transform.viewMatrix *
+                            worldPosition;
+          
+          // output.uv = input.uv;
+          
+          output.normal = transform.normalMatrix *
+                          input.normal;
+
+          output.position = worldPosition;
+        `,
+          fragmentShaderSnippetMain: `
+            ${BLINN_PHONG_LIGHT_SNIPPET}
+            return vec4<f32>(inputUBO.baseColor.rgb * finalLight, 1.0);
+          `,
+          presentationFormat,
+          primitiveType,
+        })
+        mesh.setParent(sceneNode)
+      })
+    }
+    if (currentNode.matrix) {
+      sceneNode.copyFromMatrix(currentNode.matrix)
+    } else {
+      // const matrix = mat4.create()
+      // if (currentNode.translation) {
+      //   mat4.translate(matrix, matrix, currentNode.translation)
+      // }
+      // if (currentNode.rotation) {
+      //   const rot = quat.fromValues(
+      //     currentNode.rotation[0],
+      //     currentNode.rotation[1],
+      //     currentNode.rotation[2],
+      //     1,
+      //   )
+      //   const rotMat = mat4.create()
+      //   mat4.fromQuat(rotMat, rot)
+      //   mat4.mul(matrix, matrix, rotMat)
+      // }
+      // if (currentNode.scale) {
+      //   mat4.scale(matrix, matrix, currentNode.scale)
+      // }
+      // sceneNode.copyFromMatrix(matrix)
+    }
+    if (parentNode) {
+      sceneNode.setParent(parentNode)
+    }
+    const children = currentNode.nodes || currentNode.children
+    if (children && children.length) {
+      children.forEach((childNode) => {
+        traverseSceneGraph(childNode, sceneNode)
+      })
+    }
   }
 })()

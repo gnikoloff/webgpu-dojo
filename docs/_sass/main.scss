@@ -34,10 +34,22 @@
   // text-decoration: none;
 }
 
+.example-title {
+  font-size: 18px;
+  line-height: 42px;
+  margin-bottom: 0;
+}
+
 .example-desc {
-  font-size: 14px;
+  font-size: 13px;
   line-height: 24px;
   max-width: 500px;
+  margin-top: 0;
+}
+
+.example-source {
+  font-size: 14px;
+  margin-top: 10px;
 }
 
 .example-link {

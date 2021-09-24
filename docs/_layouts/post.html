@@ -12,9 +12,10 @@
     <div class="info">
       <a href="{{ site.baseurl }}/" class="go-back-link">&larr;&nbsp;&nbsp;Home</a>
       <small>{{ page.date | date: "%-d %B %Y" }}</small>
-      <h1>{{ page.title }}</h1>
+      <h1 class="example-title">{{ page.title }}</h1>
       <p class="example-desc">{{ page.description }}</p>
       <a
+        class="example-source"
         href="https://github.com/gnikoloff/webgpu-dojo/blob/master/src/examples/{{ page.id }}"
       >
         Source Code

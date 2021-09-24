@@ -25,6 +25,7 @@ struct Input {
 struct Output {
   [[builtin(position)]] Position: vec4<f32>;
   [[location(0)]] normal: vec4<f32>;
+  [[location(1)]] pos: vec4<f32>;
 };
 
 [[stage(vertex)]]
@@ -45,12 +46,14 @@ fn main (input: Input) -> Output {
     input.instanceNormalMatrix3
   );
 
+  let worldPosition: vec4<f32> = instanceModelMatrix * input.position;
+
   output.Position = camera.projectionMatrix *
                     camera.viewMatrix *
-                    instanceModelMatrix *
-                    input.position;
+                    worldPosition;
                     
   output.normal = instanceModelInverseTransposeMatrix * vec4<f32>(input.normal, 0.0);
+  output.pos = worldPosition;
 
   return output;
 }
