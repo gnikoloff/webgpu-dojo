@@ -1,3 +1,6 @@
 [submodule "src/lib/hwoa-rang-gl"]
 	path = src/lib/hwoa-rang-gl
 	url = https://github.com/gnikoloff/hwoa-rang-gl
+[submodule "src/lib/hwoa-rang-gpu"]
+	path = src/lib/hwoa-rang-gpu
+	url = https://github.com/gnikoloff/hwoa-rang-gpu
