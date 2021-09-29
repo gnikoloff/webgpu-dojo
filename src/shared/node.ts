@@ -1,5 +1,5 @@
 import { mat4 } from 'gl-matrix'
-import { Transform } from '../lib/hwoa-rang-gl'
+import { Transform } from '../lib/hwoa-rang-gpu'
 
 export class Node {
   parentNode: Node | null = null
