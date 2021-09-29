@@ -8,15 +8,48 @@ import {
   Mesh,
   Geometry,
   SceneObject,
+  Texture,
+  VertexBuffer,
+  IndexBuffer,
 } from '../../lib/hwoa-rang-gpu'
 
 import '../index.css'
 
 const SAMPLE_COUNT = 4
 
+const VERTEX_SHADER_MAIN_SNIPPET = `
+  let worldPosition: vec4<f32> = transform.modelMatrix * input.position;
+  output.Position = transform.projectionMatrix *
+                    transform.viewMatrix *
+                    worldPosition;
+  
+  output.normal = transform.normalMatrix *
+                  input.normal;
+
+  output.position = worldPosition;
+`
+
+const FRAGMENT_SHADER_MAIN_SNIPPET = `
+  let normal: vec3<f32> = normalize(input.normal.rgb);
+  let lightColor: vec3<f32> = vec3<f32>(1.0);
+
+  // ambient light
+  let ambientFactor: f32 = 0.1;
+  let ambientLight: vec3<f32> = lightColor * ambientFactor;
+
+  // diffuse light
+  let lightDirection: vec3<f32> = normalize(vec3<f32>(0.5, 1.0, 4.0) - input.position.rgb);
+  let diffuseStrength: f32 = max(dot(normal, lightDirection), 0.0);
+  let diffuseLight: vec3<f32> = lightColor * diffuseStrength;
+
+  // combine lighting
+  let finalLight: vec3<f32> = diffuseLight + ambientLight;
+  return vec4<f32>(inputUBO.baseColor.rgb * finalLight, 1.0);
+`
+
 //
 ;(async () => {
-  const gltf = await load('/webgpu-dojo/dist/assets/Buggy.gltf', GLTFLoader)
+  const gltf = await load(`${window['ASSETS_BASE_URL']}/Buggy.gltf`, GLTFLoader)
   console.log(gltf)
 
   const canvas = document.getElementById('gpu-c') as HTMLCanvasElement
@@ -26,12 +59,10 @@ const SAMPLE_COUNT = 4
   canvas.style.setProperty('height', `${innerHeight}px`)
 
   const adapter = await navigator.gpu?.requestAdapter()
-
   const device = await adapter?.requestDevice()
+
   const context = canvas.getContext('webgpu')
-
   const presentationFormat = context.getPreferredFormat(adapter)
-
   const primitiveType: GPUPrimitiveTopology = 'triangle-list'
 
   context.configure({
@@ -39,20 +70,14 @@ const SAMPLE_COUNT = 4
     format: presentationFormat,
   })
 
+  // Parse glTF to scene graph
   const rootNode = new SceneObject()
-
   traverseSceneGraph(gltf.scene, rootNode)
-
   const duckScale = 0.02
   rootNode
     .setPosition({ x: -0.5, y: -0.1 })
     .setScale({ x: duckScale, y: duckScale, z: duckScale })
-    // .setRotation({ y: -Math.PI / 2 })
-    .updateModelMatrix()
-
-  rootNode.updateWorldMatrix()
-
-  console.log(rootNode)
+    .updateWorldMatrix()
 
   const perspCamera = new PerspectiveCamera(
     (45 * Math.PI) / 180,
@@ -60,28 +85,28 @@ const SAMPLE_COUNT = 4
     0.1,
     20,
   )
-  perspCamera.setPosition({ x: 0.81, y: 0.31, z: 3.91 })
-  perspCamera.lookAt([0, 0, 0])
-  perspCamera.updateProjectionMatrix()
-  perspCamera.updateViewMatrix()
+    .setPosition({ x: 0.81, y: 0.31, z: 3.91 })
+    .lookAt([0, 0, 0])
+    .updateProjectionMatrix()
+    .updateViewMatrix()
 
-  const ctrl = new CameraController(perspCamera, document.body, false, 0.1)
-  ctrl.lookAt([0, 0.5, 0])
+  new CameraController(perspCamera, document.body, false, 0.1).lookAt([
+    0, 0.5, 0,
+  ])
 
-  const textureDepth = device.createTexture({
+  //
+  const textureDepth = new Texture(device, 'texture_depth').fromDefinition({
     size: [canvas.width, canvas.height, 1],
     sampleCount: SAMPLE_COUNT,
     format: 'depth24plus',
     usage: GPUTextureUsage.RENDER_ATTACHMENT,
   })
-
-  const renderTexture = device.createTexture({
+  const renderTexture = new Texture(device, 'render_texture').fromDefinition({
     size: [canvas.width, canvas.height],
     sampleCount: SAMPLE_COUNT,
     format: presentationFormat,
     usage: GPUTextureUsage.RENDER_ATTACHMENT,
   })
-  let renderTextureView = renderTexture.createView()
 
   requestAnimationFrame(drawFrame)
 
@@ -94,14 +119,14 @@ const SAMPLE_COUNT = 4
     const renderPass = commandEncoder.beginRenderPass({
       colorAttachments: [
         {
-          view: renderTextureView,
+          view: renderTexture.get().createView(),
           resolveTarget: context.getCurrentTexture().createView(),
           loadValue: [0.1, 0.1, 0.1, 1.0],
           storeOp: 'store',
         },
       ],
       depthStencilAttachment: {
-        view: textureDepth.createView(),
+        view: textureDepth.get().createView(),
         depthLoadValue: 1,
         depthStoreOp: 'store',
         stencilLoadValue: 0,
@@ -128,32 +153,37 @@ const SAMPLE_COUNT = 4
         const geometry = new Geometry(device)
 
         if (primitive.attributes.POSITION) {
-          geometry.addAttribute(
-            'position',
+          const vertexBuffer = new VertexBuffer(
+            device,
+            0,
             primitive.attributes.POSITION.value,
+            primitive.attributes.POSITION.bytesPerElement,
+          ).addAttribute(
+            'position',
+            0,
             primitive.attributes.POSITION.bytesPerElement,
             'float32x3',
           )
+          geometry.addVertexBuffer(vertexBuffer)
         }
 
         if (primitive.attributes.NORMAL) {
-          geometry.addAttribute(
-            'normal',
+          const vertexBuffer = new VertexBuffer(
+            device,
+            1,
             primitive.attributes.NORMAL.value,
+            primitive.attributes.NORMAL.bytesPerElement,
+          ).addAttribute(
+            'normal',
+            0,
             primitive.attributes.NORMAL.bytesPerElement,
             'float32x3',
           )
-        }
-        if (primitive.attributes.TEXCOORD_0) {
-          geometry.addAttribute(
-            'uv',
-            primitive.attributes.TEXCOORD_0.value,
-            primitive.attributes.TEXCOORD_0.bytesPerElement,
-            'float32x2',
-          )
+          geometry.addVertexBuffer(vertexBuffer)
         }
 
-        geometry.addIndex(primitive.indices.value)
+        const indexBuffer = new IndexBuffer(device, primitive.indices.value)
+        geometry.addIndexBuffer(indexBuffer)
 
         const {
           material: {
@@ -172,39 +202,12 @@ const SAMPLE_COUNT = 4
           multisample: {
             count: SAMPLE_COUNT,
           },
-          vertexShaderSnippetMain: `
-          let worldPosition: vec4<f32> = transform.modelMatrix * input.position;
-          output.Position = transform.projectionMatrix *
-                            transform.viewMatrix *
-                            worldPosition;
-          
-          // output.uv = input.uv;
-          
-          output.normal = transform.normalMatrix *
-                          input.normal;
-
-          output.position = worldPosition;
-        `,
-          fragmentShaderSnippetMain: `
-            // return vec4<f32>(0.0, 0.0, 1.0, 1.0);
-
-            let normal: vec3<f32> = normalize(input.normal.rgb);
-            let lightColor: vec3<f32> = vec3<f32>(1.0);
-
-            // ambient light
-            let ambientFactor: f32 = 0.1;
-            let ambientLight: vec3<f32> = lightColor * ambientFactor;
-
-            // diffuse light
-            let lightDirection: vec3<f32> = normalize(vec3<f32>(0.5, 1.0, 4.0) - input.position.rgb);
-            let diffuseStrength: f32 = max(dot(normal, lightDirection), 0.0);
-            let diffuseLight: vec3<f32> = lightColor * diffuseStrength;
-
-            // combine lighting
-            let finalLight: vec3<f32> = diffuseLight + ambientLight;
-            return vec4<f32>(inputUBO.baseColor.rgb * finalLight, 1.0);
-            // return inputUBO.baseColor;
-          `,
+          vertexShaderSource: {
+            main: VERTEX_SHADER_MAIN_SNIPPET,
+          },
+          fragmentShaderSource: {
+            main: FRAGMENT_SHADER_MAIN_SNIPPET,
+          },
           presentationFormat,
           primitiveType,
         })
