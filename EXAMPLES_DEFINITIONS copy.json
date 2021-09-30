@@ -9,7 +9,7 @@
       {
         "id": "hello-index-square",
         "title": "Hello Indexed Square",
-        "description": "Render a quad using indices to reduce vertex definitions and a single interleaved buffer holding both positions and colors for each vertex."
+        "description": "Render a quad using a single interleaved buffer holding both positions and colors for each vertex to reduce size"
       },
       {
         "id": "draw-multiple-things",
@@ -63,12 +63,17 @@
     "title": "Framebuffer",
     "entries": [
       {
-        "id": "postprocessing-01",
-        "title": "Post Processing 01"
+        "id": "shadow-mapping",
+        "title": "Shadow Mapping",
+        "description": [
+          "Implement shadows from scratch with hwoa-rang-gpu.",
+          "- <a href=\"http://learnwebgl.brown37.net/11_advanced_rendering/shadows.html\">http://learnwebgl.brown37.net/11_advanced_rendering/shadows.html</a>",
+          "- <a href=\"https://austin-eng.com/webgpu-samples/samples/shadowMapping\">https://austin-eng.com/webgpu-samples/samples/shadowMapping</a>"
+        ]
       },
       {
-        "id": "shadow-mapping",
-        "title": "Shadow Mapping"
+        "id": "deferred-rendering",
+        "title": "Deferred Shading"
       }
     ]
   }

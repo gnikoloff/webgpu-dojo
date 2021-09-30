@@ -1,51 +1,27 @@
 [
   {
     "title": "Basic",
-    "entries": [
-      {
-        "id": "hello-triangle",
-        "title": "Hello Triangle"
-      },
-      {
-        "id": "hello-index-square",
-        "title": "Hello Indexed Square",
-        "description": "Render a quad using indices to reduce vertex definitions and a single interleaved buffer holding both positions and colors for each vertex."
-      },
-      {
-        "id": "draw-multiple-things",
-        "title": "Draw Multiple Things"
-      },
-      {
-        "id": "scene-graph",
-        "title": "Scene Graph"
-      },
-      {
-        "id": "textured-cube",
-        "title": "Textured Cube",
-        "description": "Use the mouse to rotate / pan / zoom the camera. Shows multisampled rendering via a textured cube."
-      },
-      {
-        "id": "geometry-instancing",
-        "title": "Geometry Instancing"
-      }
-    ]
+    "entries": []
   },
   {
     "title": "glTF",
     "entries": [
       {
-        "id": "gltf-hello-triangle",
-        "title": "Hello glTF Triangle",
-        "description": "Load and parse the simplest glTF containing a single triangle with positions and indices."
+        "id": "gltf-buggy",
+        "title": "glTF Buggy"
       }
     ]
+  },
+  {
+    "title": "Materials",
+    "entries": []
   },
   {
     "title": "Framebuffer",
     "entries": [
       {
-        "id": "postprocessing-01",
-        "title": "Post Processing 01"
+        "id": "shadow-mapping",
+        "title": "Shadow Mapping"
       }
     ]
   }

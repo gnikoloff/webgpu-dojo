@@ -12,6 +12,8 @@ import strip from '@rollup/plugin-strip'
 
 import EXAMPLES_DEFINITIONS from './EXAMPLES_DEFINITIONS.json'
 
+console.log({ EXAMPLES_DEFINITIONS })
+
 const plugins = [
   css({
     minify: process.env.NODE_ENV === 'production',
@@ -62,12 +64,12 @@ export default [
   {
     input: 'src/index.js',
     output: {
-      file: 'docs/dist/index.js',
+      file: '_site/assets/index.js',
       format: 'iife',
     },
     plugins: [
       copy({
-        targets: [{ src: `src/assets/**/*`, dest: `docs/dist/assets/` }],
+        targets: [{ src: `src/assets/**/*`, dest: `_site/assets/` }],
       }),
     ],
   },
@@ -75,7 +77,7 @@ export default [
     .flat()
     .map(({ id }) => ({
       input: `src/examples/${id}/index.ts`,
-      output: [{ file: `docs/dist/${id}/bundle.js`, format: 'iife' }],
+      output: [{ file: `_site/${id}/bundle.js`, format: 'iife' }],
       plugins,
     })),
 ]

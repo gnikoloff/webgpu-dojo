@@ -1,28 +1,22 @@
 [
   {
     "title": "Basic",
-    "entries": [
-    ]
+    "entries": []
   },
   {
     "title": "glTF",
-    "entries": [{
-      "id": "gltf-buggy",
-      "title": "glTF Buggy"
-    }
-    ]
+    "entries": []
   },
   {
     "title": "Materials",
-    "entries": [
-    ]
+    "entries": []
   },
   {
     "title": "Framebuffer",
     "entries": [
       {
-        "id": "shadow-mapping",
-        "title": "Shadow Mapping"
+        "id": "deferred-rendering",
+        "title": "Deferred Shading"
       }
     ]
   }

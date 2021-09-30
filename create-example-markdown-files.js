@@ -6,10 +6,10 @@ EXAMPLES_DEFINITIONS.map(({ entries }) => entries)
   .flat()
   .forEach(({ id, title, description = '' }, i, self) => {
     fs.writeFile(
-      `docs/${id}.markdown`,
+      `docs/${id}.md`,
       `
 ---
-layout: post
+layout: post.html
 id: '${id}'
 title: '${title}'
 description: '${
