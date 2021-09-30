@@ -210,23 +210,23 @@ const OPTIONS = {
     0.1,
     400,
   )
-  perspCamera.setPosition({ x: 46, y: 23, z: 132 })
-  perspCamera.lookAt([0, 0, 0])
-  perspCamera.updateProjectionMatrix()
-  perspCamera.updateViewMatrix()
+    .setPosition({ x: 46, y: 23, z: 132 })
+    .lookAt([0, 0, 0])
+    .updateProjectionMatrix()
+    .updateViewMatrix()
 
   const cameraTypedPosition = new Float32Array(perspCamera.position)
   const lightTypedPosition = new Float32Array([20, 20, 20, 0])
 
   const lightCamera = new OrthographicCamera(-50, 50, -50, 50, -200, 200)
-  lightCamera.setPosition({
-    x: lightTypedPosition[0],
-    y: lightTypedPosition[1],
-    z: lightTypedPosition[2],
-  })
-  lightCamera.lookAt([0, 0, 0])
-  lightCamera.updateProjectionMatrix()
-  lightCamera.updateViewMatrix()
+    .setPosition({
+      x: lightTypedPosition[0],
+      y: lightTypedPosition[1],
+      z: lightTypedPosition[2],
+    })
+    .lookAt([0, 0, 0])
+    .updateProjectionMatrix()
+    .updateViewMatrix()
 
   const orthoCamera = new OrthographicCamera(
     -canvas.width / 2,
@@ -236,10 +236,10 @@ const OPTIONS = {
     0.1,
     3,
   )
-  orthoCamera.setPosition({ z: 2 })
-  orthoCamera.lookAt([0, 0, 0])
-  orthoCamera.updateProjectionMatrix()
-  orthoCamera.updateViewMatrix()
+    .setPosition({ z: 2 })
+    .lookAt([0, 0, 0])
+    .updateProjectionMatrix()
+    .updateViewMatrix()
 
   const ctrl = new CameraController(perspCamera, canvas, false)
   ctrl.lookAt([0, 0.5, 0])

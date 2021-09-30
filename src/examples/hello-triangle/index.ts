@@ -1,4 +1,4 @@
-import { OrthographicCamera, Transform } from '../../lib/hwoa-rang-gl'
+import { OrthographicCamera, Transform } from '../../lib/hwoa-rang-gpu'
 
 import { testForWebGPUSupport } from '../shared/test-for-webgpu-support'
 

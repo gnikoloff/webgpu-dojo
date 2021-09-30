@@ -5,7 +5,7 @@ import {
   GeometryUtils,
   OrthographicCamera,
   Transform,
-} from '../../lib/hwoa-rang-gl'
+} from '../../lib/hwoa-rang-gpu'
 
 import {
   generateGPUBuffersFromGeometry,
@@ -453,7 +453,7 @@ function getRandPositionScaleRotation(scaleUniformly = true) {
 
   // Load cutoff mask transition texture
   const image = new Image()
-  image.src = '/webgpu-dojo/dist/assets/transition2.png'
+  image.src = `${window['ASSETS_BASE_URL']}/transition2.png`
   await image.decode()
   const imageBitmap = await createImageBitmap(image)
 

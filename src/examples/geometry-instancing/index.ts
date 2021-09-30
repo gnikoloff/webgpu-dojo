@@ -3,7 +3,7 @@ import {
   PerspectiveCamera,
   GeometryUtils,
   Transform,
-} from '../../lib/hwoa-rang-gl'
+} from '../../lib/hwoa-rang-gpu'
 import { testForWebGPUSupport } from '../shared/test-for-webgpu-support'
 
 import VERTEX_SHADER from './shader.vert.wglsl'
@@ -129,7 +129,7 @@ testForWebGPUSupport()
   })
 
   const image = new Image()
-  image.src = '/webgpu-dojo/dist/assets/eye-texture.jpeg'
+  image.src = `${window['ASSETS_BASE_URL']}/eye-texture.jpeg`
   await image.decode()
   const imageBitmap = await createImageBitmap(image)
 

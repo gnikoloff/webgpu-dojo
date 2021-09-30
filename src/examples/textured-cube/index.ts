@@ -3,7 +3,7 @@ import {
   GeometryUtils,
   CameraController,
   Transform,
-} from '../../lib/hwoa-rang-gl'
+} from '../../lib/hwoa-rang-gpu'
 
 import { testForWebGPUSupport } from '../shared/test-for-webgpu-support'
 
@@ -121,7 +121,7 @@ testForWebGPUSupport()
   })
 
   const image = new Image()
-  image.src = '/webgpu-dojo/dist/assets/webgpu-logo-pot.png'
+  image.src = `${window['ASSETS_BASE_URL']}/webgpu-logo-pot.png`
   await image.decode()
   const imageBitmap = await createImageBitmap(image)
 

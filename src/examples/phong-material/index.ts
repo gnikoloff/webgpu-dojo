@@ -10,6 +10,8 @@ import {
   Geometry,
   Mesh,
   GeometryUtils,
+  VertexBuffer,
+  IndexBuffer,
 } from '../../lib/hwoa-rang-gpu'
 
 import '../index.css'
@@ -227,7 +229,7 @@ const OPTIONS = {
 
   const rootNode = new SceneObject()
 
-  // all meshes beside the light share lighting uniforms
+  // all meshes beside the light itself share the same lighting uniforms
   const sharedUniforms = {
     mode: {
       type: 'i32',
@@ -265,50 +267,68 @@ const OPTIONS = {
     },
   }
 
-  const duckGLTF = await GLTFParser.load('/webgpu-dojo/dist/assets/Duck.gltf')
+  const duckGLTF = await GLTFParser.load(
+    `${window['ASSETS_BASE_URL']}/Duck.gltf`,
+  )
 
   const duckGeometry = new Geometry(device)
-    .addIndex(duckGLTF.meshes[0].primitives[0].indices.value)
-    .addAttribute(
-      'position',
+  {
+    const indexBuffer = new IndexBuffer(
+      device,
+      duckGLTF.meshes[0].primitives[0].indices.value,
+    )
+    const vertexBuffer = new VertexBuffer(
+      device,
+      0,
       duckGLTF.meshes[0].primitives[0].attributes.POSITION.value,
       3 * Float32Array.BYTES_PER_ELEMENT,
-      'float32x3',
-    )
-    .addAttribute(
-      'normal',
-      duckGLTF.meshes[0].primitives[0].attributes.NORMAL.value,
+    ).addAttribute(
+      'position',
+      0,
       3 * Float32Array.BYTES_PER_ELEMENT,
       'float32x3',
     )
-    .addAttribute(
-      'uv',
+    const normalBuffer = new VertexBuffer(
+      device,
+      1,
+      duckGLTF.meshes[0].primitives[0].attributes.NORMAL.value,
+      3 * Float32Array.BYTES_PER_ELEMENT,
+    ).addAttribute('normal', 0, 3 * Float32Array.BYTES_PER_ELEMENT, 'float32x3')
+    const uvBuffer = new VertexBuffer(
+      device,
+      2,
       duckGLTF.meshes[0].primitives[0].attributes.TEXCOORD_0.value,
       2 * Float32Array.BYTES_PER_ELEMENT,
-      'float32x2',
-    )
+    ).addAttribute('uv', 0, 2 * Float32Array.BYTES_PER_ELEMENT, 'float32x2')
 
+    duckGeometry
+      .addVertexBuffer(vertexBuffer)
+      .addVertexBuffer(normalBuffer)
+      .addVertexBuffer(uvBuffer)
+      .addIndexBuffer(indexBuffer)
+  }
   // Duck
   const duckMesh = new Mesh(device, {
     geometry: duckGeometry,
     multisample: {
       count: SAMPLE_COUNT,
     },
-
     uniforms: {
       ...sharedUniforms,
     },
-    vertexShaderSnippetMain: getVertexShaderSnippet(),
+    vertexShaderSource: {
+      main: getVertexShaderSnippet(),
+    },
 
-    fragmentShaderSnippetMain: LIGHT_FRAGMENT_SNIPPET,
+    fragmentShaderSource: {
+      main: LIGHT_FRAGMENT_SNIPPET,
+    },
   })
-  duckMesh.copyFromMatrix(duckGLTF.scene.nodes[0].matrix)
-  duckMesh.setParent(rootNode)
-  const duckScale = 0.03
-  duckMesh
+    .copyFromMatrix(duckGLTF.scene.nodes[0].matrix)
     .setPosition({ y: -0.3 })
     .setRotation({ y: -Math.PI / 2 })
-    .setScale({ x: duckScale, y: duckScale, z: duckScale })
+    .setScale({ x: 0.03, y: 0.03, z: 0.03 })
+    .setParent(rootNode)
 
   rootNode.updateWorldMatrix()
 
@@ -316,20 +336,28 @@ const OPTIONS = {
   const boxGeometry = new Geometry(device)
   {
     const { vertices, normal, indices } = GeometryUtils.createBox()
+    const vertexBuffer = new VertexBuffer(
+      device,
+      0,
+      vertices,
+      3 * Float32Array.BYTES_PER_ELEMENT,
+    ).addAttribute(
+      'position',
+      0,
+      3 * Float32Array.BYTES_PER_ELEMENT,
+      'float32x3',
+    )
+    const normalBuffer = new VertexBuffer(
+      device,
+      1,
+      normal,
+      3 * Float32Array.BYTES_PER_ELEMENT,
+    ).addAttribute('normal', 0, 3 * Float32Array.BYTES_PER_ELEMENT, 'float32x3')
+    const indexBuffer = new IndexBuffer(device, indices)
     boxGeometry
-      .addIndex(indices)
-      .addAttribute(
-        'position',
-        vertices,
-        3 * Float32Array.BYTES_PER_ELEMENT,
-        'float32x3',
-      )
-      .addAttribute(
-        'normal',
-        normal,
-        3 * Float32Array.BYTES_PER_ELEMENT,
-        'float32x3',
-      )
+      .addVertexBuffer(vertexBuffer)
+      .addVertexBuffer(normalBuffer)
+      .addIndexBuffer(indexBuffer)
   }
   const boxMesh = new Mesh(device, {
     geometry: boxGeometry,
@@ -339,8 +367,12 @@ const OPTIONS = {
     uniforms: {
       ...sharedUniforms,
     },
-    vertexShaderSnippetMain: getVertexShaderSnippet({ includeUvs: false }),
-    fragmentShaderSnippetMain: LIGHT_FRAGMENT_SNIPPET,
+    vertexShaderSource: {
+      main: getVertexShaderSnippet({ includeUvs: false }),
+    },
+    fragmentShaderSource: {
+      main: LIGHT_FRAGMENT_SNIPPET,
+    },
   })
 
   const boxScale = 3
@@ -357,20 +389,29 @@ const OPTIONS = {
       widthSegments: 30,
       heightSegments: 30,
     })
+    const indexBuffer = new IndexBuffer(device, indices)
+    const vertexBuffer = new VertexBuffer(
+      device,
+      0,
+      vertices,
+      3 * Float32Array.BYTES_PER_ELEMENT,
+    ).addAttribute(
+      'position',
+      0,
+      3 * Float32Array.BYTES_PER_ELEMENT,
+      'float32x3',
+    )
+    const normalBuffer = new VertexBuffer(
+      device,
+      1,
+      normal,
+      3 * Float32Array.BYTES_PER_ELEMENT,
+    ).addAttribute('normal', 0, 3 * Float32Array.BYTES_PER_ELEMENT, 'float32x3')
+
     sphereGeometry
-      .addIndex(indices)
-      .addAttribute(
-        'position',
-        vertices,
-        3 * Float32Array.BYTES_PER_ELEMENT,
-        'float32x3',
-      )
-      .addAttribute(
-        'normal',
-        normal,
-        3 * Float32Array.BYTES_PER_ELEMENT,
-        'float32x3',
-      )
+      .addVertexBuffer(vertexBuffer)
+      .addVertexBuffer(normalBuffer)
+      .addIndexBuffer(indexBuffer)
   }
   const sphereMesh = new Mesh(device, {
     geometry: sphereGeometry,
@@ -380,8 +421,12 @@ const OPTIONS = {
     uniforms: {
       ...sharedUniforms,
     },
-    vertexShaderSnippetMain: getVertexShaderSnippet({ includeUvs: false }),
-    fragmentShaderSnippetMain: LIGHT_FRAGMENT_SNIPPET,
+    vertexShaderSource: {
+      main: getVertexShaderSnippet({ includeUvs: false }),
+    },
+    fragmentShaderSource: {
+      main: LIGHT_FRAGMENT_SNIPPET,
+    },
   })
 
   const sphereScale = 4
@@ -397,13 +442,17 @@ const OPTIONS = {
     multisample: {
       count: 4,
     },
-    vertexShaderSnippetMain: getVertexShaderSnippet({
-      includeUvs: false,
-      includeNormals: false,
-    }),
-    fragmentShaderSnippetMain: `
-      return vec4<f32>(1.0);
-    `,
+    vertexShaderSource: {
+      main: getVertexShaderSnippet({
+        includeUvs: false,
+        includeNormals: false,
+      }),
+    },
+    fragmentShaderSource: {
+      main: `
+        return vec4<f32>(1.0);
+      `,
+    },
   })
   lightMesh.setParent(rootNode)
 

@@ -5,7 +5,7 @@ import {
   PerspectiveCamera,
   CameraController,
   Transform,
-} from '../../lib/hwoa-rang-gl'
+} from '../../lib/hwoa-rang-gpu'
 
 import { testForWebGPUSupport } from '../shared/test-for-webgpu-support'
 
@@ -18,7 +18,10 @@ const SAMPLE_COUNT = 4
 
 testForWebGPUSupport()
 ;(async () => {
-  const gltf = await load('/webgpu-dojo/dist/assets/Triangle.gltf', GLTFLoader)
+  const gltf = await load(
+    `${window['ASSETS_BASE_URL']}Triangle.gltf`,
+    GLTFLoader,
+  )
 
   const canvas = document.getElementById('gpu-c') as HTMLCanvasElement
   canvas.width = innerWidth * devicePixelRatio

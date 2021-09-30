@@ -3,7 +3,7 @@ import {
   GeometryUtils,
   CameraController,
   Transform,
-} from '../../lib/hwoa-rang-gl'
+} from '../../lib/hwoa-rang-gpu'
 
 import { testForWebGPUSupport } from '../shared/test-for-webgpu-support'
 
