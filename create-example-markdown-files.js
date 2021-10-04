@@ -6,7 +6,7 @@ EXAMPLES_DEFINITIONS.map(({ entries }) => entries)
   .flat()
   .forEach(({ id, title, description = '' }, i, self) => {
     fs.writeFile(
-      `docs/${id}.md`,
+      `site/posts/${id}.md`,
       `
 ---
 layout: post.html

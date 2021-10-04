@@ -1,0 +1,38 @@
+{% assign relative_prefix = '.' %}
+
+<!DOCTYPE html>
+<html lang="{{ page.lang | default: site.lang | default: "en" }}">
+  
+  <link rel="stylesheet" href="{{ '/assets/main.css' | url }}">
+  <body>
+
+
+    <main class="page-content" aria-label="Content">
+      <div class="wrapper">
+          <p>
+            WebGPU is available for now in Chrome Canary on desktop behind an experimental flag. You can enable it at <code>chrome://flags/#enable-unsafe-webgpu</code>. The API is constantly changing and currently unsafe. As GPU sandboxing isn't implemented yet for the WebGPU API, it is possible to read GPU data for other processes! Don't browse the web with it enabled.
+          </p>
+          {% for section in EXAMPLES_DEFINITIONS %}
+            <h3>{{ section.title }}</h3>
+            <ul class="examples-wrapper">
+              {% for example in section.entries %}
+                <li class="example-link">
+                  <a href="examples/{{ example.id }}">
+                    <img
+                      class="example-thumb"
+                      src="{{ '/assets/images/{{ example.id }}.png' | url }}"
+                      alt="Preview render thumbnail for {{ example.title }}"
+                    />
+                    <h4>{{ example.title }}</h4>
+                  </a>
+                </li>
+              {% endfor %}
+            </ul>  
+          {% endfor %}
+      </div>
+    </main>
+
+
+  </body>
+
+</html>

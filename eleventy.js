@@ -1,8 +1,8 @@
 module.exports = function (eleventyConfig) {
-  eleventyConfig.addPassthroughCopy({ 'docs/_styles': 'assets' })
+  eleventyConfig.addPassthroughCopy({ 'site/_styles': 'assets' })
   return {
     dir: {
-      input: 'docs',
+      input: 'site',
       output: 'docs',
       layouts: '_layouts',
     },

@@ -9,7 +9,7 @@
     "start": "run-s build build:docs serve:docs",
     "start:local": "run-s build:docs serve:docs watch",
     "generate-demos": "node create-example-markdown-files.js",
-    "copy-examples-definitions": "shx cp -r EXAMPLES_DEFINITIONS.json ./docs/_data/",
+    "copy-examples-definitions": "shx cp -r EXAMPLES_DEFINITIONS.json ./site/_data/",
     "serve:docs": "npx eleventy --config=./eleventy.js --serve",
     "build:docs": "run-s generate-demos copy-examples-definitions"
   },

@@ -64,12 +64,12 @@ export default [
   {
     input: 'src/index.js',
     output: {
-      file: '_site/assets/index.js',
+      file: 'docs/assets/index.js',
       format: 'iife',
     },
     plugins: [
       copy({
-        targets: [{ src: `src/assets/**/*`, dest: `_site/assets/` }],
+        targets: [{ src: `src/assets/**/*`, dest: `docs/assets/` }],
       }),
     ],
   },
@@ -77,7 +77,7 @@ export default [
     .flat()
     .map(({ id }) => ({
       input: `src/examples/${id}/index.ts`,
-      output: [{ file: `_site/${id}/bundle.js`, format: 'iife' }],
+      output: [{ file: `docs/examples/${id}/bundle.js`, format: 'iife' }],
       plugins,
     })),
 ]
