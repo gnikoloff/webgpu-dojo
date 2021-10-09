@@ -7,7 +7,7 @@
 
     <meta http-equiv="origin-trial" content="AhE99tXCz7rNPbO9trRshOXiTObuhJOKUFfJi6mfwaVOlPJgsKyWSFUx7ZPzAWuNs4lEluGMIHpTD45OxcrrCQoAAABJeyJvcmlnaW4iOiJodHRwOi8vbG9jYWxob3N0OjgwODAiLCJmZWF0dXJlIjoiV2ViR1BVIiwiZXhwaXJ5IjoxNjQzMTU1MTk5fQ==">
 
-    <!-- <link rel="stylesheet" href="{{ '/assets/main.css' | url }}"> -->
+    <link rel="stylesheet" href="{{ '/assets/css/main.css' | url }}">
     
   </head>
   <body class="post-page">
@@ -25,11 +25,11 @@
       </a>
     </div>
     <nav id="inner-nav">
-      <a href="{{ '/' | append: prevDemoId | url }}">
+      <a href="{{ '/examples/' | append: prevDemoId | url }}">
         &larr;&nbsp;&nbsp;{{ prevDemoTitle }}
       </a>
       &nbsp;&nbsp;&nbsp;&nbsp;
-      <a href="{{ '/' | append: nextDemoId | url }}">
+      <a href="{{ '/examples/' | append: nextDemoId | url }}">
         {{ nextDemoTitle }}&nbsp;&nbsp;&rarr;
       </a>
     </nav>
@@ -39,6 +39,16 @@
     </script>
     
     <script src="{{'/' | append: '/examples/' | append: id | append: '/bundle.js' | url}}"></script>
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-209778909-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-209778909-1');
+    </script>
 
   </body>
 </html>

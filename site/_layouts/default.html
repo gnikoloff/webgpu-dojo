@@ -3,34 +3,91 @@
 <!DOCTYPE html>
 <html lang="{{ page.lang | default: site.lang | default: "en" }}">
   
-  <link rel="stylesheet" href="{{ '/assets/main.css' | url }}">
+  <link rel="stylesheet" href="{{ '/assets/css/main.css' | url }}">
+  
   <body>
-
-
     <main class="page-content" aria-label="Content">
       <div class="wrapper">
+        <div class="intro">
+          <h1 class="big-title">WebGPU Sketch Dojo</h1>
+          <a href="https://github.com/gnikoloff/webgpu-dojo">View on GitHub</a>
+          <br/>
+          <br/>
+          <a
+            class="npm-link"
+            href="https://www.npmjs.com/package/hwoa-rang-gpu"
+            target="_blank"
+          >
+            <img src="https://img.shields.io/npm/v/hwoa-rang-gpu" />
+          </a>
+          <a
+            class="npm-link"
+            href="https://www.npmjs.com/package/hwoa-rang-gpu"
+            target="_blank"
+          >
+            <img src="https://img.shields.io/npm/l/hwoa-rang-gpu" />
+          </a>
+          <a
+            class="npm-link"
+            href="https://bundlephobia.com/result?p=hwoa-rang-gpu"
+            target="_blank"
+          >
+            <img src="https://badgen.net/bundlephobia/minzip/hwoa-rang-gpu" alt="size" />
+          </a>
+          <a
+            class="npm-link"
+          >
+            <img src="https://badgen.net/npm/types/hwoa-rang-gpu" alt="size" />
+          </a>
+          
           <p>
-            WebGPU is available for now in Chrome Canary on desktop behind an experimental flag. You can enable it at <code>chrome://flags/#enable-unsafe-webgpu</code>. The API is constantly changing and currently unsafe. As GPU sandboxing isn't implemented yet for the WebGPU API, it is possible to read GPU data for other processes! Don't browse the web with it enabled.
+            A collection of experiments with the emerging <a href="https://gpuweb.github.io/gpuweb/">WebGPU API</a>. Created by <a href="https://archive.georgi-nikolov.com/">Georgi Nikolov</a>
+            <br/>
+            <br/>
+            I also developed a micro WebGPU Rendering & Compute Library called <a href="https://github.com/gnikoloff/hwoa-rang-gpu">hwoa-rang-gpu</a> that powers most of these demos.
+            <br/>
+            <br/>
+            Starting in Chrome 94, WebGPU is available as an origin trial in Chrome. The origin trial is expected to end in Chrome 97 (Jan 26, 2022).
+            <br/>
+            Please use latest Google Chrome or Google Chrome Canary or Firefox Nightly (<a href="https://hacks.mozilla.org/2020/04/experimental-webgpu-in-firefox/">Instructions</a>). Linux users might need to take extra steps for Chrome as explained <a href="https://hacks.mozilla.org/2020/04/experimental-webgpu-in-firefox/">here</a>.
+            <br/><br/>
+            Keep in mind that WebGPU is still considered an experimental API and some of the demos might break. Please <a href="https://github.com/gnikoloff/webgpu-dojo/issues">file an issue</a> if something is not working.
           </p>
-          {% for section in EXAMPLES_DEFINITIONS %}
-            <h3>{{ section.title }}</h3>
-            <ul class="examples-wrapper">
-              {% for example in section.entries %}
-                <li class="example-link">
-                  <a href="examples/{{ example.id }}">
-                    <img
-                      class="example-thumb"
-                      src="{{ '/assets/images/{{ example.id }}.png' | url }}"
-                      alt="Preview render thumbnail for {{ example.title }}"
-                    />
-                    <h4>{{ example.title }}</h4>
-                  </a>
-                </li>
-              {% endfor %}
-            </ul>  
-          {% endfor %}
+        </div>
+        {% for section in EXAMPLES_DEFINITIONS %}
+          <h3 class="section-title">{{ section.title }}</h3>
+          <ul class="examples-wrapper clearfix">
+            {% for example in section.entries %}
+              <li class="example-link">
+                <a href="examples/{{ example.id }}">
+                  <img
+                    class="example-thumb"
+                    src="{{ '/assets/images/' | append: example.id | append: '.png' | url }}"
+                    alt="Preview render thumbnail for {{ example.title }}"
+                  />
+                  <h4 class="example-title">{{ example.title }}</h4>
+                </a>
+              </li>
+            {% endfor %}
+          </ul>  
+        {% endfor %}
       </div>
     </main>
+
+    <footer>
+      <a href="https://github.com/gnikoloff/webgpu-dojo">View on GitHub</a>
+      Georgi Nikolov 2021
+    </footer>
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-209778909-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-209778909-1');
+    </script>
 
 
   </body>
