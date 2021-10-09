@@ -16,6 +16,7 @@ import {
   VertexBuffer,
   IndexBuffer,
   Texture,
+  UniformInputs,
 } from '../../lib/hwoa-rang-gpu'
 
 import '../index.css'
@@ -73,8 +74,10 @@ const SHADED_FRAGMENT_SNIPPET = `
   );  
 
   // Final color
-  return vec4<f32>(inputUBO.baseColor.rgb * finalLight, 1.0);
+  output.Color = vec4<f32>(inputUBO.baseColor.rgb * finalLight, 1.0);
 `
+
+const FRAGMENT_SHADER_WHITE_COLOR = `output.Color = vec4<f32>(1.0);`
 
 const generateVertexShaderSnippet = ({
   useNormal = true,
@@ -137,30 +140,6 @@ const OPTIONS = {
   gui.add(OPTIONS, 'timeScaleFactor').min(0.05).max(1).step(0.05)
   gui.add(OPTIONS, 'animateLight')
   gui.add(OPTIONS, 'showDebug')
-  // gui
-  //   .add(OPTIONS, 'lightX')
-  //   .min(-50)
-  //   .max(50)
-  //   .step(0.5)
-  //   .onChange((v) => {
-  //     lightTypedPosition[0] = v
-  //   })
-  // gui
-  //   .add(OPTIONS, 'lightY')
-  //   .min(-50)
-  //   .max(50)
-  //   .step(0.5)
-  //   .onChange((v) => {
-  //     lightTypedPosition[1] = v
-  //   })
-  // gui
-  //   .add(OPTIONS, 'lightZ')
-  //   .min(-50)
-  //   .max(50)
-  //   .step(0.5)
-  //   .onChange((v) => {
-  //     lightTypedPosition[2] = v
-  //   })
 
   const context = canvas.getContext('webgpu')
 
@@ -326,27 +305,33 @@ const OPTIONS = {
   }
   const floorMesh = new Mesh(device, {
     geometry: floorGeometry,
-    customVaryings: {
-      shadowPos: {
-        type: 'float32x3',
-      },
-    },
+
     uniforms: {
       baseColor: {
         type: 'vec4<f32>',
         value: new Float32Array([0.8, 0.8, 0.8]),
       },
-      ...lightUniforms,
+      ...(lightUniforms as UniformInputs),
     },
     samplers: [depthSampler],
     textures: [shadowDepthTexture],
     vertexShaderSource: {
+      outputs: {
+        shadowPos: {
+          format: 'float32x3',
+        },
+      },
       main: generateVertexShaderSnippet({
         useLightUv: true,
         useUV: false,
       }),
     },
     fragmentShaderSource: {
+      inputs: {
+        shadowPos: {
+          format: 'float32x3',
+        },
+      },
       main: SHADED_FRAGMENT_SNIPPET,
     },
   })
@@ -362,7 +347,9 @@ const OPTIONS = {
       }),
     },
     fragmentShaderSource: {
-      main: `return vec4<f32>(1.0);`,
+      // this should be omitted and we can use a vertex-only pipeline, but it's
+      // not yet implemented.
+      main: FRAGMENT_SHADER_WHITE_COLOR,
     },
     targets: [],
     depthStencil: {
@@ -407,9 +394,7 @@ const OPTIONS = {
       }),
     },
     fragmentShaderSource: {
-      main: `
-        return vec4<f32>(1.0);
-      `,
+      main: FRAGMENT_SHADER_WHITE_COLOR,
     },
   })
   lightMesh
@@ -470,7 +455,7 @@ const OPTIONS = {
           my_depth_debug_sampler,
           vec2<f32>(input.uv.x, 1.0 - input.uv.y)
         );
-        return vec4<f32>(vec3<f32>(depth), 1.0);
+        output.Color = vec4<f32>(vec3<f32>(depth), 1.0);
       `,
     },
     targets: [
@@ -658,18 +643,18 @@ const OPTIONS = {
         const mesh = new Mesh(device, {
           ...baseMeshState,
           uniforms: {
-            ...lightUniforms,
+            ...(lightUniforms as UniformInputs),
             baseColor: {
               type: 'vec4<f32>',
               value: new Float32Array(baseColorFactor),
             },
           },
-          customVaryings: {
-            shadowPos: {
-              type: 'float32x3',
-            },
-          },
           vertexShaderSource: {
+            outputs: {
+              shadowPos: {
+                format: 'float32x3',
+              },
+            },
             main: generateVertexShaderSnippet({
               useUV: false,
               useLightUv: true,
@@ -678,6 +663,11 @@ const OPTIONS = {
           samplers: [depthSampler],
           textures: [shadowDepthTexture],
           fragmentShaderSource: {
+            inputs: {
+              shadowPos: {
+                format: 'float32x3',
+              },
+            },
             main: SHADED_FRAGMENT_SNIPPET,
           },
           targets: [
@@ -698,9 +688,9 @@ const OPTIONS = {
             }),
           },
           fragmentShaderSource: {
-            main: `
-              return vec4<f32>(0.0, 0.0, 0.0, 1.0);
-            `,
+            // this should be omitted and we can use a vertex-only pipeline, but it's
+            // not yet implemented.
+            main: FRAGMENT_SHADER_WHITE_COLOR,
           },
           targets: [],
           depthStencil: {

@@ -44,7 +44,7 @@ const FRAGMENT_SHADER_MAIN_SNIPPET = `
 
   // combine lighting
   let finalLight: vec3<f32> = diffuseLight + ambientLight;
-  return vec4<f32>(inputUBO.baseColor.rgb * finalLight, 1.0);
+  output.Color = vec4<f32>(inputUBO.baseColor.rgb * finalLight, 1.0);
 `
 
 //
@@ -208,7 +208,6 @@ const FRAGMENT_SHADER_MAIN_SNIPPET = `
           fragmentShaderSource: {
             main: FRAGMENT_SHADER_MAIN_SNIPPET,
           },
-          presentationFormat,
           primitiveType,
         })
         mesh.setParent(sceneNode)

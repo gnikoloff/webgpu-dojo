@@ -1,17 +1,19 @@
 import * as dat from 'dat.gui'
 import parseColor from 'color-parse'
+import { GLTFLoader } from '@loaders.gl/gltf/dist/esm/gltf-loader'
+import { load } from '@loaders.gl/core'
 
 import {
   CameraController,
   PerspectiveCamera,
   SceneObject,
   GridHelper,
-  GLTFParser,
   Geometry,
   Mesh,
   GeometryUtils,
   VertexBuffer,
   IndexBuffer,
+  UniformInputs,
 } from '../../lib/hwoa-rang-gpu'
 
 import '../index.css'
@@ -56,7 +58,7 @@ const LIGHT_FRAGMENT_SNIPPET = `
     finalLight = specular * inputUBO.specularColor.rgb * inputUBO.lightShininessAndPower.g / M;
   }
 
-  return vec4<f32>(finalLight, 1.0);
+  output.Color = vec4<f32>(finalLight, 1.0);
 `
 
 const getVertexShaderSnippet = ({
@@ -254,11 +256,11 @@ const OPTIONS = {
       ),
     },
     lightPosition: {
-      type: 'vec4<f32>',
+      type: 'vec3<f32>',
       value: new Float32Array([1, 0, 1]),
     },
     cameraPosition: {
-      type: 'vec4<f32>',
+      type: 'vec3<f32>',
       value: cameraPosition,
     },
     lightShininessAndPower: {
@@ -267,8 +269,9 @@ const OPTIONS = {
     },
   }
 
-  const duckGLTF = await GLTFParser.load(
+  const duckGLTF = await load(
     `${window['ASSETS_BASE_URL']}/Duck.gltf`,
+    GLTFLoader,
   )
 
   const duckGeometry = new Geometry(device)
@@ -314,7 +317,7 @@ const OPTIONS = {
       count: SAMPLE_COUNT,
     },
     uniforms: {
-      ...sharedUniforms,
+      ...(sharedUniforms as UniformInputs),
     },
     vertexShaderSource: {
       main: getVertexShaderSnippet(),
@@ -365,7 +368,7 @@ const OPTIONS = {
       count: SAMPLE_COUNT,
     },
     uniforms: {
-      ...sharedUniforms,
+      ...(sharedUniforms as UniformInputs),
     },
     vertexShaderSource: {
       main: getVertexShaderSnippet({ includeUvs: false }),
@@ -419,7 +422,7 @@ const OPTIONS = {
       count: SAMPLE_COUNT,
     },
     uniforms: {
-      ...sharedUniforms,
+      ...(sharedUniforms as UniformInputs),
     },
     vertexShaderSource: {
       main: getVertexShaderSnippet({ includeUvs: false }),
@@ -450,7 +453,7 @@ const OPTIONS = {
     },
     fragmentShaderSource: {
       main: `
-        return vec4<f32>(1.0);
+        output.Color = vec4<f32>(1.0);
       `,
     },
   })

@@ -98,10 +98,10 @@ testForWebGPUSupport()
     },
     fragmentShaderSource: {
       main: `
-        return vec4<f32>(input.color.rgb, 1.0);
+        output.Color = vec4<f32>(input.color.rgb, 1.0);
       `,
     },
-    depthStencil: false,
+    depthStencil: null,
     primitiveType,
   })
     .setPosition({ x: canvas.width / 2, y: canvas.height / 2, z: 0 })

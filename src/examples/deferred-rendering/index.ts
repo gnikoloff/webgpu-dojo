@@ -12,6 +12,7 @@ import {
   Texture,
   VertexBuffer,
   IndexBuffer,
+  StorageBuffer,
   Sampler,
   GeometryUtils,
   OrthographicCamera,
@@ -19,28 +20,30 @@ import {
 
 import '../index.css'
 
+const MAX_LIGHTS_COUNT = 1024
+
+const OPTIONS = {
+  lightsCount: 256,
+  debugMode: false,
+}
+
 const getVertexShaderSnippet = ({ useUV = false }) => `
-  let worldPosition: vec4<f32> = transform.modelMatrix * input.pos;
+  output.position = transform.modelMatrix * input.position;
   output.Position = transform.projectionMatrix *
                     transform.viewMatrix *
-                    worldPosition;
+                    output.position;
   
   output.normal = transform.normalMatrix *
                   input.normal;
 
   ${useUV ? 'output.uv = input.uv;' : ''}
-
-  output.pos = worldPosition;
 `
 
 const getFragmentShaderSnippet = ({ useTexture = false }) => `
   let normal: vec3<f32> = normalize(input.normal.rgb);
   // TODO: this is hacky, since its hijacking the Color fragment output to output the position
-  // for the purposed of the deferred demo. The output variable "Color" is always at location(0)
-  // Must think of a better way mark that shader is using MRT and will output to different varyings
-  output.Color = vec4<f32>(input.pos.rgb, 1.0);
+  output.Color = vec4<f32>(input.position.rgb / input.position.a, 1.0);
   output.normal = vec4<f32>(normal, 1.0);
-  // output.albedo = vec4<f32>(1.0, 0.0, 0.0, 1.0);
   ${
     useTexture
       ? 'output.albedo = textureSample(sampler_texture, my_sampler, vec2<f32>(input.uv.x, 1.0 - input.uv.y));'
@@ -52,7 +55,7 @@ const DEFERRED_RENDER_VERTEX_SNIPPET = `
   output.Position = transform.projectionMatrix *
                     transform.viewMatrix *
                     transform.modelMatrix *
-                    input.pos;
+                    input.position;
   output.uv = input.uv;
 `
 
@@ -66,6 +69,10 @@ const DEFERRED_RENDER_FRAGMENT_SNIPPET = `
       0
     ).xyz;
 
+    if (position.z > 10000.0) {
+      discard;
+    }
+
     let normal = textureLoad(
       normal_texture,
       vec2<i32>(floor(input.coords.xy)),
@@ -78,17 +85,23 @@ const DEFERRED_RENDER_FRAGMENT_SNIPPET = `
       0
     ).rgb;
 
-    let lightPos = vec3<f32>(1.0, 1.0, 0.0);
-    let lightRadius = 3.0;
-    let lightColor = vec3<f32>(0.0, 1.0, 1.0);
-    let L = lightPos - position;
-    let distance = length(L);
-    
     var result = vec3<f32>(0.0);
-    if (distance < lightRadius) {
+
+    for (var i : u32 = 0u; i < inputUBO.maxLightsCount; i = i + 1u) {
+      let L = lightCollection.lights[i].position.xyz - position;
+      let distance = length(L);
+      
+      if (distance > lightCollection.lights[i].radius) {
+        continue;
+      }
+
       let lambert = max(dot(normal, normalize(L)), 0.0);
       result = result + vec3<f32>(
-        lambert * pow(1.0 - distance / lightRadius, 2.0) * lightColor * diffuse);    
+        lambert *
+        pow(1.0 - distance / lightCollection.lights[i].radius, 2.0) *
+        lightCollection.lights[i].color.rgb *
+        diffuse
+      );
     }
 
     output.Color = vec4<f32>(result, 1.0);
@@ -106,9 +119,6 @@ const DEFERRED_RENDER_FRAGMENT_SNIPPET = `
         vec2<i32>(floor(input.coords.xy)),
         0
       );
-      output.Color.x = (output.Color.x + 1.0) * 0.5;
-      output.Color.y = (output.Color.y + 1.0) * 0.5;
-      output.Color.x = (output.Color.z + 1.0) * 0.5;
     } else {
       output.Color = textureLoad(
         diffuse_texture,
@@ -120,10 +130,6 @@ const DEFERRED_RENDER_FRAGMENT_SNIPPET = `
   }
 `
 
-const OPTIONS = {
-  debugMode: false,
-}
-
 //
 ;(async () => {
   const gltf = await load(
@@ -134,8 +140,16 @@ const OPTIONS = {
 
   const gui = new dat.GUI()
   gui.add(OPTIONS, 'debugMode').onChange((v) => {
-    quadMesh.setUniform('debugMode', new Uint32Array([v]))
+    quadMesh.setUniform('debugMode', new Int32Array([v]))
   })
+  gui
+    .add(OPTIONS, 'lightsCount')
+    .min(1)
+    .max(MAX_LIGHTS_COUNT)
+    .step(1)
+    .onChange((v) => {
+      quadMesh.setUniform('maxLightsCount', new Uint32Array([v]))
+    })
 
   const canvas = document.getElementById('gpu-c') as HTMLCanvasElement
   canvas.width = innerWidth * devicePixelRatio
@@ -202,6 +216,169 @@ const OPTIONS = {
     format: 'depth24plus',
     usage: GPUTextureUsage.RENDER_ATTACHMENT,
   })
+
+  // GPU Compute pipeline for lights
+  const lightsDataStride = 10
+  const lightsData = new Float32Array(MAX_LIGHTS_COUNT * lightsDataStride)
+  for (let i = 0; i < MAX_LIGHTS_COUNT; i++) {
+    // position
+    lightsData[i * lightsDataStride + 0] = (Math.random() * 2 - 1) * 0.8
+    lightsData[i * lightsDataStride + 1] = 0.2
+    lightsData[i * lightsDataStride + 2] = Math.random() * 2
+
+    // velocity
+    lightsData[i * lightsDataStride + 3] = (Math.random() * 2 - 1) * 1
+    lightsData[i * lightsDataStride + 4] = (Math.random() * 2 - 1) * 1
+    lightsData[i * lightsDataStride + 5] = (Math.random() * 2 - 1) * 1
+
+    // color
+    lightsData[i * lightsDataStride + 6] = Math.random()
+    lightsData[i * lightsDataStride + 7] = Math.random()
+    lightsData[i * lightsDataStride + 8] = Math.random()
+
+    // radius
+    lightsData[i * lightsDataStride + 9] = 2
+  }
+
+  const lightsBuffer = new StorageBuffer(
+    device,
+    lightsData,
+    lightsDataStride * Float32Array.BYTES_PER_ELEMENT,
+    GPUBufferUsage.VERTEX | GPUBufferUsage.STORAGE,
+  ).addAttribute('Light', {
+    position: 'vec3<f32>',
+    velocity: 'vec3<f32>',
+    color: 'vec3<f32>',
+    radius: 'f32',
+  })
+
+  const lightsUpdateComputePipeline = device.createComputePipeline({
+    compute: {
+      entryPoint: 'main',
+      module: device.createShaderModule({
+        code: `
+          struct Light {
+            position: vec3<f32>;
+            velocity: vec3<f32>;
+            color: vec3<f32>;
+            radius: f32;
+          };
+
+          [[block]] struct LightsBuffer {
+            lights: array<Light>;
+          };
+
+          [[group(0), binding(0)]] var<storage, read_write> lightsBuffer: LightsBuffer;
+
+          let worldSize: vec3<f32> = vec3<f32>(3.0);
+
+          [[stage(compute), workgroup_size(64, 1, 1)]]
+          fn main([[builtin(global_invocation_id)]] GlobalInvocationID : vec3<u32>) {
+            let index = GlobalInvocationID.x;
+
+            if (lightsBuffer.lights[index].position.x > worldSize.x * 0.5) {
+              lightsBuffer.lights[index].position.x = worldSize.x * 0.5;
+              lightsBuffer.lights[index].velocity.x = lightsBuffer.lights[index].velocity.x * -1.0;
+            } elseif (lightsBuffer.lights[index].position.x < -worldSize.x * 0.5) {
+              lightsBuffer.lights[index].position.x = -worldSize.x * 0.5;
+              lightsBuffer.lights[index].velocity.x = lightsBuffer.lights[index].velocity.x * -1.0;
+            }
+
+            if (lightsBuffer.lights[index].position.y > worldSize.x * 0.5) {
+              lightsBuffer.lights[index].position.y = worldSize.x * 0.5;
+              lightsBuffer.lights[index].velocity.y = lightsBuffer.lights[index].velocity.y * -1.0;
+            } elseif (lightsBuffer.lights[index].position.y < -worldSize.x * 0.5) {
+              lightsBuffer.lights[index].position.y = -worldSize.x * 0.5;
+              lightsBuffer.lights[index].velocity.y = lightsBuffer.lights[index].velocity.y * -1.0;
+            }
+
+            if (lightsBuffer.lights[index].position.z > worldSize.x * 0.5) {
+              lightsBuffer.lights[index].position.z = worldSize.x * 0.5;
+              lightsBuffer.lights[index].velocity.z = lightsBuffer.lights[index].velocity.z * -1.0;
+            } elseif (lightsBuffer.lights[index].position.z < -worldSize.x * 0.5) {
+              lightsBuffer.lights[index].position.z = -worldSize.x * 0.5;
+              lightsBuffer.lights[index].velocity.z = lightsBuffer.lights[index].velocity.z * -1.0;
+            }
+            
+            lightsBuffer.lights[index].position.x = lightsBuffer.lights[index].position.x + lightsBuffer.lights[index].velocity.x * 0.01;
+            lightsBuffer.lights[index].position.y = lightsBuffer.lights[index].position.y + lightsBuffer.lights[index].velocity.y * 0.01;
+            lightsBuffer.lights[index].position.z = lightsBuffer.lights[index].position.z + lightsBuffer.lights[index].velocity.z * 0.01;
+          }
+        `,
+      }),
+    },
+  })
+  const lightsUpdateBindGroup = device.createBindGroup({
+    layout: lightsUpdateComputePipeline.getBindGroupLayout(0),
+    entries: [
+      {
+        binding: 0,
+        resource: {
+          buffer: lightsBuffer.get(),
+        },
+      },
+    ],
+  })
+
+  // debug lights please
+  let lightsDebugMesh
+
+  {
+    const radius = 0.15
+    const { vertices, indices } = GeometryUtils.createBox({
+      width: radius,
+      height: radius,
+      depth: radius,
+    })
+    const geometry = new Geometry(device)
+    geometry.instanceCount = MAX_LIGHTS_COUNT
+    const vertexBuffer = new VertexBuffer(
+      device,
+      0,
+      vertices,
+      3 * Float32Array.BYTES_PER_ELEMENT,
+    ).addAttribute(
+      'position',
+      0,
+      3 * Float32Array.BYTES_PER_ELEMENT,
+      'float32x3',
+    )
+    const lightsDebugBuffer = new VertexBuffer(
+      device,
+      1,
+      lightsData,
+      lightsDataStride * Float32Array.BYTES_PER_ELEMENT,
+      GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+      'instance',
+    ).addAttribute(
+      'offsetPosition',
+      0,
+      3 * Float32Array.BYTES_PER_ELEMENT,
+      'float32x3',
+    )
+    const indexBuffer = new IndexBuffer(device, indices)
+    geometry
+      .addIndexBuffer(indexBuffer)
+      .addVertexBuffer(vertexBuffer)
+      .addVertexBuffer(lightsDebugBuffer)
+
+    lightsDebugMesh = new Mesh(device, {
+      geometry,
+      vertexShaderSource: {
+        main: `
+        output.Position = transform.projectionMatrix *
+                          transform.viewMatrix *
+                          (input.position + input.offsetPosition);
+      `,
+      },
+      fragmentShaderSource: {
+        main: `
+          output.Color = vec4<f32>(1.0, 0.0, 0.0, 1.0);
+        `,
+      },
+      depthStencil: null,
+    })
+  }
 
   // g-buffer pipeline descriptor
   const gBufferTexturePosition = new Texture(
@@ -271,7 +448,12 @@ const OPTIONS = {
       0,
       vertices,
       3 * Float32Array.BYTES_PER_ELEMENT,
-    ).addAttribute('pos', 0, 3 * Float32Array.BYTES_PER_ELEMENT, 'float32x3')
+    ).addAttribute(
+      'position',
+      0,
+      3 * Float32Array.BYTES_PER_ELEMENT,
+      'float32x3',
+    )
     const uvBuffer = new VertexBuffer(
       device,
       1,
@@ -291,6 +473,7 @@ const OPTIONS = {
       gBufferTextureNormal,
       gBufferTextureDiffuse,
     ],
+    storages: [lightsBuffer],
     uniforms: {
       canvasSize: {
         type: 'vec2<f32>',
@@ -298,7 +481,11 @@ const OPTIONS = {
       },
       debugMode: {
         type: 'i32',
-        value: new Uint32Array([0]),
+        value: new Int32Array([0]),
+      },
+      maxLightsCount: {
+        type: 'u32',
+        value: new Uint32Array([OPTIONS.lightsCount]),
       },
     },
     vertexShaderSource: {
@@ -306,11 +493,11 @@ const OPTIONS = {
     },
     fragmentShaderSource: {
       inputs: {
-        position: {
-          format: 'float32x4',
-          builtIn: true,
-          shaderName: 'coords',
-        },
+        // position: {
+        //   format: 'float32x4',
+        //   builtIn: true,
+        //   shaderName: 'coords',
+        // },
       },
       main: DEFERRED_RENDER_FRAGMENT_SNIPPET,
     },
@@ -326,6 +513,13 @@ const OPTIONS = {
     ts /= 1000
 
     const commandEncoder = device.createCommandEncoder()
+
+    const computeLightPositionPass = commandEncoder.beginComputePass()
+    computeLightPositionPass.setPipeline(lightsUpdateComputePipeline)
+    computeLightPositionPass.setBindGroup(0, lightsUpdateBindGroup)
+    computeLightPositionPass.dispatch(Math.ceil(MAX_LIGHTS_COUNT / 64))
+    computeLightPositionPass.endPass()
+
     // gbuffers pass
     const gBufferPass = commandEncoder.beginRenderPass(gBufferPassDescriptor)
     gBufferRootNode.traverseGraph((node) => {
@@ -353,10 +547,23 @@ const OPTIONS = {
       },
     })
 
-    // fullscreen quad postprocessing pass
+    // // fullscreen quad postprocessing pass
     quadMesh.render(renderPass, orthoCamera)
 
     renderPass.endPass()
+
+    // lights debug meshes
+    // const debugRenderPass = commandEncoder.beginRenderPass({
+    //   colorAttachments: [
+    //     {
+    //       view: swapChainTexture.createView(),
+    //       loadValue: [0.1, 0.1, 0.1, 0.1],
+    //       storeOp: 'store',
+    //     },
+    //   ],
+    // })
+    // lightsDebugMesh.render(debugRenderPass, perspCamera)
+    // debugRenderPass.endPass()
 
     device.queue.submit([commandEncoder.finish()])
   }
@@ -380,7 +587,7 @@ const OPTIONS = {
             primitive.attributes.POSITION.value,
             primitive.attributes.POSITION.bytesPerElement,
           ).addAttribute(
-            'pos',
+            'position',
             0,
             primitive.attributes.POSITION.bytesPerElement,
             'float32x3',
