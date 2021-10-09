@@ -21,8 +21,6 @@ import QUAD_FRAGMENT_SHADER from './quad-shader.frag.wglsl'
 
 import '../index.css'
 
-testForWebGPUSupport()
-
 const INSTANCES_COUNT = 500
 const WORLD_SIZE_X = 20
 const WORLD_SIZE_Y = 20
@@ -63,6 +61,7 @@ function getRandPositionScaleRotation(scaleUniformly = true) {
   }
 }
 
+testForWebGPUSupport()
 ;(async () => {
   const canvas = document.getElementById('gpu-c') as HTMLCanvasElement
   canvas.width = innerWidth * devicePixelRatio

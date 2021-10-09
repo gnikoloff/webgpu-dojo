@@ -14,6 +14,7 @@ import {
 } from '../../lib/hwoa-rang-gpu'
 
 import '../index.css'
+import { testForWebGPUSupport } from '../shared/test-for-webgpu-support'
 
 const SAMPLE_COUNT = 4
 
@@ -47,7 +48,7 @@ const FRAGMENT_SHADER_MAIN_SNIPPET = `
   output.Color = vec4<f32>(inputUBO.baseColor.rgb * finalLight, 1.0);
 `
 
-//
+testForWebGPUSupport()
 ;(async () => {
   const gltf = await load(`${window['ASSETS_BASE_URL']}/Buggy.gltf`, GLTFLoader)
   console.log(gltf)

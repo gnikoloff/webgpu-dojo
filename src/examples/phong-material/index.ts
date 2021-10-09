@@ -17,6 +17,7 @@ import {
 } from '../../lib/hwoa-rang-gpu'
 
 import '../index.css'
+import { testForWebGPUSupport } from '../shared/test-for-webgpu-support'
 
 const SAMPLE_COUNT = 4
 const WORLD_SIZE = 20
@@ -102,7 +103,7 @@ const OPTIONS = {
   lightMode: DRAW_MODES[0],
 }
 
-//
+testForWebGPUSupport()
 ;(async () => {
   const gui = new dat.GUI()
 
@@ -460,6 +461,11 @@ const OPTIONS = {
   lightMesh.setParent(rootNode)
 
   requestAnimationFrame(drawFrame)
+
+  window.onerror = (e) => {
+    console.log(e)
+    debugger
+  }
 
   function drawFrame(ts) {
     requestAnimationFrame(drawFrame)

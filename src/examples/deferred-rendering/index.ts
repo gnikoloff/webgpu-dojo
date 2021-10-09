@@ -16,9 +16,11 @@ import {
   Sampler,
   GeometryUtils,
   OrthographicCamera,
+  GPUCompute,
 } from '../../lib/hwoa-rang-gpu'
 
 import '../index.css'
+import { testForWebGPUSupport } from '../shared/test-for-webgpu-support'
 
 const MAX_LIGHTS_COUNT = 1024
 
@@ -130,7 +132,44 @@ const DEFERRED_RENDER_FRAGMENT_SNIPPET = `
   }
 `
 
-//
+const GPU_COMPUTE_SHADER_SNIPPET = `
+  // Do not update lights above the user specified number
+  if (index >= inputUBO.maxLightsCount) {
+    return;
+  }
+
+  // Handle world "walls"
+  if (lightCollection.lights[index].position.x > worldSize.x * 0.5) {
+    lightCollection.lights[index].position.x = worldSize.x * 0.5;
+    lightCollection.lights[index].velocity.x = lightCollection.lights[index].velocity.x * -1.0;
+  } elseif (lightCollection.lights[index].position.x < -worldSize.x * 0.5) {
+    lightCollection.lights[index].position.x = -worldSize.x * 0.5;
+    lightCollection.lights[index].velocity.x = lightCollection.lights[index].velocity.x * -1.0;
+  }
+
+  if (lightCollection.lights[index].position.y > worldSize.x * 0.5) {
+    lightCollection.lights[index].position.y = worldSize.x * 0.5;
+    lightCollection.lights[index].velocity.y = lightCollection.lights[index].velocity.y * -1.0;
+  } elseif (lightCollection.lights[index].position.y < -worldSize.x * 0.5) {
+    lightCollection.lights[index].position.y = -worldSize.x * 0.5;
+    lightCollection.lights[index].velocity.y = lightCollection.lights[index].velocity.y * -1.0;
+  }
+
+  if (lightCollection.lights[index].position.z > worldSize.x * 0.5) {
+    lightCollection.lights[index].position.z = worldSize.x * 0.5;
+    lightCollection.lights[index].velocity.z = lightCollection.lights[index].velocity.z * -1.0;
+  } elseif (lightCollection.lights[index].position.z < -worldSize.x * 0.5) {
+    lightCollection.lights[index].position.z = -worldSize.x * 0.5;
+    lightCollection.lights[index].velocity.z = lightCollection.lights[index].velocity.z * -1.0;
+  }
+  
+  // Apply velocity to light position
+  lightCollection.lights[index].position.x = lightCollection.lights[index].position.x + lightCollection.lights[index].velocity.x * 0.01;
+  lightCollection.lights[index].position.y = lightCollection.lights[index].position.y + lightCollection.lights[index].velocity.y * 0.01;
+  lightCollection.lights[index].position.z = lightCollection.lights[index].position.z + lightCollection.lights[index].velocity.z * 0.01;
+`
+
+testForWebGPUSupport()
 ;(async () => {
   const gltf = await load(
     `${window['ASSETS_BASE_URL']}/DragonAttenuation.gltf`,
@@ -148,7 +187,9 @@ const DEFERRED_RENDER_FRAGMENT_SNIPPET = `
     .max(MAX_LIGHTS_COUNT)
     .step(1)
     .onChange((v) => {
-      quadMesh.setUniform('maxLightsCount', new Uint32Array([v]))
+      const typedVal = new Uint32Array([v])
+      quadMesh.setUniform('maxLightsCount', typedVal)
+      lightsUpdateCompute.setUniform('maxLightsCount', typedVal)
     })
 
   const canvas = document.getElementById('gpu-c') as HTMLCanvasElement
@@ -252,133 +293,21 @@ const DEFERRED_RENDER_FRAGMENT_SNIPPET = `
     radius: 'f32',
   })
 
-  const lightsUpdateComputePipeline = device.createComputePipeline({
-    compute: {
-      entryPoint: 'main',
-      module: device.createShaderModule({
-        code: `
-          struct Light {
-            position: vec3<f32>;
-            velocity: vec3<f32>;
-            color: vec3<f32>;
-            radius: f32;
-          };
-
-          [[block]] struct LightsBuffer {
-            lights: array<Light>;
-          };
-
-          [[group(0), binding(0)]] var<storage, read_write> lightsBuffer: LightsBuffer;
-
-          let worldSize: vec3<f32> = vec3<f32>(3.0);
-
-          [[stage(compute), workgroup_size(64, 1, 1)]]
-          fn main([[builtin(global_invocation_id)]] GlobalInvocationID : vec3<u32>) {
-            let index = GlobalInvocationID.x;
-
-            if (lightsBuffer.lights[index].position.x > worldSize.x * 0.5) {
-              lightsBuffer.lights[index].position.x = worldSize.x * 0.5;
-              lightsBuffer.lights[index].velocity.x = lightsBuffer.lights[index].velocity.x * -1.0;
-            } elseif (lightsBuffer.lights[index].position.x < -worldSize.x * 0.5) {
-              lightsBuffer.lights[index].position.x = -worldSize.x * 0.5;
-              lightsBuffer.lights[index].velocity.x = lightsBuffer.lights[index].velocity.x * -1.0;
-            }
-
-            if (lightsBuffer.lights[index].position.y > worldSize.x * 0.5) {
-              lightsBuffer.lights[index].position.y = worldSize.x * 0.5;
-              lightsBuffer.lights[index].velocity.y = lightsBuffer.lights[index].velocity.y * -1.0;
-            } elseif (lightsBuffer.lights[index].position.y < -worldSize.x * 0.5) {
-              lightsBuffer.lights[index].position.y = -worldSize.x * 0.5;
-              lightsBuffer.lights[index].velocity.y = lightsBuffer.lights[index].velocity.y * -1.0;
-            }
-
-            if (lightsBuffer.lights[index].position.z > worldSize.x * 0.5) {
-              lightsBuffer.lights[index].position.z = worldSize.x * 0.5;
-              lightsBuffer.lights[index].velocity.z = lightsBuffer.lights[index].velocity.z * -1.0;
-            } elseif (lightsBuffer.lights[index].position.z < -worldSize.x * 0.5) {
-              lightsBuffer.lights[index].position.z = -worldSize.x * 0.5;
-              lightsBuffer.lights[index].velocity.z = lightsBuffer.lights[index].velocity.z * -1.0;
-            }
-            
-            lightsBuffer.lights[index].position.x = lightsBuffer.lights[index].position.x + lightsBuffer.lights[index].velocity.x * 0.01;
-            lightsBuffer.lights[index].position.y = lightsBuffer.lights[index].position.y + lightsBuffer.lights[index].velocity.y * 0.01;
-            lightsBuffer.lights[index].position.z = lightsBuffer.lights[index].position.z + lightsBuffer.lights[index].velocity.z * 0.01;
-          }
-        `,
-      }),
+  const lightsUpdateCompute = new GPUCompute(device, {
+    storages: [lightsBuffer],
+    uniforms: {
+      maxLightsCount: {
+        type: 'u32',
+        value: new Uint32Array([OPTIONS.lightsCount]),
+      },
+    },
+    shaderSource: {
+      head: `
+        let worldSize: vec3<f32> = vec3<f32>(3.0);
+      `,
+      main: GPU_COMPUTE_SHADER_SNIPPET,
     },
   })
-  const lightsUpdateBindGroup = device.createBindGroup({
-    layout: lightsUpdateComputePipeline.getBindGroupLayout(0),
-    entries: [
-      {
-        binding: 0,
-        resource: {
-          buffer: lightsBuffer.get(),
-        },
-      },
-    ],
-  })
-
-  // debug lights please
-  let lightsDebugMesh
-
-  {
-    const radius = 0.15
-    const { vertices, indices } = GeometryUtils.createBox({
-      width: radius,
-      height: radius,
-      depth: radius,
-    })
-    const geometry = new Geometry(device)
-    geometry.instanceCount = MAX_LIGHTS_COUNT
-    const vertexBuffer = new VertexBuffer(
-      device,
-      0,
-      vertices,
-      3 * Float32Array.BYTES_PER_ELEMENT,
-    ).addAttribute(
-      'position',
-      0,
-      3 * Float32Array.BYTES_PER_ELEMENT,
-      'float32x3',
-    )
-    const lightsDebugBuffer = new VertexBuffer(
-      device,
-      1,
-      lightsData,
-      lightsDataStride * Float32Array.BYTES_PER_ELEMENT,
-      GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
-      'instance',
-    ).addAttribute(
-      'offsetPosition',
-      0,
-      3 * Float32Array.BYTES_PER_ELEMENT,
-      'float32x3',
-    )
-    const indexBuffer = new IndexBuffer(device, indices)
-    geometry
-      .addIndexBuffer(indexBuffer)
-      .addVertexBuffer(vertexBuffer)
-      .addVertexBuffer(lightsDebugBuffer)
-
-    lightsDebugMesh = new Mesh(device, {
-      geometry,
-      vertexShaderSource: {
-        main: `
-        output.Position = transform.projectionMatrix *
-                          transform.viewMatrix *
-                          (input.position + input.offsetPosition);
-      `,
-      },
-      fragmentShaderSource: {
-        main: `
-          output.Color = vec4<f32>(1.0, 0.0, 0.0, 1.0);
-        `,
-      },
-      depthStencil: null,
-    })
-  }
 
   // g-buffer pipeline descriptor
   const gBufferTexturePosition = new Texture(
@@ -492,13 +421,6 @@ const DEFERRED_RENDER_FRAGMENT_SNIPPET = `
       main: DEFERRED_RENDER_VERTEX_SNIPPET,
     },
     fragmentShaderSource: {
-      inputs: {
-        // position: {
-        //   format: 'float32x4',
-        //   builtIn: true,
-        //   shaderName: 'coords',
-        // },
-      },
       main: DEFERRED_RENDER_FRAGMENT_SNIPPET,
     },
   })
@@ -514,10 +436,12 @@ const DEFERRED_RENDER_FRAGMENT_SNIPPET = `
 
     const commandEncoder = device.createCommandEncoder()
 
+    // Update the lights positions via the compute shader
     const computeLightPositionPass = commandEncoder.beginComputePass()
-    computeLightPositionPass.setPipeline(lightsUpdateComputePipeline)
-    computeLightPositionPass.setBindGroup(0, lightsUpdateBindGroup)
-    computeLightPositionPass.dispatch(Math.ceil(MAX_LIGHTS_COUNT / 64))
+    lightsUpdateCompute.dispatch(
+      computeLightPositionPass,
+      Math.ceil(MAX_LIGHTS_COUNT / 64),
+    )
     computeLightPositionPass.endPass()
 
     // gbuffers pass
@@ -547,24 +471,10 @@ const DEFERRED_RENDER_FRAGMENT_SNIPPET = `
       },
     })
 
-    // // fullscreen quad postprocessing pass
+    // fullscreen quad postprocessing pass
     quadMesh.render(renderPass, orthoCamera)
 
     renderPass.endPass()
-
-    // lights debug meshes
-    // const debugRenderPass = commandEncoder.beginRenderPass({
-    //   colorAttachments: [
-    //     {
-    //       view: swapChainTexture.createView(),
-    //       loadValue: [0.1, 0.1, 0.1, 0.1],
-    //       storeOp: 'store',
-    //     },
-    //   ],
-    // })
-    // lightsDebugMesh.render(debugRenderPass, perspCamera)
-    // debugRenderPass.endPass()
-
     device.queue.submit([commandEncoder.finish()])
   }
 

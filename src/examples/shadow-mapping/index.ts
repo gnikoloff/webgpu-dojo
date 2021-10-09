@@ -20,6 +20,7 @@ import {
 } from '../../lib/hwoa-rang-gpu'
 
 import '../index.css'
+import { testForWebGPUSupport } from '../shared/test-for-webgpu-support'
 
 // const SAMPLE_COUNT = 4
 const SHADOW_MAP_SIZE = 2048
@@ -119,7 +120,7 @@ const OPTIONS = {
   showDebug: true,
 }
 
-//
+testForWebGPUSupport()
 ;(async () => {
   const gltf = await load(
     `${window['ASSETS_BASE_URL']}/2CylinderEngine.gltf`,
@@ -465,8 +466,8 @@ const OPTIONS = {
     ],
   })
     .setPosition({
-      x: -innerWidth / 2 + debugPlaneWidth / 2 + debugPlanePadding,
-      y: -innerHeight / 2 + debugPlaneHeight / 2 + debugPlanePadding,
+      x: -canvas.width / 2 + debugPlaneWidth / 2 + debugPlanePadding,
+      y: -canvas.height / 2 + debugPlaneHeight / 2 + debugPlanePadding,
     })
     .setRotation({ x: Math.PI })
     .updateModelMatrix()
