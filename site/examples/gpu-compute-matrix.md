@@ -5,6 +5,6 @@ title: 'undefined'
 description: ''
 prevDemoId: 'deferred-rendering'
 prevDemoTitle: 'Deferred Shading'
-nextDemoId: 'deferred-rendering'
-nextDemoTitle: 'Deferred Shading'
+nextDemoId: 'hello-triangle'
+nextDemoTitle: 'Hello Triangle'
 ---

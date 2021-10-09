@@ -1,30 +1,91 @@
 [
   {
     "title": "Basic",
-    "entries": []
+    "entries": [
+      {
+        "id": "hello-triangle",
+        "title": "Hello Triangle"
+      },
+      {
+        "id": "hello-index-square",
+        "title": "Hello Indexed Square",
+        "description": "Render a quad using a single interleaved buffer holding both positions and colors for each vertex to reduce size"
+      },
+      {
+        "id": "draw-multiple-things",
+        "title": "Draw Multiple Things"
+      },
+      {
+        "id": "scene-graph",
+        "title": "Scene Graph",
+        "description": "Position object nodes in accordance with their parent nodes"
+      },
+      {
+        "id": "textured-cube",
+        "title": "Textured Cube",
+        "description": "Use the mouse to rotate / pan / zoom the camera. Shows multisampled rendering via a textured cube."
+      },
+      {
+        "id": "geometry-instancing",
+        "title": "Geometry Instancing"
+      }
+    ]
   },
   {
     "title": "glTF",
-    "entries": []
+    "entries": [
+      {
+        "id": "gltf-hello-triangle",
+        "title": "Hello glTF Triangle",
+        "description": "Load and parse the simplest glTF containing a single triangle with positions and indices."
+      },
+      {
+        "id": "gltf-buggy",
+        "description": "Parse complex glTF with multiple primitives. Use scene-graph to position nodes correctly",
+        "title": "glTF Buggy"
+      }
+    ]
   },
   {
     "title": "Materials",
-    "entries": []
+    "entries": [
+      {
+        "id": "phong-material",
+        "title": "Blinn-Phong Material",
+        "description": [
+          "Implement Blinn-Phong reflection model from scratch with hwoa-rang-gpu",
+          "- <a href=\"http://multivis.net/lecture/phong.html\">http://multivis.net/lecture/phong.html</a>",
+          "- <a href=\"https://threejs.org/docs/#api/materials/MeshPhongMaterial\">https://threejs.org/docs/#api/materials/MeshPhongMaterial</a>",
+          "- <a href=\"https://en.wikipedia.org/wiki/Blinn%E2%80%93Phong_shading_model\">https://en.wikipedia.org/wiki/Blinn%E2%80%93Phong_shading_model</a>"
+        ]
+      }
+    ]
   },
   {
     "title": "Framebuffer",
     "entries": [
       {
-        "id": "deferred-rendering",
-        "title": "Deferred Shading"
-      }
-    ]
-  },
-  {
-    "title": "GPU Compute",
-    "entries": [
+        "id": "postprocessing-01",
+        "title": "Postprocessing"
+      },
       {
-        "id": "gpu-compute-matrix"
+        "id": "shadow-mapping",
+        "title": "Shadow Mapping",
+        "description": [
+          "Implement shadows from scratch with hwoa-rang-gpu.",
+          "• <a href=\"http://learnwebgl.brown37.net/11_advanced_rendering/shadows.html\">http://learnwebgl.brown37.net/11_advanced_rendering/shadows.html</a>",
+          "• <a href=\"https://austin-eng.com/webgpu-samples/samples/shadowMapping\">https://austin-eng.com/webgpu-samples/samples/shadowMapping</a>"
+        ]
+      },
+      {
+        "id": "deferred-rendering",
+        "title": "Deferred Shading",
+        "description": [
+          "Implement deferred shading from scratch with MRT.",
+          "Use compute shader to calculate new positions and velocities for the lights.",
+          "• <a href=\"https://github.com/gnikoloff/gpgpu-hwoa-rang-gl\">https://github.com/gnikoloff/gpgpu-hwoa-rang-gl</a>",
+          "• <a href=\"https://austin-eng.com/webgpu-samples/samples/deferredRendering#main.ts\">https://austin-eng.com/webgpu-samples/samples/deferredRendering#main.ts</a>"
+        ]
       }
     ]
   }

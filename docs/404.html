@@ -2,66 +2,247 @@
 
 <!DOCTYPE html>
 <html lang="en">
+
+  <!-- Primary Meta Tags -->
+  <title>WebGPU Sketch Dojo</title>
+  <meta name="title" content="WebGPU Sketch Dojo">
+  <meta name="description" content="Experiments with the WebGPU API">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://gnikoloff.github.io/webgpu-dojo/">
+  <meta property="og:title" content="WebGPU Sketch Dojo">
+  <meta property="og:description" content="Experiments with the WebGPU API">
+  <meta property="og:image" content="/webgpu-dojo/assets/webgpu-sketch-dojo-social.png">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://gnikoloff.github.io/webgpu-dojo/">
+  <meta property="twitter:title" content="WebGPU Sketch Dojo">
+  <meta property="twitter:description" content="Experiments with the WebGPU API">
+  <meta property="twitter:image" content="/webgpu-dojo/assets/webgpu-sketch-dojo-social.png">
   
-  <link rel="stylesheet" href="/webgpu-dojo/assets/main.css">
+  <link rel="stylesheet" href="/webgpu-dojo/assets/css/main.css">
+  
   <body>
-
-
     <main class="page-content" aria-label="Content">
       <div class="wrapper">
+        <div class="intro">
+          <h1 class="big-title">WebGPU Sketch Dojo</h1>
+          <a href="https://github.com/gnikoloff/webgpu-dojo">View on GitHub</a>
+          <br/>
+          <br/>
+          <a
+            class="npm-link"
+            href="https://www.npmjs.com/package/hwoa-rang-gpu"
+            target="_blank"
+          >
+            <img src="https://img.shields.io/npm/v/hwoa-rang-gpu" />
+          </a>
+          <a
+            class="npm-link"
+            href="https://www.npmjs.com/package/hwoa-rang-gpu"
+            target="_blank"
+          >
+            <img src="https://img.shields.io/npm/l/hwoa-rang-gpu" />
+          </a>
+          <a
+            class="npm-link"
+            href="https://bundlephobia.com/result?p=hwoa-rang-gpu"
+            target="_blank"
+          >
+            <img src="https://badgen.net/bundlephobia/minzip/hwoa-rang-gpu" alt="size" />
+          </a>
+          <a
+            class="npm-link"
+          >
+            <img src="https://badgen.net/npm/types/hwoa-rang-gpu" alt="size" />
+          </a>
+          
           <p>
-            WebGPU is available for now in Chrome Canary on desktop behind an experimental flag. You can enable it at <code>chrome://flags/#enable-unsafe-webgpu</code>. The API is constantly changing and currently unsafe. As GPU sandboxing isn't implemented yet for the WebGPU API, it is possible to read GPU data for other processes! Don't browse the web with it enabled.
+            A collection of experiments with the emerging <a href="https://gpuweb.github.io/gpuweb/">WebGPU API</a>. Created by <a href="https://archive.georgi-nikolov.com/">Georgi Nikolov</a>
+            <br/>
+            <br/>
+            I also developed a micro WebGPU Rendering & Compute Library called <a href="https://github.com/gnikoloff/hwoa-rang-gpu">hwoa-rang-gpu</a> that powers most of these demos.
+            <br/>
+            <br/>
+            Starting in Chrome 94, WebGPU is available as an origin trial in Chrome. The origin trial is expected to end in Chrome 97 (Jan 26, 2022).
+            <br/>
+            Please use latest Google Chrome or Google Chrome Canary or Firefox Nightly (<a href="https://hacks.mozilla.org/2020/04/experimental-webgpu-in-firefox/">Instructions</a>). Linux users might need to take extra steps for Chrome as explained <a href="https://hacks.mozilla.org/2020/04/experimental-webgpu-in-firefox/">here</a>.
+            <br/><br/>
+            Keep in mind that WebGPU is still considered an experimental API and some of the demos might break. Please <a href="https://github.com/gnikoloff/webgpu-dojo/issues">file an issue</a> if something is not working.
           </p>
-          
-            <h3>Basic</h3>
-            <ul class="examples-wrapper">
-              
-            </ul>  
-          
-            <h3>glTF</h3>
-            <ul class="examples-wrapper">
-              
-            </ul>  
-          
-            <h3>Materials</h3>
-            <ul class="examples-wrapper">
-              
-            </ul>  
-          
-            <h3>Framebuffer</h3>
-            <ul class="examples-wrapper">
-              
-                <li class="example-link">
-                  <a href="examples/deferred-rendering">
-                    <img
-                      class="example-thumb"
-                      src=".png' | url }}"
-                      alt="Preview render thumbnail for Deferred Shading"
-                    />
-                    <h4>Deferred Shading</h4>
-                  </a>
-                </li>
-              
-            </ul>  
-          
-            <h3>GPU Compute</h3>
-            <ul class="examples-wrapper">
-              
-                <li class="example-link">
-                  <a href="examples/gpu-compute-matrix">
-                    <img
-                      class="example-thumb"
-                      src=".png' | url }}"
-                      alt="Preview render thumbnail for "
-                    />
-                    <h4></h4>
-                  </a>
-                </li>
-              
-            </ul>  
-          
+        </div>
+        
+          <h3 class="section-title">Basic</h3>
+          <ul class="examples-wrapper clearfix">
+            
+              <li class="example-link">
+                <a href="examples/hello-triangle">
+                  <img
+                    class="example-thumb"
+                    src="/webgpu-dojo/assets/images/hello-triangle.png"
+                    alt="Preview render thumbnail for Hello Triangle"
+                  />
+                  <h4 class="example-title">Hello Triangle</h4>
+                </a>
+              </li>
+            
+              <li class="example-link">
+                <a href="examples/hello-index-square">
+                  <img
+                    class="example-thumb"
+                    src="/webgpu-dojo/assets/images/hello-index-square.png"
+                    alt="Preview render thumbnail for Hello Indexed Square"
+                  />
+                  <h4 class="example-title">Hello Indexed Square</h4>
+                </a>
+              </li>
+            
+              <li class="example-link">
+                <a href="examples/draw-multiple-things">
+                  <img
+                    class="example-thumb"
+                    src="/webgpu-dojo/assets/images/draw-multiple-things.png"
+                    alt="Preview render thumbnail for Draw Multiple Things"
+                  />
+                  <h4 class="example-title">Draw Multiple Things</h4>
+                </a>
+              </li>
+            
+              <li class="example-link">
+                <a href="examples/scene-graph">
+                  <img
+                    class="example-thumb"
+                    src="/webgpu-dojo/assets/images/scene-graph.png"
+                    alt="Preview render thumbnail for Scene Graph"
+                  />
+                  <h4 class="example-title">Scene Graph</h4>
+                </a>
+              </li>
+            
+              <li class="example-link">
+                <a href="examples/textured-cube">
+                  <img
+                    class="example-thumb"
+                    src="/webgpu-dojo/assets/images/textured-cube.png"
+                    alt="Preview render thumbnail for Textured Cube"
+                  />
+                  <h4 class="example-title">Textured Cube</h4>
+                </a>
+              </li>
+            
+              <li class="example-link">
+                <a href="examples/geometry-instancing">
+                  <img
+                    class="example-thumb"
+                    src="/webgpu-dojo/assets/images/geometry-instancing.png"
+                    alt="Preview render thumbnail for Geometry Instancing"
+                  />
+                  <h4 class="example-title">Geometry Instancing</h4>
+                </a>
+              </li>
+            
+          </ul>  
+        
+          <h3 class="section-title">glTF</h3>
+          <ul class="examples-wrapper clearfix">
+            
+              <li class="example-link">
+                <a href="examples/gltf-hello-triangle">
+                  <img
+                    class="example-thumb"
+                    src="/webgpu-dojo/assets/images/gltf-hello-triangle.png"
+                    alt="Preview render thumbnail for Hello glTF Triangle"
+                  />
+                  <h4 class="example-title">Hello glTF Triangle</h4>
+                </a>
+              </li>
+            
+              <li class="example-link">
+                <a href="examples/gltf-buggy">
+                  <img
+                    class="example-thumb"
+                    src="/webgpu-dojo/assets/images/gltf-buggy.png"
+                    alt="Preview render thumbnail for glTF Buggy"
+                  />
+                  <h4 class="example-title">glTF Buggy</h4>
+                </a>
+              </li>
+            
+          </ul>  
+        
+          <h3 class="section-title">Materials</h3>
+          <ul class="examples-wrapper clearfix">
+            
+              <li class="example-link">
+                <a href="examples/phong-material">
+                  <img
+                    class="example-thumb"
+                    src="/webgpu-dojo/assets/images/phong-material.png"
+                    alt="Preview render thumbnail for Blinn-Phong Material"
+                  />
+                  <h4 class="example-title">Blinn-Phong Material</h4>
+                </a>
+              </li>
+            
+          </ul>  
+        
+          <h3 class="section-title">Framebuffer</h3>
+          <ul class="examples-wrapper clearfix">
+            
+              <li class="example-link">
+                <a href="examples/postprocessing-01">
+                  <img
+                    class="example-thumb"
+                    src="/webgpu-dojo/assets/images/postprocessing-01.png"
+                    alt="Preview render thumbnail for Postprocessing"
+                  />
+                  <h4 class="example-title">Postprocessing</h4>
+                </a>
+              </li>
+            
+              <li class="example-link">
+                <a href="examples/shadow-mapping">
+                  <img
+                    class="example-thumb"
+                    src="/webgpu-dojo/assets/images/shadow-mapping.png"
+                    alt="Preview render thumbnail for Shadow Mapping"
+                  />
+                  <h4 class="example-title">Shadow Mapping</h4>
+                </a>
+              </li>
+            
+              <li class="example-link">
+                <a href="examples/deferred-rendering">
+                  <img
+                    class="example-thumb"
+                    src="/webgpu-dojo/assets/images/deferred-rendering.png"
+                    alt="Preview render thumbnail for Deferred Shading"
+                  />
+                  <h4 class="example-title">Deferred Shading</h4>
+                </a>
+              </li>
+            
+          </ul>  
+        
       </div>
     </main>
+
+    <footer>
+      <a href="https://github.com/gnikoloff/webgpu-dojo">View on GitHub</a>
+      Georgi Nikolov 2021
+    </footer>
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-209778909-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-209778909-1');
+    </script>
 
 
   </body>

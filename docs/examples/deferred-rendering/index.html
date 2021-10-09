@@ -5,9 +5,28 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+    <!-- Primary Meta Tags -->
+    <title>WebGPU Sketch Dojo</title>
+    <meta name="title" content="WebGPU Sketch Dojo">
+    <meta name="description" content="Experiments with the WebGPU API">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://gnikoloff.github.io/webgpu-dojo/">
+    <meta property="og:title" content="WebGPU Sketch Dojo">
+    <meta property="og:description" content="Experiments with the WebGPU API">
+    <meta property="og:image" content="/webgpu-dojo/assets/webgpu-sketch-dojo-social.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://gnikoloff.github.io/webgpu-dojo/">
+    <meta property="twitter:title" content="WebGPU Sketch Dojo">
+    <meta property="twitter:description" content="Experiments with the WebGPU API">
+    <meta property="twitter:image" content="/webgpu-dojo/assets/webgpu-sketch-dojo-social.png">
+
     <meta http-equiv="origin-trial" content="AhE99tXCz7rNPbO9trRshOXiTObuhJOKUFfJi6mfwaVOlPJgsKyWSFUx7ZPzAWuNs4lEluGMIHpTD45OxcrrCQoAAABJeyJvcmlnaW4iOiJodHRwOi8vbG9jYWxob3N0OjgwODAiLCJmZWF0dXJlIjoiV2ViR1BVIiwiZXhwaXJ5IjoxNjQzMTU1MTk5fQ==">
 
-    <!-- <link rel="stylesheet" href="/webgpu-dojo/assets/main.css"> -->
+    <link rel="stylesheet" href="/webgpu-dojo/assets/css/main.css">
     
   </head>
   <body class="post-page">
@@ -16,7 +35,7 @@
       <a href="/" class="go-back-link">&larr;&nbsp;&nbsp;Home</a>
       <small></small>
       <h1 class="example-title">Deferred Shading</h1>
-      <p class="example-desc"></p>
+      <p class="example-desc">Implement deferred shading from scratch with MRT.<br />Use compute shader to calculate new positions and velocities for the lights.<br />• <a href="https://github.com/gnikoloff/gpgpu-hwoa-rang-gl">https://github.com/gnikoloff/gpgpu-hwoa-rang-gl</a><br />• <a href="https://austin-eng.com/webgpu-samples/samples/deferredRendering#main.ts">https://austin-eng.com/webgpu-samples/samples/deferredRendering#main.ts</a></p>
       <a
         class="example-source"
         href="https://github.com/gnikoloff/webgpu-dojo/blob/master/src/examples/deferred-rendering"
@@ -25,12 +44,12 @@
       </a>
     </div>
     <nav id="inner-nav">
-      <a href="/webgpu-dojo/gpu-compute-matrix">
-        &larr;&nbsp;&nbsp;undefined
+      <a href="/webgpu-dojo/examples/shadow-mapping">
+        &larr;&nbsp;&nbsp;Shadow Mapping
       </a>
       &nbsp;&nbsp;&nbsp;&nbsp;
-      <a href="/webgpu-dojo/gpu-compute-matrix">
-        undefined&nbsp;&nbsp;&rarr;
+      <a href="/webgpu-dojo/examples/hello-triangle">
+        Hello Triangle&nbsp;&nbsp;&rarr;
       </a>
     </nav>
 
@@ -39,6 +58,16 @@
     </script>
     
     <script src="/webgpu-dojo/examples/deferred-rendering/bundle.js"></script>
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-209778909-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-209778909-1');
+    </script>
 
   </body>
 </html>

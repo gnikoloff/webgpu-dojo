@@ -2392,7 +2392,7 @@ try {
       return candidateLoaders && candidateLoaders.length ? candidateLoaders : null;
     }
 
-    async function parse$2(data, loaders, options, context) {
+    async function parse$3(data, loaders, options, context) {
       assert$4(!context || typeof context === 'object');
 
       if (loaders && !Array.isArray(loaders) && !isLoaderObject(loaders)) {
@@ -2417,7 +2417,7 @@ try {
       options = normalizeOptions(options, loader, candidateLoaders, url);
       context = getLoaderContext({
         url,
-        parse: parse$2,
+        parse: parse$3,
         loaders: candidateLoaders
       }, options, context);
       return await parseWithLoader(loader, data, options, context);
@@ -2433,7 +2433,7 @@ try {
       }
 
       if (canParseWithWorker(loader, options)) {
-        return await parseWithWorker(loader, data, options, context, parse$2);
+        return await parseWithWorker(loader, data, options, context, parse$3);
       }
 
       if (loader.parseText && typeof data === 'string') {
@@ -2465,7 +2465,7 @@ try {
         data = await fetch(url);
       }
 
-      return await parse$2(data, loaders, options);
+      return await parse$3(data, loaders, options);
     }
 
     const VERSION$2 = "3.0.11" ;
@@ -3936,10 +3936,10 @@ try {
     }
 
     const DracoLoader = { ...DracoLoader$1,
-      parse: parse$1
+      parse: parse$2
     };
 
-    async function parse$1(arrayBuffer, options) {
+    async function parse$2(arrayBuffer, options) {
       const {
         draco
       } = await loadDracoDecoderModule(options);
@@ -5813,7 +5813,7 @@ ${String.fromCharCode(dataView.getUint8(byteOffset + 3))}`;
       text: true,
       binary: true,
       tests: ['glTF'],
-      parse,
+      parse: parse$1,
       options: {
         gltf: {
           normalize: true,
@@ -5834,7 +5834,7 @@ ${String.fromCharCode(dataView.getUint8(byteOffset + 3))}`;
         }
       }
     };
-    async function parse(arrayBuffer, options = {}, context) {
+    async function parse$1(arrayBuffer, options = {}, context) {
       options = { ...GLTFLoader.options,
         ...options
       };
@@ -5848,811 +5848,322 @@ ${String.fromCharCode(dataView.getUint8(byteOffset + 3))}`;
       return await parseGLTF(gltf, arrayBuffer, byteOffset, options, context);
     }
 
-    /**
-     * Common utilities
-     * @module glMatrix
-     */
-    // Configuration Constants
-    var EPSILON$1 = 0.000001;
-    var ARRAY_TYPE$1 = typeof Float32Array !== 'undefined' ? Float32Array : Array;
-    if (!Math.hypot) Math.hypot = function () {
-      var y = 0,
-          i = arguments.length;
-
-      while (i--) {
-        y += arguments[i] * arguments[i];
-      }
-
-      return Math.sqrt(y);
+    var colorName = {
+    	"aliceblue": [240, 248, 255],
+    	"antiquewhite": [250, 235, 215],
+    	"aqua": [0, 255, 255],
+    	"aquamarine": [127, 255, 212],
+    	"azure": [240, 255, 255],
+    	"beige": [245, 245, 220],
+    	"bisque": [255, 228, 196],
+    	"black": [0, 0, 0],
+    	"blanchedalmond": [255, 235, 205],
+    	"blue": [0, 0, 255],
+    	"blueviolet": [138, 43, 226],
+    	"brown": [165, 42, 42],
+    	"burlywood": [222, 184, 135],
+    	"cadetblue": [95, 158, 160],
+    	"chartreuse": [127, 255, 0],
+    	"chocolate": [210, 105, 30],
+    	"coral": [255, 127, 80],
+    	"cornflowerblue": [100, 149, 237],
+    	"cornsilk": [255, 248, 220],
+    	"crimson": [220, 20, 60],
+    	"cyan": [0, 255, 255],
+    	"darkblue": [0, 0, 139],
+    	"darkcyan": [0, 139, 139],
+    	"darkgoldenrod": [184, 134, 11],
+    	"darkgray": [169, 169, 169],
+    	"darkgreen": [0, 100, 0],
+    	"darkgrey": [169, 169, 169],
+    	"darkkhaki": [189, 183, 107],
+    	"darkmagenta": [139, 0, 139],
+    	"darkolivegreen": [85, 107, 47],
+    	"darkorange": [255, 140, 0],
+    	"darkorchid": [153, 50, 204],
+    	"darkred": [139, 0, 0],
+    	"darksalmon": [233, 150, 122],
+    	"darkseagreen": [143, 188, 143],
+    	"darkslateblue": [72, 61, 139],
+    	"darkslategray": [47, 79, 79],
+    	"darkslategrey": [47, 79, 79],
+    	"darkturquoise": [0, 206, 209],
+    	"darkviolet": [148, 0, 211],
+    	"deeppink": [255, 20, 147],
+    	"deepskyblue": [0, 191, 255],
+    	"dimgray": [105, 105, 105],
+    	"dimgrey": [105, 105, 105],
+    	"dodgerblue": [30, 144, 255],
+    	"firebrick": [178, 34, 34],
+    	"floralwhite": [255, 250, 240],
+    	"forestgreen": [34, 139, 34],
+    	"fuchsia": [255, 0, 255],
+    	"gainsboro": [220, 220, 220],
+    	"ghostwhite": [248, 248, 255],
+    	"gold": [255, 215, 0],
+    	"goldenrod": [218, 165, 32],
+    	"gray": [128, 128, 128],
+    	"green": [0, 128, 0],
+    	"greenyellow": [173, 255, 47],
+    	"grey": [128, 128, 128],
+    	"honeydew": [240, 255, 240],
+    	"hotpink": [255, 105, 180],
+    	"indianred": [205, 92, 92],
+    	"indigo": [75, 0, 130],
+    	"ivory": [255, 255, 240],
+    	"khaki": [240, 230, 140],
+    	"lavender": [230, 230, 250],
+    	"lavenderblush": [255, 240, 245],
+    	"lawngreen": [124, 252, 0],
+    	"lemonchiffon": [255, 250, 205],
+    	"lightblue": [173, 216, 230],
+    	"lightcoral": [240, 128, 128],
+    	"lightcyan": [224, 255, 255],
+    	"lightgoldenrodyellow": [250, 250, 210],
+    	"lightgray": [211, 211, 211],
+    	"lightgreen": [144, 238, 144],
+    	"lightgrey": [211, 211, 211],
+    	"lightpink": [255, 182, 193],
+    	"lightsalmon": [255, 160, 122],
+    	"lightseagreen": [32, 178, 170],
+    	"lightskyblue": [135, 206, 250],
+    	"lightslategray": [119, 136, 153],
+    	"lightslategrey": [119, 136, 153],
+    	"lightsteelblue": [176, 196, 222],
+    	"lightyellow": [255, 255, 224],
+    	"lime": [0, 255, 0],
+    	"limegreen": [50, 205, 50],
+    	"linen": [250, 240, 230],
+    	"magenta": [255, 0, 255],
+    	"maroon": [128, 0, 0],
+    	"mediumaquamarine": [102, 205, 170],
+    	"mediumblue": [0, 0, 205],
+    	"mediumorchid": [186, 85, 211],
+    	"mediumpurple": [147, 112, 219],
+    	"mediumseagreen": [60, 179, 113],
+    	"mediumslateblue": [123, 104, 238],
+    	"mediumspringgreen": [0, 250, 154],
+    	"mediumturquoise": [72, 209, 204],
+    	"mediumvioletred": [199, 21, 133],
+    	"midnightblue": [25, 25, 112],
+    	"mintcream": [245, 255, 250],
+    	"mistyrose": [255, 228, 225],
+    	"moccasin": [255, 228, 181],
+    	"navajowhite": [255, 222, 173],
+    	"navy": [0, 0, 128],
+    	"oldlace": [253, 245, 230],
+    	"olive": [128, 128, 0],
+    	"olivedrab": [107, 142, 35],
+    	"orange": [255, 165, 0],
+    	"orangered": [255, 69, 0],
+    	"orchid": [218, 112, 214],
+    	"palegoldenrod": [238, 232, 170],
+    	"palegreen": [152, 251, 152],
+    	"paleturquoise": [175, 238, 238],
+    	"palevioletred": [219, 112, 147],
+    	"papayawhip": [255, 239, 213],
+    	"peachpuff": [255, 218, 185],
+    	"peru": [205, 133, 63],
+    	"pink": [255, 192, 203],
+    	"plum": [221, 160, 221],
+    	"powderblue": [176, 224, 230],
+    	"purple": [128, 0, 128],
+    	"rebeccapurple": [102, 51, 153],
+    	"red": [255, 0, 0],
+    	"rosybrown": [188, 143, 143],
+    	"royalblue": [65, 105, 225],
+    	"saddlebrown": [139, 69, 19],
+    	"salmon": [250, 128, 114],
+    	"sandybrown": [244, 164, 96],
+    	"seagreen": [46, 139, 87],
+    	"seashell": [255, 245, 238],
+    	"sienna": [160, 82, 45],
+    	"silver": [192, 192, 192],
+    	"skyblue": [135, 206, 235],
+    	"slateblue": [106, 90, 205],
+    	"slategray": [112, 128, 144],
+    	"slategrey": [112, 128, 144],
+    	"snow": [255, 250, 250],
+    	"springgreen": [0, 255, 127],
+    	"steelblue": [70, 130, 180],
+    	"tan": [210, 180, 140],
+    	"teal": [0, 128, 128],
+    	"thistle": [216, 191, 216],
+    	"tomato": [255, 99, 71],
+    	"turquoise": [64, 224, 208],
+    	"violet": [238, 130, 238],
+    	"wheat": [245, 222, 179],
+    	"white": [255, 255, 255],
+    	"whitesmoke": [245, 245, 245],
+    	"yellow": [255, 255, 0],
+    	"yellowgreen": [154, 205, 50]
     };
 
     /**
-     * 3x3 Matrix
-     * @module mat3
+     * @module color-parse
      */
 
     /**
-     * Creates a new identity mat3
-     *
-     * @returns {mat3} a new 3x3 matrix
+     * Base hues
+     * http://dev.w3.org/csswg/css-color/#typedef-named-hue
      */
+    //FIXME: use external hue detector
+    var baseHues = {
+    	red: 0,
+    	orange: 60,
+    	yellow: 120,
+    	green: 180,
+    	blue: 240,
+    	purple: 300
+    };
 
-    function create$7() {
-      var out = new ARRAY_TYPE$1(9);
+    /**
+     * Parse color from the string passed
+     *
+     * @return {Object} A space indicator `space`, an array `values` and `alpha`
+     */
+    function parse (cstr) {
+    	var m, parts = [], alpha = 1, space;
 
-      if (ARRAY_TYPE$1 != Float32Array) {
-        out[1] = 0;
-        out[2] = 0;
-        out[3] = 0;
-        out[5] = 0;
-        out[6] = 0;
-        out[7] = 0;
-      }
+    	if (typeof cstr === 'string') {
+    		//keyword
+    		if (colorName[cstr]) {
+    			parts = colorName[cstr].slice();
+    			space = 'rgb';
+    		}
 
-      out[0] = 1;
-      out[4] = 1;
-      out[8] = 1;
-      return out;
+    		//reserved words
+    		else if (cstr === 'transparent') {
+    			alpha = 0;
+    			space = 'rgb';
+    			parts = [0,0,0];
+    		}
+
+    		//hex
+    		else if (/^#[A-Fa-f0-9]+$/.test(cstr)) {
+    			var base = cstr.slice(1);
+    			var size = base.length;
+    			var isShort = size <= 4;
+    			alpha = 1;
+
+    			if (isShort) {
+    				parts = [
+    					parseInt(base[0] + base[0], 16),
+    					parseInt(base[1] + base[1], 16),
+    					parseInt(base[2] + base[2], 16)
+    				];
+    				if (size === 4) {
+    					alpha = parseInt(base[3] + base[3], 16) / 255;
+    				}
+    			}
+    			else {
+    				parts = [
+    					parseInt(base[0] + base[1], 16),
+    					parseInt(base[2] + base[3], 16),
+    					parseInt(base[4] + base[5], 16)
+    				];
+    				if (size === 8) {
+    					alpha = parseInt(base[6] + base[7], 16) / 255;
+    				}
+    			}
+
+    			if (!parts[0]) parts[0] = 0;
+    			if (!parts[1]) parts[1] = 0;
+    			if (!parts[2]) parts[2] = 0;
+
+    			space = 'rgb';
+    		}
+
+    		//color space
+    		else if (m = /^((?:rgb|hs[lvb]|hwb|cmyk?|xy[zy]|gray|lab|lchu?v?|[ly]uv|lms)a?)\s*\(([^\)]*)\)/.exec(cstr)) {
+    			var name = m[1];
+    			var isRGB = name === 'rgb';
+    			var base = name.replace(/a$/, '');
+    			space = base;
+    			var size = base === 'cmyk' ? 4 : base === 'gray' ? 1 : 3;
+    			parts = m[2].trim()
+    				.split(/\s*[,\/]\s*|\s+/)
+    				.map(function (x, i) {
+    					//<percentage>
+    					if (/%$/.test(x)) {
+    						//alpha
+    						if (i === size)	return parseFloat(x) / 100
+    						//rgb
+    						if (base === 'rgb') return parseFloat(x) * 255 / 100
+    						return parseFloat(x)
+    					}
+    					//hue
+    					else if (base[i] === 'h') {
+    						//<deg>
+    						if (/deg$/.test(x)) {
+    							return parseFloat(x)
+    						}
+    						//<base-hue>
+    						else if (baseHues[x] !== undefined) {
+    							return baseHues[x]
+    						}
+    					}
+    					return parseFloat(x)
+    				});
+
+    			if (name === base) parts.push(1);
+    			alpha = (isRGB) ? 1 : (parts[size] === undefined) ? 1 : parts[size];
+    			parts = parts.slice(0, size);
+    		}
+
+    		//named channels case
+    		else if (cstr.length > 10 && /[0-9](?:\s|\/)/.test(cstr)) {
+    			parts = cstr.match(/([0-9]+)/g).map(function (value) {
+    				return parseFloat(value)
+    			});
+
+    			space = cstr.match(/([a-z])/ig).join('').toLowerCase();
+    		}
+    	}
+
+    	//numeric case
+    	else if (!isNaN(cstr)) {
+    		space = 'rgb';
+    		parts = [cstr >>> 16, (cstr & 0x00ff00) >>> 8, cstr & 0x0000ff];
+    	}
+
+    	//array-like
+    	else if (Array.isArray(cstr) || cstr.length) {
+    		parts = [cstr[0], cstr[1], cstr[2]];
+    		space = 'rgb';
+    		alpha = cstr.length === 4 ? cstr[3] : 1;
+    	}
+
+    	//object case - detects css cases of rgb and hsl
+    	else if (cstr instanceof Object) {
+    		if (cstr.r != null || cstr.red != null || cstr.R != null) {
+    			space = 'rgb';
+    			parts = [
+    				cstr.r || cstr.red || cstr.R || 0,
+    				cstr.g || cstr.green || cstr.G || 0,
+    				cstr.b || cstr.blue || cstr.B || 0
+    			];
+    		}
+    		else {
+    			space = 'hsl';
+    			parts = [
+    				cstr.h || cstr.hue || cstr.H || 0,
+    				cstr.s || cstr.saturation || cstr.S || 0,
+    				cstr.l || cstr.lightness || cstr.L || cstr.b || cstr.brightness
+    			];
+    		}
+
+    		alpha = cstr.a || cstr.alpha || cstr.opacity || 1;
+
+    		if (cstr.opacity != null) alpha /= 100;
+    	}
+
+    	return {
+    		space: space,
+    		values: parts,
+    		alpha: alpha
+    	}
     }
-
-    /**
-     * 4x4 Matrix<br>Format: column-major, when typed out it looks like row-major<br>The matrices are being post multiplied.
-     * @module mat4
-     */
-
-    /**
-     * Creates a new identity mat4
-     *
-     * @returns {mat4} a new 4x4 matrix
-     */
-
-    function create$6() {
-      var out = new ARRAY_TYPE$1(16);
-
-      if (ARRAY_TYPE$1 != Float32Array) {
-        out[1] = 0;
-        out[2] = 0;
-        out[3] = 0;
-        out[4] = 0;
-        out[6] = 0;
-        out[7] = 0;
-        out[8] = 0;
-        out[9] = 0;
-        out[11] = 0;
-        out[12] = 0;
-        out[13] = 0;
-        out[14] = 0;
-      }
-
-      out[0] = 1;
-      out[5] = 1;
-      out[10] = 1;
-      out[15] = 1;
-      return out;
-    }
-    /**
-     * Multiplies two mat4s
-     *
-     * @param {mat4} out the receiving matrix
-     * @param {ReadonlyMat4} a the first operand
-     * @param {ReadonlyMat4} b the second operand
-     * @returns {mat4} out
-     */
-
-    function multiply$1(out, a, b) {
-      var a00 = a[0],
-          a01 = a[1],
-          a02 = a[2],
-          a03 = a[3];
-      var a10 = a[4],
-          a11 = a[5],
-          a12 = a[6],
-          a13 = a[7];
-      var a20 = a[8],
-          a21 = a[9],
-          a22 = a[10],
-          a23 = a[11];
-      var a30 = a[12],
-          a31 = a[13],
-          a32 = a[14],
-          a33 = a[15]; // Cache only the current line of the second matrix
-
-      var b0 = b[0],
-          b1 = b[1],
-          b2 = b[2],
-          b3 = b[3];
-      out[0] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
-      out[1] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
-      out[2] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
-      out[3] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
-      b0 = b[4];
-      b1 = b[5];
-      b2 = b[6];
-      b3 = b[7];
-      out[4] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
-      out[5] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
-      out[6] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
-      out[7] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
-      b0 = b[8];
-      b1 = b[9];
-      b2 = b[10];
-      b3 = b[11];
-      out[8] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
-      out[9] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
-      out[10] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
-      out[11] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
-      b0 = b[12];
-      b1 = b[13];
-      b2 = b[14];
-      b3 = b[15];
-      out[12] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
-      out[13] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
-      out[14] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
-      out[15] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
-      return out;
-    }
-    /**
-     * Translate a mat4 by the given vector
-     *
-     * @param {mat4} out the receiving matrix
-     * @param {ReadonlyMat4} a the matrix to translate
-     * @param {ReadonlyVec3} v vector to translate by
-     * @returns {mat4} out
-     */
-
-    function translate$1(out, a, v) {
-      var x = v[0],
-          y = v[1],
-          z = v[2];
-      var a00, a01, a02, a03;
-      var a10, a11, a12, a13;
-      var a20, a21, a22, a23;
-
-      if (a === out) {
-        out[12] = a[0] * x + a[4] * y + a[8] * z + a[12];
-        out[13] = a[1] * x + a[5] * y + a[9] * z + a[13];
-        out[14] = a[2] * x + a[6] * y + a[10] * z + a[14];
-        out[15] = a[3] * x + a[7] * y + a[11] * z + a[15];
-      } else {
-        a00 = a[0];
-        a01 = a[1];
-        a02 = a[2];
-        a03 = a[3];
-        a10 = a[4];
-        a11 = a[5];
-        a12 = a[6];
-        a13 = a[7];
-        a20 = a[8];
-        a21 = a[9];
-        a22 = a[10];
-        a23 = a[11];
-        out[0] = a00;
-        out[1] = a01;
-        out[2] = a02;
-        out[3] = a03;
-        out[4] = a10;
-        out[5] = a11;
-        out[6] = a12;
-        out[7] = a13;
-        out[8] = a20;
-        out[9] = a21;
-        out[10] = a22;
-        out[11] = a23;
-        out[12] = a00 * x + a10 * y + a20 * z + a[12];
-        out[13] = a01 * x + a11 * y + a21 * z + a[13];
-        out[14] = a02 * x + a12 * y + a22 * z + a[14];
-        out[15] = a03 * x + a13 * y + a23 * z + a[15];
-      }
-
-      return out;
-    }
-    /**
-     * Scales the mat4 by the dimensions in the given vec3 not using vectorization
-     *
-     * @param {mat4} out the receiving matrix
-     * @param {ReadonlyMat4} a the matrix to scale
-     * @param {ReadonlyVec3} v the vec3 to scale the matrix by
-     * @returns {mat4} out
-     **/
-
-    function scale$2(out, a, v) {
-      var x = v[0],
-          y = v[1],
-          z = v[2];
-      out[0] = a[0] * x;
-      out[1] = a[1] * x;
-      out[2] = a[2] * x;
-      out[3] = a[3] * x;
-      out[4] = a[4] * y;
-      out[5] = a[5] * y;
-      out[6] = a[6] * y;
-      out[7] = a[7] * y;
-      out[8] = a[8] * z;
-      out[9] = a[9] * z;
-      out[10] = a[10] * z;
-      out[11] = a[11] * z;
-      out[12] = a[12];
-      out[13] = a[13];
-      out[14] = a[14];
-      out[15] = a[15];
-      return out;
-    }
-    /**
-     * Calculates a 4x4 matrix from the given quaternion
-     *
-     * @param {mat4} out mat4 receiving operation result
-     * @param {ReadonlyQuat} q Quaternion to create matrix from
-     *
-     * @returns {mat4} out
-     */
-
-    function fromQuat(out, q) {
-      var x = q[0],
-          y = q[1],
-          z = q[2],
-          w = q[3];
-      var x2 = x + x;
-      var y2 = y + y;
-      var z2 = z + z;
-      var xx = x * x2;
-      var yx = y * x2;
-      var yy = y * y2;
-      var zx = z * x2;
-      var zy = z * y2;
-      var zz = z * z2;
-      var wx = w * x2;
-      var wy = w * y2;
-      var wz = w * z2;
-      out[0] = 1 - yy - zz;
-      out[1] = yx + wz;
-      out[2] = zx - wy;
-      out[3] = 0;
-      out[4] = yx - wz;
-      out[5] = 1 - xx - zz;
-      out[6] = zy + wx;
-      out[7] = 0;
-      out[8] = zx + wy;
-      out[9] = zy - wx;
-      out[10] = 1 - xx - yy;
-      out[11] = 0;
-      out[12] = 0;
-      out[13] = 0;
-      out[14] = 0;
-      out[15] = 1;
-      return out;
-    }
-    /**
-     * Alias for {@link mat4.multiply}
-     * @function
-     */
-
-    var mul$1 = multiply$1;
-
-    /**
-     * 3 Dimensional Vector
-     * @module vec3
-     */
-
-    /**
-     * Creates a new, empty vec3
-     *
-     * @returns {vec3} a new 3D vector
-     */
-
-    function create$5() {
-      var out = new ARRAY_TYPE$1(3);
-
-      if (ARRAY_TYPE$1 != Float32Array) {
-        out[0] = 0;
-        out[1] = 0;
-        out[2] = 0;
-      }
-
-      return out;
-    }
-    /**
-     * Calculates the length of a vec3
-     *
-     * @param {ReadonlyVec3} a vector to calculate length of
-     * @returns {Number} length of a
-     */
-
-    function length(a) {
-      var x = a[0];
-      var y = a[1];
-      var z = a[2];
-      return Math.hypot(x, y, z);
-    }
-    /**
-     * Creates a new vec3 initialized with the given values
-     *
-     * @param {Number} x X component
-     * @param {Number} y Y component
-     * @param {Number} z Z component
-     * @returns {vec3} a new 3D vector
-     */
-
-    function fromValues$3(x, y, z) {
-      var out = new ARRAY_TYPE$1(3);
-      out[0] = x;
-      out[1] = y;
-      out[2] = z;
-      return out;
-    }
-    /**
-     * Normalize a vec3
-     *
-     * @param {vec3} out the receiving vector
-     * @param {ReadonlyVec3} a vector to normalize
-     * @returns {vec3} out
-     */
-
-    function normalize$3(out, a) {
-      var x = a[0];
-      var y = a[1];
-      var z = a[2];
-      var len = x * x + y * y + z * z;
-
-      if (len > 0) {
-        //TODO: evaluate use of glm_invsqrt here?
-        len = 1 / Math.sqrt(len);
-      }
-
-      out[0] = a[0] * len;
-      out[1] = a[1] * len;
-      out[2] = a[2] * len;
-      return out;
-    }
-    /**
-     * Calculates the dot product of two vec3's
-     *
-     * @param {ReadonlyVec3} a the first operand
-     * @param {ReadonlyVec3} b the second operand
-     * @returns {Number} dot product of a and b
-     */
-
-    function dot(a, b) {
-      return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-    }
-    /**
-     * Computes the cross product of two vec3's
-     *
-     * @param {vec3} out the receiving vector
-     * @param {ReadonlyVec3} a the first operand
-     * @param {ReadonlyVec3} b the second operand
-     * @returns {vec3} out
-     */
-
-    function cross$1(out, a, b) {
-      var ax = a[0],
-          ay = a[1],
-          az = a[2];
-      var bx = b[0],
-          by = b[1],
-          bz = b[2];
-      out[0] = ay * bz - az * by;
-      out[1] = az * bx - ax * bz;
-      out[2] = ax * by - ay * bx;
-      return out;
-    }
-    /**
-     * Alias for {@link vec3.length}
-     * @function
-     */
-
-    var len = length;
-    /**
-     * Perform some operation over an array of vec3s.
-     *
-     * @param {Array} a the array of vectors to iterate over
-     * @param {Number} stride Number of elements between the start of each vec3. If 0 assumes tightly packed
-     * @param {Number} offset Number of elements to skip at the beginning of the array
-     * @param {Number} count Number of vec3s to iterate over. If 0 iterates over entire array
-     * @param {Function} fn Function to call for each vector in the array
-     * @param {Object} [arg] additional argument to pass to fn
-     * @returns {Array} a
-     * @function
-     */
-
-    (function () {
-      var vec = create$5();
-      return function (a, stride, offset, count, fn, arg) {
-        var i, l;
-
-        if (!stride) {
-          stride = 3;
-        }
-
-        if (!offset) {
-          offset = 0;
-        }
-
-        if (count) {
-          l = Math.min(count * stride + offset, a.length);
-        } else {
-          l = a.length;
-        }
-
-        for (i = offset; i < l; i += stride) {
-          vec[0] = a[i];
-          vec[1] = a[i + 1];
-          vec[2] = a[i + 2];
-          fn(vec, vec, arg);
-          a[i] = vec[0];
-          a[i + 1] = vec[1];
-          a[i + 2] = vec[2];
-        }
-
-        return a;
-      };
-    })();
-
-    /**
-     * 4 Dimensional Vector
-     * @module vec4
-     */
-
-    /**
-     * Creates a new, empty vec4
-     *
-     * @returns {vec4} a new 4D vector
-     */
-
-    function create$4() {
-      var out = new ARRAY_TYPE$1(4);
-
-      if (ARRAY_TYPE$1 != Float32Array) {
-        out[0] = 0;
-        out[1] = 0;
-        out[2] = 0;
-        out[3] = 0;
-      }
-
-      return out;
-    }
-    /**
-     * Creates a new vec4 initialized with the given values
-     *
-     * @param {Number} x X component
-     * @param {Number} y Y component
-     * @param {Number} z Z component
-     * @param {Number} w W component
-     * @returns {vec4} a new 4D vector
-     */
-
-    function fromValues$2(x, y, z, w) {
-      var out = new ARRAY_TYPE$1(4);
-      out[0] = x;
-      out[1] = y;
-      out[2] = z;
-      out[3] = w;
-      return out;
-    }
-    /**
-     * Normalize a vec4
-     *
-     * @param {vec4} out the receiving vector
-     * @param {ReadonlyVec4} a vector to normalize
-     * @returns {vec4} out
-     */
-
-    function normalize$2(out, a) {
-      var x = a[0];
-      var y = a[1];
-      var z = a[2];
-      var w = a[3];
-      var len = x * x + y * y + z * z + w * w;
-
-      if (len > 0) {
-        len = 1 / Math.sqrt(len);
-      }
-
-      out[0] = x * len;
-      out[1] = y * len;
-      out[2] = z * len;
-      out[3] = w * len;
-      return out;
-    }
-    /**
-     * Perform some operation over an array of vec4s.
-     *
-     * @param {Array} a the array of vectors to iterate over
-     * @param {Number} stride Number of elements between the start of each vec4. If 0 assumes tightly packed
-     * @param {Number} offset Number of elements to skip at the beginning of the array
-     * @param {Number} count Number of vec4s to iterate over. If 0 iterates over entire array
-     * @param {Function} fn Function to call for each vector in the array
-     * @param {Object} [arg] additional argument to pass to fn
-     * @returns {Array} a
-     * @function
-     */
-
-    (function () {
-      var vec = create$4();
-      return function (a, stride, offset, count, fn, arg) {
-        var i, l;
-
-        if (!stride) {
-          stride = 4;
-        }
-
-        if (!offset) {
-          offset = 0;
-        }
-
-        if (count) {
-          l = Math.min(count * stride + offset, a.length);
-        } else {
-          l = a.length;
-        }
-
-        for (i = offset; i < l; i += stride) {
-          vec[0] = a[i];
-          vec[1] = a[i + 1];
-          vec[2] = a[i + 2];
-          vec[3] = a[i + 3];
-          fn(vec, vec, arg);
-          a[i] = vec[0];
-          a[i + 1] = vec[1];
-          a[i + 2] = vec[2];
-          a[i + 3] = vec[3];
-        }
-
-        return a;
-      };
-    })();
-
-    /**
-     * Quaternion
-     * @module quat
-     */
-
-    /**
-     * Creates a new identity quat
-     *
-     * @returns {quat} a new quaternion
-     */
-
-    function create$3() {
-      var out = new ARRAY_TYPE$1(4);
-
-      if (ARRAY_TYPE$1 != Float32Array) {
-        out[0] = 0;
-        out[1] = 0;
-        out[2] = 0;
-      }
-
-      out[3] = 1;
-      return out;
-    }
-    /**
-     * Sets a quat from the given angle and rotation axis,
-     * then returns it.
-     *
-     * @param {quat} out the receiving quaternion
-     * @param {ReadonlyVec3} axis the axis around which to rotate
-     * @param {Number} rad the angle in radians
-     * @returns {quat} out
-     **/
-
-    function setAxisAngle(out, axis, rad) {
-      rad = rad * 0.5;
-      var s = Math.sin(rad);
-      out[0] = s * axis[0];
-      out[1] = s * axis[1];
-      out[2] = s * axis[2];
-      out[3] = Math.cos(rad);
-      return out;
-    }
-    /**
-     * Performs a spherical linear interpolation between two quat
-     *
-     * @param {quat} out the receiving quaternion
-     * @param {ReadonlyQuat} a the first operand
-     * @param {ReadonlyQuat} b the second operand
-     * @param {Number} t interpolation amount, in the range [0-1], between the two inputs
-     * @returns {quat} out
-     */
-
-    function slerp(out, a, b, t) {
-      // benchmarks:
-      //    http://jsperf.com/quaternion-slerp-implementations
-      var ax = a[0],
-          ay = a[1],
-          az = a[2],
-          aw = a[3];
-      var bx = b[0],
-          by = b[1],
-          bz = b[2],
-          bw = b[3];
-      var omega, cosom, sinom, scale0, scale1; // calc cosine
-
-      cosom = ax * bx + ay * by + az * bz + aw * bw; // adjust signs (if necessary)
-
-      if (cosom < 0.0) {
-        cosom = -cosom;
-        bx = -bx;
-        by = -by;
-        bz = -bz;
-        bw = -bw;
-      } // calculate coefficients
-
-
-      if (1.0 - cosom > EPSILON$1) {
-        // standard case (slerp)
-        omega = Math.acos(cosom);
-        sinom = Math.sin(omega);
-        scale0 = Math.sin((1.0 - t) * omega) / sinom;
-        scale1 = Math.sin(t * omega) / sinom;
-      } else {
-        // "from" and "to" quaternions are very close
-        //  ... so we can do a linear interpolation
-        scale0 = 1.0 - t;
-        scale1 = t;
-      } // calculate final values
-
-
-      out[0] = scale0 * ax + scale1 * bx;
-      out[1] = scale0 * ay + scale1 * by;
-      out[2] = scale0 * az + scale1 * bz;
-      out[3] = scale0 * aw + scale1 * bw;
-      return out;
-    }
-    /**
-     * Creates a quaternion from the given 3x3 rotation matrix.
-     *
-     * NOTE: The resultant quaternion is not normalized, so you should be sure
-     * to renormalize the quaternion yourself where necessary.
-     *
-     * @param {quat} out the receiving quaternion
-     * @param {ReadonlyMat3} m rotation matrix
-     * @returns {quat} out
-     * @function
-     */
-
-    function fromMat3(out, m) {
-      // Algorithm in Ken Shoemake's article in 1987 SIGGRAPH course notes
-      // article "Quaternion Calculus and Fast Animation".
-      var fTrace = m[0] + m[4] + m[8];
-      var fRoot;
-
-      if (fTrace > 0.0) {
-        // |w| > 1/2, may as well choose w > 1/2
-        fRoot = Math.sqrt(fTrace + 1.0); // 2w
-
-        out[3] = 0.5 * fRoot;
-        fRoot = 0.5 / fRoot; // 1/(4w)
-
-        out[0] = (m[5] - m[7]) * fRoot;
-        out[1] = (m[6] - m[2]) * fRoot;
-        out[2] = (m[1] - m[3]) * fRoot;
-      } else {
-        // |w| <= 1/2
-        var i = 0;
-        if (m[4] > m[0]) i = 1;
-        if (m[8] > m[i * 3 + i]) i = 2;
-        var j = (i + 1) % 3;
-        var k = (i + 2) % 3;
-        fRoot = Math.sqrt(m[i * 3 + i] - m[j * 3 + j] - m[k * 3 + k] + 1.0);
-        out[i] = 0.5 * fRoot;
-        fRoot = 0.5 / fRoot;
-        out[3] = (m[j * 3 + k] - m[k * 3 + j]) * fRoot;
-        out[j] = (m[j * 3 + i] + m[i * 3 + j]) * fRoot;
-        out[k] = (m[k * 3 + i] + m[i * 3 + k]) * fRoot;
-      }
-
-      return out;
-    }
-    /**
-     * Creates a new quat initialized with the given values
-     *
-     * @param {Number} x X component
-     * @param {Number} y Y component
-     * @param {Number} z Z component
-     * @param {Number} w W component
-     * @returns {quat} a new quaternion
-     * @function
-     */
-
-    var fromValues$1 = fromValues$2;
-    /**
-     * Normalize a quat
-     *
-     * @param {quat} out the receiving quaternion
-     * @param {ReadonlyQuat} a quaternion to normalize
-     * @returns {quat} out
-     * @function
-     */
-
-    var normalize$1 = normalize$2;
-    /**
-     * Sets a quaternion to represent the shortest rotation from one
-     * vector to another.
-     *
-     * Both vectors are assumed to be unit length.
-     *
-     * @param {quat} out the receiving quaternion.
-     * @param {ReadonlyVec3} a the initial vector
-     * @param {ReadonlyVec3} b the destination vector
-     * @returns {quat} out
-     */
-
-    (function () {
-      var tmpvec3 = create$5();
-      var xUnitVec3 = fromValues$3(1, 0, 0);
-      var yUnitVec3 = fromValues$3(0, 1, 0);
-      return function (out, a, b) {
-        var dot$1 = dot(a, b);
-
-        if (dot$1 < -0.999999) {
-          cross$1(tmpvec3, xUnitVec3, a);
-          if (len(tmpvec3) < 0.000001) cross$1(tmpvec3, yUnitVec3, a);
-          normalize$3(tmpvec3, tmpvec3);
-          setAxisAngle(out, tmpvec3, Math.PI);
-          return out;
-        } else if (dot$1 > 0.999999) {
-          out[0] = 0;
-          out[1] = 0;
-          out[2] = 0;
-          out[3] = 1;
-          return out;
-        } else {
-          cross$1(tmpvec3, a, b);
-          out[0] = tmpvec3[0];
-          out[1] = tmpvec3[1];
-          out[2] = tmpvec3[2];
-          out[3] = 1 + dot$1;
-          return normalize$1(out, out);
-        }
-      };
-    })();
-    /**
-     * Performs a spherical linear interpolation with two control points
-     *
-     * @param {quat} out the receiving quaternion
-     * @param {ReadonlyQuat} a the first operand
-     * @param {ReadonlyQuat} b the second operand
-     * @param {ReadonlyQuat} c the third operand
-     * @param {ReadonlyQuat} d the fourth operand
-     * @param {Number} t interpolation amount, in the range [0-1], between the two inputs
-     * @returns {quat} out
-     */
-
-    (function () {
-      var temp1 = create$3();
-      var temp2 = create$3();
-      return function (out, a, b, c, d, t) {
-        slerp(temp1, a, d, t);
-        slerp(temp2, b, c, t);
-        slerp(out, temp1, temp2, 2 * t * (1 - t));
-        return out;
-      };
-    })();
-    /**
-     * Sets the specified quaternion with values corresponding to the given
-     * axes. Each axis is a vec3 and is expected to be unit length and
-     * perpendicular to all other specified axes.
-     *
-     * @param {ReadonlyVec3} view  the vector representing the viewing direction
-     * @param {ReadonlyVec3} right the vector representing the local "right" direction
-     * @param {ReadonlyVec3} up    the vector representing the local "up" direction
-     * @returns {quat} out
-     */
-
-    (function () {
-      var matr = create$7();
-      return function (out, view, right, up) {
-        matr[0] = right[0];
-        matr[3] = right[1];
-        matr[6] = right[2];
-        matr[1] = up[0];
-        matr[4] = up[1];
-        matr[7] = up[2];
-        matr[2] = -view[0];
-        matr[5] = -view[1];
-        matr[8] = -view[2];
-        return normalize$1(out, fromMat3(out, matr));
-      };
-    })();
 
     /**
      * dat-gui JavaScript Controller Library
@@ -9149,6 +8660,812 @@ ${String.fromCharCode(dataView.getUint8(byteOffset + 3))}`;
     }
     var GUI$1 = GUI;
 
+    /**
+     * Common utilities
+     * @module glMatrix
+     */
+    // Configuration Constants
+    var EPSILON$1 = 0.000001;
+    var ARRAY_TYPE$1 = typeof Float32Array !== 'undefined' ? Float32Array : Array;
+    if (!Math.hypot) Math.hypot = function () {
+      var y = 0,
+          i = arguments.length;
+
+      while (i--) {
+        y += arguments[i] * arguments[i];
+      }
+
+      return Math.sqrt(y);
+    };
+
+    /**
+     * 3x3 Matrix
+     * @module mat3
+     */
+
+    /**
+     * Creates a new identity mat3
+     *
+     * @returns {mat3} a new 3x3 matrix
+     */
+
+    function create$7() {
+      var out = new ARRAY_TYPE$1(9);
+
+      if (ARRAY_TYPE$1 != Float32Array) {
+        out[1] = 0;
+        out[2] = 0;
+        out[3] = 0;
+        out[5] = 0;
+        out[6] = 0;
+        out[7] = 0;
+      }
+
+      out[0] = 1;
+      out[4] = 1;
+      out[8] = 1;
+      return out;
+    }
+
+    /**
+     * 4x4 Matrix<br>Format: column-major, when typed out it looks like row-major<br>The matrices are being post multiplied.
+     * @module mat4
+     */
+
+    /**
+     * Creates a new identity mat4
+     *
+     * @returns {mat4} a new 4x4 matrix
+     */
+
+    function create$6() {
+      var out = new ARRAY_TYPE$1(16);
+
+      if (ARRAY_TYPE$1 != Float32Array) {
+        out[1] = 0;
+        out[2] = 0;
+        out[3] = 0;
+        out[4] = 0;
+        out[6] = 0;
+        out[7] = 0;
+        out[8] = 0;
+        out[9] = 0;
+        out[11] = 0;
+        out[12] = 0;
+        out[13] = 0;
+        out[14] = 0;
+      }
+
+      out[0] = 1;
+      out[5] = 1;
+      out[10] = 1;
+      out[15] = 1;
+      return out;
+    }
+    /**
+     * Multiplies two mat4s
+     *
+     * @param {mat4} out the receiving matrix
+     * @param {ReadonlyMat4} a the first operand
+     * @param {ReadonlyMat4} b the second operand
+     * @returns {mat4} out
+     */
+
+    function multiply$1(out, a, b) {
+      var a00 = a[0],
+          a01 = a[1],
+          a02 = a[2],
+          a03 = a[3];
+      var a10 = a[4],
+          a11 = a[5],
+          a12 = a[6],
+          a13 = a[7];
+      var a20 = a[8],
+          a21 = a[9],
+          a22 = a[10],
+          a23 = a[11];
+      var a30 = a[12],
+          a31 = a[13],
+          a32 = a[14],
+          a33 = a[15]; // Cache only the current line of the second matrix
+
+      var b0 = b[0],
+          b1 = b[1],
+          b2 = b[2],
+          b3 = b[3];
+      out[0] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
+      out[1] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
+      out[2] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
+      out[3] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
+      b0 = b[4];
+      b1 = b[5];
+      b2 = b[6];
+      b3 = b[7];
+      out[4] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
+      out[5] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
+      out[6] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
+      out[7] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
+      b0 = b[8];
+      b1 = b[9];
+      b2 = b[10];
+      b3 = b[11];
+      out[8] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
+      out[9] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
+      out[10] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
+      out[11] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
+      b0 = b[12];
+      b1 = b[13];
+      b2 = b[14];
+      b3 = b[15];
+      out[12] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
+      out[13] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
+      out[14] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
+      out[15] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
+      return out;
+    }
+    /**
+     * Translate a mat4 by the given vector
+     *
+     * @param {mat4} out the receiving matrix
+     * @param {ReadonlyMat4} a the matrix to translate
+     * @param {ReadonlyVec3} v vector to translate by
+     * @returns {mat4} out
+     */
+
+    function translate$1(out, a, v) {
+      var x = v[0],
+          y = v[1],
+          z = v[2];
+      var a00, a01, a02, a03;
+      var a10, a11, a12, a13;
+      var a20, a21, a22, a23;
+
+      if (a === out) {
+        out[12] = a[0] * x + a[4] * y + a[8] * z + a[12];
+        out[13] = a[1] * x + a[5] * y + a[9] * z + a[13];
+        out[14] = a[2] * x + a[6] * y + a[10] * z + a[14];
+        out[15] = a[3] * x + a[7] * y + a[11] * z + a[15];
+      } else {
+        a00 = a[0];
+        a01 = a[1];
+        a02 = a[2];
+        a03 = a[3];
+        a10 = a[4];
+        a11 = a[5];
+        a12 = a[6];
+        a13 = a[7];
+        a20 = a[8];
+        a21 = a[9];
+        a22 = a[10];
+        a23 = a[11];
+        out[0] = a00;
+        out[1] = a01;
+        out[2] = a02;
+        out[3] = a03;
+        out[4] = a10;
+        out[5] = a11;
+        out[6] = a12;
+        out[7] = a13;
+        out[8] = a20;
+        out[9] = a21;
+        out[10] = a22;
+        out[11] = a23;
+        out[12] = a00 * x + a10 * y + a20 * z + a[12];
+        out[13] = a01 * x + a11 * y + a21 * z + a[13];
+        out[14] = a02 * x + a12 * y + a22 * z + a[14];
+        out[15] = a03 * x + a13 * y + a23 * z + a[15];
+      }
+
+      return out;
+    }
+    /**
+     * Scales the mat4 by the dimensions in the given vec3 not using vectorization
+     *
+     * @param {mat4} out the receiving matrix
+     * @param {ReadonlyMat4} a the matrix to scale
+     * @param {ReadonlyVec3} v the vec3 to scale the matrix by
+     * @returns {mat4} out
+     **/
+
+    function scale$2(out, a, v) {
+      var x = v[0],
+          y = v[1],
+          z = v[2];
+      out[0] = a[0] * x;
+      out[1] = a[1] * x;
+      out[2] = a[2] * x;
+      out[3] = a[3] * x;
+      out[4] = a[4] * y;
+      out[5] = a[5] * y;
+      out[6] = a[6] * y;
+      out[7] = a[7] * y;
+      out[8] = a[8] * z;
+      out[9] = a[9] * z;
+      out[10] = a[10] * z;
+      out[11] = a[11] * z;
+      out[12] = a[12];
+      out[13] = a[13];
+      out[14] = a[14];
+      out[15] = a[15];
+      return out;
+    }
+    /**
+     * Calculates a 4x4 matrix from the given quaternion
+     *
+     * @param {mat4} out mat4 receiving operation result
+     * @param {ReadonlyQuat} q Quaternion to create matrix from
+     *
+     * @returns {mat4} out
+     */
+
+    function fromQuat(out, q) {
+      var x = q[0],
+          y = q[1],
+          z = q[2],
+          w = q[3];
+      var x2 = x + x;
+      var y2 = y + y;
+      var z2 = z + z;
+      var xx = x * x2;
+      var yx = y * x2;
+      var yy = y * y2;
+      var zx = z * x2;
+      var zy = z * y2;
+      var zz = z * z2;
+      var wx = w * x2;
+      var wy = w * y2;
+      var wz = w * z2;
+      out[0] = 1 - yy - zz;
+      out[1] = yx + wz;
+      out[2] = zx - wy;
+      out[3] = 0;
+      out[4] = yx - wz;
+      out[5] = 1 - xx - zz;
+      out[6] = zy + wx;
+      out[7] = 0;
+      out[8] = zx + wy;
+      out[9] = zy - wx;
+      out[10] = 1 - xx - yy;
+      out[11] = 0;
+      out[12] = 0;
+      out[13] = 0;
+      out[14] = 0;
+      out[15] = 1;
+      return out;
+    }
+    /**
+     * Alias for {@link mat4.multiply}
+     * @function
+     */
+
+    var mul$1 = multiply$1;
+
+    /**
+     * 3 Dimensional Vector
+     * @module vec3
+     */
+
+    /**
+     * Creates a new, empty vec3
+     *
+     * @returns {vec3} a new 3D vector
+     */
+
+    function create$5() {
+      var out = new ARRAY_TYPE$1(3);
+
+      if (ARRAY_TYPE$1 != Float32Array) {
+        out[0] = 0;
+        out[1] = 0;
+        out[2] = 0;
+      }
+
+      return out;
+    }
+    /**
+     * Calculates the length of a vec3
+     *
+     * @param {ReadonlyVec3} a vector to calculate length of
+     * @returns {Number} length of a
+     */
+
+    function length(a) {
+      var x = a[0];
+      var y = a[1];
+      var z = a[2];
+      return Math.hypot(x, y, z);
+    }
+    /**
+     * Creates a new vec3 initialized with the given values
+     *
+     * @param {Number} x X component
+     * @param {Number} y Y component
+     * @param {Number} z Z component
+     * @returns {vec3} a new 3D vector
+     */
+
+    function fromValues$3(x, y, z) {
+      var out = new ARRAY_TYPE$1(3);
+      out[0] = x;
+      out[1] = y;
+      out[2] = z;
+      return out;
+    }
+    /**
+     * Normalize a vec3
+     *
+     * @param {vec3} out the receiving vector
+     * @param {ReadonlyVec3} a vector to normalize
+     * @returns {vec3} out
+     */
+
+    function normalize$3(out, a) {
+      var x = a[0];
+      var y = a[1];
+      var z = a[2];
+      var len = x * x + y * y + z * z;
+
+      if (len > 0) {
+        //TODO: evaluate use of glm_invsqrt here?
+        len = 1 / Math.sqrt(len);
+      }
+
+      out[0] = a[0] * len;
+      out[1] = a[1] * len;
+      out[2] = a[2] * len;
+      return out;
+    }
+    /**
+     * Calculates the dot product of two vec3's
+     *
+     * @param {ReadonlyVec3} a the first operand
+     * @param {ReadonlyVec3} b the second operand
+     * @returns {Number} dot product of a and b
+     */
+
+    function dot(a, b) {
+      return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+    }
+    /**
+     * Computes the cross product of two vec3's
+     *
+     * @param {vec3} out the receiving vector
+     * @param {ReadonlyVec3} a the first operand
+     * @param {ReadonlyVec3} b the second operand
+     * @returns {vec3} out
+     */
+
+    function cross$1(out, a, b) {
+      var ax = a[0],
+          ay = a[1],
+          az = a[2];
+      var bx = b[0],
+          by = b[1],
+          bz = b[2];
+      out[0] = ay * bz - az * by;
+      out[1] = az * bx - ax * bz;
+      out[2] = ax * by - ay * bx;
+      return out;
+    }
+    /**
+     * Alias for {@link vec3.length}
+     * @function
+     */
+
+    var len = length;
+    /**
+     * Perform some operation over an array of vec3s.
+     *
+     * @param {Array} a the array of vectors to iterate over
+     * @param {Number} stride Number of elements between the start of each vec3. If 0 assumes tightly packed
+     * @param {Number} offset Number of elements to skip at the beginning of the array
+     * @param {Number} count Number of vec3s to iterate over. If 0 iterates over entire array
+     * @param {Function} fn Function to call for each vector in the array
+     * @param {Object} [arg] additional argument to pass to fn
+     * @returns {Array} a
+     * @function
+     */
+
+    (function () {
+      var vec = create$5();
+      return function (a, stride, offset, count, fn, arg) {
+        var i, l;
+
+        if (!stride) {
+          stride = 3;
+        }
+
+        if (!offset) {
+          offset = 0;
+        }
+
+        if (count) {
+          l = Math.min(count * stride + offset, a.length);
+        } else {
+          l = a.length;
+        }
+
+        for (i = offset; i < l; i += stride) {
+          vec[0] = a[i];
+          vec[1] = a[i + 1];
+          vec[2] = a[i + 2];
+          fn(vec, vec, arg);
+          a[i] = vec[0];
+          a[i + 1] = vec[1];
+          a[i + 2] = vec[2];
+        }
+
+        return a;
+      };
+    })();
+
+    /**
+     * 4 Dimensional Vector
+     * @module vec4
+     */
+
+    /**
+     * Creates a new, empty vec4
+     *
+     * @returns {vec4} a new 4D vector
+     */
+
+    function create$4() {
+      var out = new ARRAY_TYPE$1(4);
+
+      if (ARRAY_TYPE$1 != Float32Array) {
+        out[0] = 0;
+        out[1] = 0;
+        out[2] = 0;
+        out[3] = 0;
+      }
+
+      return out;
+    }
+    /**
+     * Creates a new vec4 initialized with the given values
+     *
+     * @param {Number} x X component
+     * @param {Number} y Y component
+     * @param {Number} z Z component
+     * @param {Number} w W component
+     * @returns {vec4} a new 4D vector
+     */
+
+    function fromValues$2(x, y, z, w) {
+      var out = new ARRAY_TYPE$1(4);
+      out[0] = x;
+      out[1] = y;
+      out[2] = z;
+      out[3] = w;
+      return out;
+    }
+    /**
+     * Normalize a vec4
+     *
+     * @param {vec4} out the receiving vector
+     * @param {ReadonlyVec4} a vector to normalize
+     * @returns {vec4} out
+     */
+
+    function normalize$2(out, a) {
+      var x = a[0];
+      var y = a[1];
+      var z = a[2];
+      var w = a[3];
+      var len = x * x + y * y + z * z + w * w;
+
+      if (len > 0) {
+        len = 1 / Math.sqrt(len);
+      }
+
+      out[0] = x * len;
+      out[1] = y * len;
+      out[2] = z * len;
+      out[3] = w * len;
+      return out;
+    }
+    /**
+     * Perform some operation over an array of vec4s.
+     *
+     * @param {Array} a the array of vectors to iterate over
+     * @param {Number} stride Number of elements between the start of each vec4. If 0 assumes tightly packed
+     * @param {Number} offset Number of elements to skip at the beginning of the array
+     * @param {Number} count Number of vec4s to iterate over. If 0 iterates over entire array
+     * @param {Function} fn Function to call for each vector in the array
+     * @param {Object} [arg] additional argument to pass to fn
+     * @returns {Array} a
+     * @function
+     */
+
+    (function () {
+      var vec = create$4();
+      return function (a, stride, offset, count, fn, arg) {
+        var i, l;
+
+        if (!stride) {
+          stride = 4;
+        }
+
+        if (!offset) {
+          offset = 0;
+        }
+
+        if (count) {
+          l = Math.min(count * stride + offset, a.length);
+        } else {
+          l = a.length;
+        }
+
+        for (i = offset; i < l; i += stride) {
+          vec[0] = a[i];
+          vec[1] = a[i + 1];
+          vec[2] = a[i + 2];
+          vec[3] = a[i + 3];
+          fn(vec, vec, arg);
+          a[i] = vec[0];
+          a[i + 1] = vec[1];
+          a[i + 2] = vec[2];
+          a[i + 3] = vec[3];
+        }
+
+        return a;
+      };
+    })();
+
+    /**
+     * Quaternion
+     * @module quat
+     */
+
+    /**
+     * Creates a new identity quat
+     *
+     * @returns {quat} a new quaternion
+     */
+
+    function create$3() {
+      var out = new ARRAY_TYPE$1(4);
+
+      if (ARRAY_TYPE$1 != Float32Array) {
+        out[0] = 0;
+        out[1] = 0;
+        out[2] = 0;
+      }
+
+      out[3] = 1;
+      return out;
+    }
+    /**
+     * Sets a quat from the given angle and rotation axis,
+     * then returns it.
+     *
+     * @param {quat} out the receiving quaternion
+     * @param {ReadonlyVec3} axis the axis around which to rotate
+     * @param {Number} rad the angle in radians
+     * @returns {quat} out
+     **/
+
+    function setAxisAngle(out, axis, rad) {
+      rad = rad * 0.5;
+      var s = Math.sin(rad);
+      out[0] = s * axis[0];
+      out[1] = s * axis[1];
+      out[2] = s * axis[2];
+      out[3] = Math.cos(rad);
+      return out;
+    }
+    /**
+     * Performs a spherical linear interpolation between two quat
+     *
+     * @param {quat} out the receiving quaternion
+     * @param {ReadonlyQuat} a the first operand
+     * @param {ReadonlyQuat} b the second operand
+     * @param {Number} t interpolation amount, in the range [0-1], between the two inputs
+     * @returns {quat} out
+     */
+
+    function slerp(out, a, b, t) {
+      // benchmarks:
+      //    http://jsperf.com/quaternion-slerp-implementations
+      var ax = a[0],
+          ay = a[1],
+          az = a[2],
+          aw = a[3];
+      var bx = b[0],
+          by = b[1],
+          bz = b[2],
+          bw = b[3];
+      var omega, cosom, sinom, scale0, scale1; // calc cosine
+
+      cosom = ax * bx + ay * by + az * bz + aw * bw; // adjust signs (if necessary)
+
+      if (cosom < 0.0) {
+        cosom = -cosom;
+        bx = -bx;
+        by = -by;
+        bz = -bz;
+        bw = -bw;
+      } // calculate coefficients
+
+
+      if (1.0 - cosom > EPSILON$1) {
+        // standard case (slerp)
+        omega = Math.acos(cosom);
+        sinom = Math.sin(omega);
+        scale0 = Math.sin((1.0 - t) * omega) / sinom;
+        scale1 = Math.sin(t * omega) / sinom;
+      } else {
+        // "from" and "to" quaternions are very close
+        //  ... so we can do a linear interpolation
+        scale0 = 1.0 - t;
+        scale1 = t;
+      } // calculate final values
+
+
+      out[0] = scale0 * ax + scale1 * bx;
+      out[1] = scale0 * ay + scale1 * by;
+      out[2] = scale0 * az + scale1 * bz;
+      out[3] = scale0 * aw + scale1 * bw;
+      return out;
+    }
+    /**
+     * Creates a quaternion from the given 3x3 rotation matrix.
+     *
+     * NOTE: The resultant quaternion is not normalized, so you should be sure
+     * to renormalize the quaternion yourself where necessary.
+     *
+     * @param {quat} out the receiving quaternion
+     * @param {ReadonlyMat3} m rotation matrix
+     * @returns {quat} out
+     * @function
+     */
+
+    function fromMat3(out, m) {
+      // Algorithm in Ken Shoemake's article in 1987 SIGGRAPH course notes
+      // article "Quaternion Calculus and Fast Animation".
+      var fTrace = m[0] + m[4] + m[8];
+      var fRoot;
+
+      if (fTrace > 0.0) {
+        // |w| > 1/2, may as well choose w > 1/2
+        fRoot = Math.sqrt(fTrace + 1.0); // 2w
+
+        out[3] = 0.5 * fRoot;
+        fRoot = 0.5 / fRoot; // 1/(4w)
+
+        out[0] = (m[5] - m[7]) * fRoot;
+        out[1] = (m[6] - m[2]) * fRoot;
+        out[2] = (m[1] - m[3]) * fRoot;
+      } else {
+        // |w| <= 1/2
+        var i = 0;
+        if (m[4] > m[0]) i = 1;
+        if (m[8] > m[i * 3 + i]) i = 2;
+        var j = (i + 1) % 3;
+        var k = (i + 2) % 3;
+        fRoot = Math.sqrt(m[i * 3 + i] - m[j * 3 + j] - m[k * 3 + k] + 1.0);
+        out[i] = 0.5 * fRoot;
+        fRoot = 0.5 / fRoot;
+        out[3] = (m[j * 3 + k] - m[k * 3 + j]) * fRoot;
+        out[j] = (m[j * 3 + i] + m[i * 3 + j]) * fRoot;
+        out[k] = (m[k * 3 + i] + m[i * 3 + k]) * fRoot;
+      }
+
+      return out;
+    }
+    /**
+     * Creates a new quat initialized with the given values
+     *
+     * @param {Number} x X component
+     * @param {Number} y Y component
+     * @param {Number} z Z component
+     * @param {Number} w W component
+     * @returns {quat} a new quaternion
+     * @function
+     */
+
+    var fromValues$1 = fromValues$2;
+    /**
+     * Normalize a quat
+     *
+     * @param {quat} out the receiving quaternion
+     * @param {ReadonlyQuat} a quaternion to normalize
+     * @returns {quat} out
+     * @function
+     */
+
+    var normalize$1 = normalize$2;
+    /**
+     * Sets a quaternion to represent the shortest rotation from one
+     * vector to another.
+     *
+     * Both vectors are assumed to be unit length.
+     *
+     * @param {quat} out the receiving quaternion.
+     * @param {ReadonlyVec3} a the initial vector
+     * @param {ReadonlyVec3} b the destination vector
+     * @returns {quat} out
+     */
+
+    (function () {
+      var tmpvec3 = create$5();
+      var xUnitVec3 = fromValues$3(1, 0, 0);
+      var yUnitVec3 = fromValues$3(0, 1, 0);
+      return function (out, a, b) {
+        var dot$1 = dot(a, b);
+
+        if (dot$1 < -0.999999) {
+          cross$1(tmpvec3, xUnitVec3, a);
+          if (len(tmpvec3) < 0.000001) cross$1(tmpvec3, yUnitVec3, a);
+          normalize$3(tmpvec3, tmpvec3);
+          setAxisAngle(out, tmpvec3, Math.PI);
+          return out;
+        } else if (dot$1 > 0.999999) {
+          out[0] = 0;
+          out[1] = 0;
+          out[2] = 0;
+          out[3] = 1;
+          return out;
+        } else {
+          cross$1(tmpvec3, a, b);
+          out[0] = tmpvec3[0];
+          out[1] = tmpvec3[1];
+          out[2] = tmpvec3[2];
+          out[3] = 1 + dot$1;
+          return normalize$1(out, out);
+        }
+      };
+    })();
+    /**
+     * Performs a spherical linear interpolation with two control points
+     *
+     * @param {quat} out the receiving quaternion
+     * @param {ReadonlyQuat} a the first operand
+     * @param {ReadonlyQuat} b the second operand
+     * @param {ReadonlyQuat} c the third operand
+     * @param {ReadonlyQuat} d the fourth operand
+     * @param {Number} t interpolation amount, in the range [0-1], between the two inputs
+     * @returns {quat} out
+     */
+
+    (function () {
+      var temp1 = create$3();
+      var temp2 = create$3();
+      return function (out, a, b, c, d, t) {
+        slerp(temp1, a, d, t);
+        slerp(temp2, b, c, t);
+        slerp(out, temp1, temp2, 2 * t * (1 - t));
+        return out;
+      };
+    })();
+    /**
+     * Sets the specified quaternion with values corresponding to the given
+     * axes. Each axis is a vec3 and is expected to be unit length and
+     * perpendicular to all other specified axes.
+     *
+     * @param {ReadonlyVec3} view  the vector representing the viewing direction
+     * @param {ReadonlyVec3} right the vector representing the local "right" direction
+     * @param {ReadonlyVec3} up    the vector representing the local "up" direction
+     * @returns {quat} out
+     */
+
+    (function () {
+      var matr = create$7();
+      return function (out, view, right, up) {
+        matr[0] = right[0];
+        matr[3] = right[1];
+        matr[6] = right[2];
+        matr[1] = up[0];
+        matr[4] = up[1];
+        matr[7] = up[2];
+        matr[2] = -view[0];
+        matr[5] = -view[1];
+        matr[8] = -view[2];
+        return normalize$1(out, fromMat3(out, matr));
+      };
+    })();
+
     class BaseBuffer {
         constructor(device) {
             this.device = device;
@@ -9257,34 +9574,6 @@ ${String.fromCharCode(dataView.getUint8(byteOffset + 3))}`;
         }
         write(byteOffset, data) {
             this.device.queue.writeBuffer(this.buffer, byteOffset, data);
-            return this;
-        }
-    }
-
-    class StorageBuffer extends BaseBuffer {
-        constructor(device, data, dataStride, usage = GPUBufferUsage.STORAGE) {
-            super(device);
-            this.byteLength = data.byteLength;
-            this.dataStride = dataStride;
-            this.usage = usage;
-            this.buffer = device.createBuffer({
-                size: data.byteLength,
-                usage,
-                mappedAtCreation: true,
-            });
-            new Float32Array(this.buffer.getMappedRange()).set(data);
-            this.buffer.unmap();
-        }
-        get wgslAccessMode() {
-            // TODO
-            return '<storage, read_write>';
-        }
-        addAttribute(name, structDefinitions) {
-            if (this.name) {
-                console.error('storage buffer supports only one struct');
-            }
-            this.name = name;
-            this.structDefinition = structDefinitions;
             return this;
         }
     }
@@ -9493,24 +9782,6 @@ ${String.fromCharCode(dataView.getUint8(byteOffset + 3))}`;
         var output: Output;
         ${shaderSnippet}
         return output;
-      }
-    `;
-            return this;
-        }
-    }
-
-    class ComputeShader extends Shader {
-        addComputeStageWorkgroupSize(workgroupSize) {
-            this.source += `
-      [[stage(compute), workgroup_size(${workgroupSize.join(',')})]]
-    `;
-            return this;
-        }
-        addMainFnSnippet(shaderSnipet) {
-            this.source += `
-      fn main([[builtin(global_invocation_id)]] GlobalInvocationID : vec3<u32>) {
-        let index = GlobalInvocationID.x;
-        ${shaderSnipet}
       }
     `;
             return this;
@@ -12398,79 +12669,6 @@ ${String.fromCharCode(dataView.getUint8(byteOffset + 3))}`;
         }
     }
 
-    class GPUCompute {
-        constructor(device, { workgroupSize = [64, 1, 1], uniforms = {}, storages = [], shaderSource, }) {
-            this.uniforms = {};
-            this.device = device;
-            this.workgroupSize = workgroupSize;
-            this.storages = storages;
-            let uniformsInputUBOByteLength = 0;
-            for (const [key, uniform] of Object.entries(uniforms)) {
-                this.uniforms[key] = Object.assign({ byteOffset: uniformsInputUBOByteLength }, uniform);
-                const uniformInfo = UNIFORM_TYPES_MAP.get(uniform.type);
-                if (!uniformInfo) {
-                    throw new Error('cant find uniform mapping');
-                }
-                const [val, bytesPerElement] = uniformInfo;
-                uniformsInputUBOByteLength += val * bytesPerElement;
-            }
-            this.uboBindGroup = new BindGroup(device, 0).addUBO(uniformsInputUBOByteLength);
-            if (uniformsInputUBOByteLength) {
-                // Pass optional initial uniform values
-                for (const { value, byteOffset } of Object.values(this.uniforms)) {
-                    this.uboBindGroup.writeToUBO(0, byteOffset, value);
-                }
-            }
-            // Supply storages to bind group
-            storages.forEach((storage) => this.uboBindGroup.addStorage(storage));
-            // Construct a compute shader based on inputs
-            const computeShader = new ComputeShader(device);
-            if (uniformsInputUBOByteLength) {
-                computeShader.addUniformInputs(uniforms, 0);
-            }
-            computeShader
-                .addStorages(storages.map(({ dataStride, structDefinition, name }, i) => ({
-                // increment by 1 to account for the UBO at binding 0
-                bindIdx: i + 1,
-                name,
-                attributes: structDefinition,
-                dataStride,
-            })))
-                .addHeadSnippet(shaderSource.head)
-                .addComputeStageWorkgroupSize(workgroupSize)
-                .addMainFnSnippet(shaderSource.main);
-            console.log(computeShader.source);
-            // Create compute pipeline
-            const pipelineDesc = {
-                layout: device.createPipelineLayout({
-                    bindGroupLayouts: [this.uboBindGroup.getLayout()],
-                }),
-                compute: {
-                    entryPoint: ComputeShader.ENTRY_FUNCTION,
-                    module: computeShader.shaderModule,
-                },
-            };
-            this.pipeline = device.createComputePipeline(pipelineDesc);
-            this.uboBindGroup.attachToPipeline(this.pipeline);
-        }
-        setUniform(name, value) {
-            const uniform = this.uniforms[name];
-            if (!uniform) {
-                throw new Error('Uniform does not belong to UBO');
-            }
-            this.uboBindGroup.writeToUBO(0, uniform.byteOffset, value);
-            return this;
-        }
-        dispatch(computePass, x = 1, y = 1, z = 1) {
-            this.uboBindGroup.bind(computePass);
-            computePass.setPipeline(this.pipeline);
-            computePass.dispatch(x, y, z);
-        }
-        destroy() {
-            this.uboBindGroup.destroy();
-        }
-    }
-
     const testForWebGPUSupport = () => __awaiter(void 0, void 0, void 0, function* () {
         var _a;
         const adapter = yield ((_a = navigator.gpu) === null || _a === void 0 ? void 0 : _a.requestAdapter());
@@ -12492,163 +12690,95 @@ ${String.fromCharCode(dataView.getUint8(byteOffset + 3))}`;
         }
     });
 
-    const MAX_LIGHTS_COUNT = 1024;
-    const OPTIONS = {
-        lightsCount: 256,
-        debugMode: false,
-    };
-    const getVertexShaderSnippet = ({ useUV = false }) => `
-  output.position = transform.modelMatrix * input.position;
+    // const SAMPLE_COUNT = 4
+    const SHADOW_MAP_SIZE = 2048;
+    const SHADED_FRAGMENT_SNIPPET = `
+  let N: vec3<f32> = normalize(input.normal.rgb);
+  let L: vec3<f32> = normalize(inputUBO.lightPosition.xyz - input.position.xyz);
+
+  // Lambert's cosine law
+  let lambertian = max(dot(N, L), 0.0);
+
+  var specular = 0.0;
+  if (lambertian > 0.0) {
+    let R: vec3<f32> = reflect(-L, N);
+    let V: vec3<f32> = normalize(inputUBO.cameraPosition.xyz - input.position.xyz);
+    
+    // Compute the specular term
+    let specAngle = max(dot(R, V), 0.0);
+    
+    let lightShininess = 10.0;
+    specular = pow(specAngle, lightShininess);
+  }
+
+  // Calculate projected UVs from light point of view
+  var shadowPos: vec3<f32> = input.shadowPos.xyz / input.shadowPos.w;
+  shadowPos = shadowPos * vec3<f32>(0.5, -0.5, 1.0) + vec3<f32>(0.5, 0.5, 0.0);
+
+  // Percentage close filtering
+  var visibility : f32 = 0.0;
+  for (var y : i32 = -1 ; y <= 1 ; y = y + 1) {
+    for (var x : i32 = -1 ; x <= 1 ; x = x + 1) {
+      let offset : vec2<f32> = vec2<f32>(
+        f32(x) * 0.0009765625,
+        f32(y) * 0.0009765625
+      );
+
+      visibility = visibility + textureSampleCompare(
+        my_depth_texture,
+        my_depth_sampler,
+        shadowPos.xy + offset,
+        shadowPos.z - 0.0055
+      );
+    }
+  }
+  visibility = visibility / 9.0;
+  
+  // Apply shadow visibility to phong lighting
+  var finalLight = vec3<f32>(
+    vec3<f32>(0.1, 0.1, 0.1) +
+    visibility * lambertian * inputUBO.diffuseColor.rgb +
+    visibility * specular * inputUBO.specularColor.rgb
+  );  
+
+  // Final color
+  output.Color = vec4<f32>(inputUBO.baseColor.rgb * finalLight, 1.0);
+`;
+    const FRAGMENT_SHADER_WHITE_COLOR = `output.Color = vec4<f32>(1.0);`;
+    const generateVertexShaderSnippet = ({ useNormal = true, useUV = true, usePosition = true, useLightUv = false, }) => `
+  let worldPosition: vec4<f32> = transform.modelMatrix * input.position;
+  
   output.Position = transform.projectionMatrix *
                     transform.viewMatrix *
-                    output.position;
-  
-  output.normal = transform.normalMatrix *
-                  input.normal;
+                    worldPosition;
 
+  ${useLightUv
+    ? `
+        let posFromLight: vec4<f32> = inputUBO.lightCamProjectionMatrix *
+                                      inputUBO.lightCamViewMatrix *
+                                      worldPosition;
+
+        output.shadowPos = posFromLight;
+  `
+    : ''}
+  
+  ${useNormal ? 'output.normal = transform.normalMatrix * input.normal;' : ''}
   ${useUV ? 'output.uv = input.uv;' : ''}
+  ${usePosition ? 'output.position = worldPosition;' : ''}
 `;
-    const getFragmentShaderSnippet = ({ useTexture = false }) => `
-  let normal: vec3<f32> = normalize(input.normal.rgb);
-  // TODO: this is hacky, since its hijacking the Color fragment output to output the position
-  output.Color = vec4<f32>(input.position.rgb / input.position.a, 1.0);
-  output.normal = vec4<f32>(normal, 1.0);
-  ${useTexture
-    ? 'output.albedo = textureSample(sampler_texture, my_sampler, vec2<f32>(input.uv.x, 1.0 - input.uv.y));'
-    : 'output.albedo = vec4<f32>(inputUBO.baseColor.rgb, 1.0);'}
-`;
-    const DEFERRED_RENDER_VERTEX_SNIPPET = `
-  output.Position = transform.projectionMatrix *
-                    transform.viewMatrix *
-                    transform.modelMatrix *
-                    input.position;
-  output.uv = input.uv;
-`;
-    const DEFERRED_RENDER_FRAGMENT_SNIPPET = `
-  let normalisedCoords = input.coords.xy / inputUBO.canvasSize;
-
-  if (inputUBO.debugMode == 0) {
-    let position = textureLoad(
-      position_texture,
-      vec2<i32>(floor(input.coords.xy)),
-      0
-    ).xyz;
-
-    if (position.z > 10000.0) {
-      discard;
-    }
-
-    let normal = textureLoad(
-      normal_texture,
-      vec2<i32>(floor(input.coords.xy)),
-      0
-    ).xyz;
-
-    let diffuse = textureLoad(
-      diffuse_texture,
-      vec2<i32>(floor(input.coords.xy)),
-      0
-    ).rgb;
-
-    var result = vec3<f32>(0.0);
-
-    for (var i : u32 = 0u; i < inputUBO.maxLightsCount; i = i + 1u) {
-      let L = lightCollection.lights[i].position.xyz - position;
-      let distance = length(L);
-      
-      if (distance > lightCollection.lights[i].radius) {
-        continue;
-      }
-
-      let lambert = max(dot(normal, normalize(L)), 0.0);
-      result = result + vec3<f32>(
-        lambert *
-        pow(1.0 - distance / lightCollection.lights[i].radius, 2.0) *
-        lightCollection.lights[i].color.rgb *
-        diffuse
-      );
-    }
-
-    output.Color = vec4<f32>(result, 1.0);
-  } else {
-    if (normalisedCoords.x < 0.33) {
-      output.Color = textureLoad(
-        position_texture,
-        vec2<i32>(floor(input.coords.xy)),
-        0
-      );
-
-    } elseif (normalisedCoords.x < 0.667) {
-      output.Color = textureLoad(
-        normal_texture,
-        vec2<i32>(floor(input.coords.xy)),
-        0
-      );
-    } else {
-      output.Color = textureLoad(
-        diffuse_texture,
-        vec2<i32>(floor(input.coords.xy)),
-        0
-      );
-      // output.Color = vec4<f32>(0.0, 1.0, 0.0, 1.0);
-    }
-  }
-`;
-    const GPU_COMPUTE_SHADER_SNIPPET = `
-  // Do not update lights above the user specified number
-  if (index >= inputUBO.maxLightsCount) {
-    return;
-  }
-
-  // Handle world "walls"
-  if (lightCollection.lights[index].position.x > worldSize.x * 0.5) {
-    lightCollection.lights[index].position.x = worldSize.x * 0.5;
-    lightCollection.lights[index].velocity.x = lightCollection.lights[index].velocity.x * -1.0;
-  } elseif (lightCollection.lights[index].position.x < -worldSize.x * 0.5) {
-    lightCollection.lights[index].position.x = -worldSize.x * 0.5;
-    lightCollection.lights[index].velocity.x = lightCollection.lights[index].velocity.x * -1.0;
-  }
-
-  if (lightCollection.lights[index].position.y > worldSize.x * 0.5) {
-    lightCollection.lights[index].position.y = worldSize.x * 0.5;
-    lightCollection.lights[index].velocity.y = lightCollection.lights[index].velocity.y * -1.0;
-  } elseif (lightCollection.lights[index].position.y < -worldSize.x * 0.5) {
-    lightCollection.lights[index].position.y = -worldSize.x * 0.5;
-    lightCollection.lights[index].velocity.y = lightCollection.lights[index].velocity.y * -1.0;
-  }
-
-  if (lightCollection.lights[index].position.z > worldSize.x * 0.5) {
-    lightCollection.lights[index].position.z = worldSize.x * 0.5;
-    lightCollection.lights[index].velocity.z = lightCollection.lights[index].velocity.z * -1.0;
-  } elseif (lightCollection.lights[index].position.z < -worldSize.x * 0.5) {
-    lightCollection.lights[index].position.z = -worldSize.x * 0.5;
-    lightCollection.lights[index].velocity.z = lightCollection.lights[index].velocity.z * -1.0;
-  }
-  
-  // Apply velocity to light position
-  lightCollection.lights[index].position.x = lightCollection.lights[index].position.x + lightCollection.lights[index].velocity.x * 0.01;
-  lightCollection.lights[index].position.y = lightCollection.lights[index].position.y + lightCollection.lights[index].velocity.y * 0.01;
-  lightCollection.lights[index].position.z = lightCollection.lights[index].position.z + lightCollection.lights[index].velocity.z * 0.01;
-`;
+    const normalizeRGB = (rgb) => rgb.map((channel) => channel / 255);
+    const OPTIONS = {
+        lightX: 0,
+        lightY: 30,
+        lightZ: 10,
+        timeScaleFactor: 0.4,
+        animateLight: true,
+        showDebug: true,
+    };
     testForWebGPUSupport();
     (() => __awaiter(void 0, void 0, void 0, function* () {
         var _a;
-        const gltf = yield load(`${window['ASSETS_BASE_URL']}/DragonAttenuation.gltf`, GLTFLoader);
-        console.log(gltf);
-        const gui = new GUI$1();
-        gui.add(OPTIONS, 'debugMode').onChange((v) => {
-            quadMesh.setUniform('debugMode', new Int32Array([v]));
-        });
-        gui
-            .add(OPTIONS, 'lightsCount')
-            .min(1)
-            .max(MAX_LIGHTS_COUNT)
-            .step(1)
-            .onChange((v) => {
-            const typedVal = new Uint32Array([v]);
-            quadMesh.setUniform('maxLightsCount', typedVal);
-            lightsUpdateCompute.setUniform('maxLightsCount', typedVal);
-        });
+        const gltf = yield load(`${window['ASSETS_BASE_URL']}/2CylinderEngine.gltf`, GLTFLoader);
         const canvas = document.getElementById('gpu-c');
         canvas.width = innerWidth * devicePixelRatio;
         canvas.height = innerHeight * devicePixelRatio;
@@ -12656,292 +12786,412 @@ ${String.fromCharCode(dataView.getUint8(byteOffset + 3))}`;
         canvas.style.setProperty('height', `${innerHeight}px`);
         const adapter = yield ((_a = navigator.gpu) === null || _a === void 0 ? void 0 : _a.requestAdapter());
         const device = yield (adapter === null || adapter === void 0 ? void 0 : adapter.requestDevice());
+        const gui = new GUI$1();
+        gui.add(OPTIONS, 'timeScaleFactor').min(0.05).max(1).step(0.05);
+        gui.add(OPTIONS, 'animateLight');
+        gui.add(OPTIONS, 'showDebug');
         const context = canvas.getContext('webgpu');
         const presentationFormat = context.getPreferredFormat(adapter);
-        const primitiveType = 'triangle-list';
+        const presentationSize = [canvas.width, canvas.height];
         context.configure({
             device,
             format: presentationFormat,
         });
-        // Parse glTF to scene graph
-        const rootNode = new SceneObject();
-        const gBufferRootNode = new SceneObject();
-        traverseSceneGraph(gltf.scene, rootNode, gBufferRootNode);
-        const duckScale = 0.5;
-        rootNode
-            .setScale({ x: duckScale, y: duckScale, z: duckScale })
-            .updateWorldMatrix();
-        gBufferRootNode
-            .setScale({ x: duckScale, y: duckScale, z: duckScale })
-            .updateWorldMatrix();
-        //
-        const perspCamera = new PerspectiveCamera((45 * Math.PI) / 180, canvas.width / canvas.height, 0.1, 20)
-            .setPosition({ x: 0.81, y: 0.31, z: 3.91 })
+        const primitiveType = 'triangle-list';
+        const textureDepth = new Texture(device, 'texture_depth').fromDefinition({
+            size: presentationSize,
+            format: 'depth24plus',
+            usage: GPUTextureUsage.RENDER_ATTACHMENT,
+        });
+        const shadowDepthTexture = new Texture(device, 'my_depth_texture', 'depth', '2d', 'texture_depth_2d').fromDefinition({
+            size: [SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, 1],
+            usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.TEXTURE_BINDING,
+            format: 'depth32float',
+        });
+        const depthDebugSampler = new Sampler(device, 'my_depth_debug_sampler');
+        const depthSampler = new Sampler(device, 'my_depth_sampler', 'comparison', 'sampler_comparison', {
+            compare: 'less',
+        });
+        // cameras
+        const perspCamera = new PerspectiveCamera((45 * Math.PI) / 180, canvas.width / canvas.height, 0.1, 400)
+            .setPosition({ x: 46, y: 23, z: 132 })
             .lookAt([0, 0, 0])
             .updateProjectionMatrix()
             .updateViewMatrix();
-        new CameraController(perspCamera, canvas, false, 0.1).lookAt([0, 0, 0]);
-        //
+        const cameraTypedPosition = new Float32Array(perspCamera.position);
+        const lightTypedPosition = new Float32Array([20, 20, 20, 0]);
+        const lightCamera = new OrthographicCamera(-50, 50, -50, 50, -200, 200)
+            .setPosition({
+            x: lightTypedPosition[0],
+            y: lightTypedPosition[1],
+            z: lightTypedPosition[2],
+        })
+            .lookAt([0, 0, 0])
+            .updateProjectionMatrix()
+            .updateViewMatrix();
         const orthoCamera = new OrthographicCamera(-canvas.width / 2, canvas.width / 2, canvas.height / 2, -canvas.height / 2, 0.1, 3)
             .setPosition({ z: 2 })
             .lookAt([0, 0, 0])
             .updateProjectionMatrix()
             .updateViewMatrix();
-        //
-        const textureDepth = new Texture(device, 'texture_depth').fromDefinition({
-            size: [canvas.width, canvas.height, 1],
-            format: 'depth24plus',
-            usage: GPUTextureUsage.RENDER_ATTACHMENT,
-        });
-        // GPU Compute pipeline for lights
-        const lightsDataStride = 10;
-        const lightsData = new Float32Array(MAX_LIGHTS_COUNT * lightsDataStride);
-        for (let i = 0; i < MAX_LIGHTS_COUNT; i++) {
-            // position
-            lightsData[i * lightsDataStride + 0] = (Math.random() * 2 - 1) * 0.8;
-            lightsData[i * lightsDataStride + 1] = 0.2;
-            lightsData[i * lightsDataStride + 2] = Math.random() * 2;
-            // velocity
-            lightsData[i * lightsDataStride + 3] = (Math.random() * 2 - 1) * 1;
-            lightsData[i * lightsDataStride + 4] = (Math.random() * 2 - 1) * 1;
-            lightsData[i * lightsDataStride + 5] = (Math.random() * 2 - 1) * 1;
-            // color
-            lightsData[i * lightsDataStride + 6] = Math.random();
-            lightsData[i * lightsDataStride + 7] = Math.random();
-            lightsData[i * lightsDataStride + 8] = Math.random();
-            // radius
-            lightsData[i * lightsDataStride + 9] = 2;
-        }
-        const lightsBuffer = new StorageBuffer(device, lightsData, lightsDataStride * Float32Array.BYTES_PER_ELEMENT, GPUBufferUsage.VERTEX | GPUBufferUsage.STORAGE).addAttribute('Light', {
-            position: 'vec3<f32>',
-            velocity: 'vec3<f32>',
-            color: 'vec3<f32>',
-            radius: 'f32',
-        });
-        const lightsUpdateCompute = new GPUCompute(device, {
-            storages: [lightsBuffer],
-            uniforms: {
-                maxLightsCount: {
-                    type: 'u32',
-                    value: new Uint32Array([OPTIONS.lightsCount]),
-                },
+        const ctrl = new CameraController(perspCamera, canvas, false);
+        ctrl.lookAt([0, 0.5, 0]);
+        // Shared uniforms for all lighted and shadowed meshes
+        const lightUniforms = {
+            diffuseColor: {
+                type: 'vec4<f32>',
+                value: new Float32Array(normalizeRGB(parse('#aca5cf').values)),
             },
-            shaderSource: {
-                head: `
-        let worldSize: vec3<f32> = vec3<f32>(3.0);
-      `,
-                main: GPU_COMPUTE_SHADER_SNIPPET,
+            specularColor: {
+                type: 'vec4<f32>',
+                value: new Float32Array(normalizeRGB(parse('#be355e').values)),
             },
-        });
-        // g-buffer pipeline descriptor
-        const gBufferTexturePosition = new Texture(device, 'position_texture', 'unfilterable-float').fromDefinition({
-            size: [canvas.width, canvas.height, 3],
-            usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.TEXTURE_BINDING,
-            format: 'rgba32float',
-        });
-        const gBufferTextureNormal = new Texture(device, 'normal_texture', 'unfilterable-float').fromDefinition({
-            size: [canvas.width, canvas.height, 3],
-            usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.TEXTURE_BINDING,
-            format: 'rgba32float',
-        });
-        const gBufferTextureDiffuse = new Texture(device, 'diffuse_texture', 'unfilterable-float').fromDefinition({
-            size: [canvas.width, canvas.height],
-            usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.TEXTURE_BINDING,
-            format: 'bgra8unorm',
-        });
-        const gBufferPassDescriptor = {
-            colorAttachments: [
-                {
-                    view: gBufferTexturePosition.get().createView(),
-                    loadValue: [0, 0, 0, 1],
-                    storeOp: 'store',
-                },
-                {
-                    view: gBufferTextureNormal.get().createView(),
-                    loadValue: [Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE, 1],
-                    storeOp: 'store',
-                },
-                {
-                    view: gBufferTextureDiffuse.get().createView(),
-                    loadValue: [0, 0, 0, 1],
-                    storeOp: 'store',
-                },
-            ],
-            depthStencilAttachment: {
-                view: textureDepth.get().createView(),
-                depthLoadValue: 1.0,
-                depthStoreOp: 'store',
-                stencilLoadValue: 0,
-                stencilStoreOp: 'store',
+            lightPosition: {
+                type: 'vec4<f32>',
+                value: lightTypedPosition,
+            },
+            cameraPosition: {
+                type: 'vec4<f32>',
+                value: cameraTypedPosition,
+            },
+            lightCamViewMatrix: {
+                type: 'mat4x4<f32>',
+                value: lightCamera.viewMatrix,
+            },
+            lightCamProjectionMatrix: {
+                type: 'mat4x4<f32>',
+                value: lightCamera.projectionMatrix,
             },
         };
-        //
-        const quadGeometry = new Geometry(device);
+        // Scene graph nodes
+        const rootNode = new SceneObject();
+        const lighedMeshesRoot = new SceneObject();
+        const gltfRootNode = new SceneObject();
+        const shadowGltfRootNode = new SceneObject();
+        const shadowRoot = new SceneObject();
+        shadowGltfRootNode
+            .setScale({ x: 0.1, y: 0.1, z: 0.1 })
+            .setRotation({ y: Math.PI })
+            .updateModelMatrix()
+            .setParent(shadowRoot);
+        lighedMeshesRoot.setParent(rootNode);
+        gltfRootNode
+            .setScale({ x: 0.1, y: 0.1, z: 0.1 })
+            .setRotation({ y: Math.PI })
+            .updateModelMatrix()
+            .setParent(lighedMeshesRoot);
+        traverseSceneGraph(gltf.scene, gltfRootNode, shadowGltfRootNode);
+        // Floor mesh
+        const floorGeometry = new Geometry(device);
         {
-            const { vertices, uv, indices } = index.createPlane({
-                width: innerWidth,
-                height: innerHeight,
+            const { vertices, indices, normal } = index.createPlane({
+                width: 150,
+                height: 150,
             });
-            const vertexBuffer = new VertexBuffer(device, 0, vertices, 3 * Float32Array.BYTES_PER_ELEMENT).addAttribute('position', 0, 3 * Float32Array.BYTES_PER_ELEMENT, 'float32x3');
-            const uvBuffer = new VertexBuffer(device, 1, uv, 2 * Float32Array.BYTES_PER_ELEMENT).addAttribute('uv', 0, 2 * Float32Array.BYTES_PER_ELEMENT, 'float32x2');
             const indexBuffer = new IndexBuffer(device, indices);
-            quadGeometry
+            const vertexBuffer = new VertexBuffer(device, 0, vertices, 3 * Float32Array.BYTES_PER_ELEMENT).addAttribute('position', 0, 3, 'float32x3');
+            const normalBuffer = new VertexBuffer(device, 1, normal, 3 * Float32Array.BYTES_PER_ELEMENT).addAttribute('normal', 0, 3, 'float32x3');
+            floorGeometry
+                .addIndexBuffer(indexBuffer)
                 .addVertexBuffer(vertexBuffer)
-                .addVertexBuffer(uvBuffer)
-                .addIndexBuffer(indexBuffer);
+                .addVertexBuffer(normalBuffer);
         }
-        const quadMesh = new Mesh(device, {
-            geometry: quadGeometry,
-            textures: [
-                gBufferTexturePosition,
-                gBufferTextureNormal,
-                gBufferTextureDiffuse,
-            ],
-            storages: [lightsBuffer],
-            uniforms: {
-                canvasSize: {
-                    type: 'vec2<f32>',
-                    value: new Float32Array([canvas.width, canvas.height]),
-                },
-                debugMode: {
-                    type: 'i32',
-                    value: new Int32Array([0]),
-                },
-                maxLightsCount: {
-                    type: 'u32',
-                    value: new Uint32Array([OPTIONS.lightsCount]),
-                },
-            },
+        const floorMesh = new Mesh(device, {
+            geometry: floorGeometry,
+            uniforms: Object.assign({ baseColor: {
+                    type: 'vec4<f32>',
+                    value: new Float32Array([0.8, 0.8, 0.8]),
+                } }, lightUniforms),
+            samplers: [depthSampler],
+            textures: [shadowDepthTexture],
             vertexShaderSource: {
-                main: DEFERRED_RENDER_VERTEX_SNIPPET,
+                outputs: {
+                    shadowPos: {
+                        format: 'float32x3',
+                    },
+                },
+                main: generateVertexShaderSnippet({
+                    useLightUv: true,
+                    useUV: false,
+                }),
             },
             fragmentShaderSource: {
-                main: DEFERRED_RENDER_FRAGMENT_SNIPPET,
+                inputs: {
+                    shadowPos: {
+                        format: 'float32x3',
+                    },
+                },
+                main: SHADED_FRAGMENT_SNIPPET,
             },
+        });
+        floorMesh.setRotation({ x: -Math.PI / 2 }).setPosition({ y: -23 });
+        floorMesh.setParent(lighedMeshesRoot);
+        const floorMeshLight = new Mesh(device, {
+            geometry: floorGeometry,
+            vertexShaderSource: {
+                main: generateVertexShaderSnippet({
+                    useNormal: true,
+                    useUV: false,
+                }),
+            },
+            fragmentShaderSource: {
+                // this should be omitted and we can use a vertex-only pipeline, but it's
+                // not yet implemented.
+                main: FRAGMENT_SHADER_WHITE_COLOR,
+            },
+            targets: [],
+            depthStencil: {
+                depthWriteEnabled: true,
+                depthCompare: 'less',
+                format: 'depth32float',
+            },
+        });
+        floorMeshLight.setRotation({ x: -Math.PI / 2 }).setPosition({ y: -23 });
+        floorMeshLight.setParent(shadowRoot);
+        // light mesh
+        const lightGeometry = new Geometry(device);
+        {
+            const { vertices, uv, indices } = index.createSphere();
+            const indexBuffer = new IndexBuffer(device, indices);
+            const vertexBuffer = new VertexBuffer(device, 0, vertices, 3 * Float32Array.BYTES_PER_ELEMENT).addAttribute('position', 0, 3, 'float32x3');
+            const uvBuffer = new VertexBuffer(device, 1, uv, 2 * Float32Array.BYTES_PER_ELEMENT).addAttribute('uv', 0, 2, 'float32x2');
+            lightGeometry.addIndexBuffer(indexBuffer);
+            lightGeometry.addVertexBuffer(vertexBuffer);
+            lightGeometry.addVertexBuffer(uvBuffer);
+        }
+        const lightMesh = new Mesh(device, {
+            geometry: lightGeometry,
+            uniforms: {},
+            vertexShaderSource: {
+                main: generateVertexShaderSnippet({
+                    useNormal: false,
+                    useUV: false,
+                }),
+            },
+            fragmentShaderSource: {
+                main: FRAGMENT_SHADER_WHITE_COLOR,
+            },
+        });
+        lightMesh
+            .setPosition({
+            x: lightTypedPosition[0],
+            y: lightTypedPosition[1],
+            z: lightTypedPosition[2],
+        })
+            .setParent(rootNode);
+        rootNode.updateWorldMatrix();
+        shadowRoot.updateWorldMatrix();
+        // debug mesh
+        const debugPlaneGeometry = new Geometry(device);
+        const debugPlaneWidth = SHADOW_MAP_SIZE * 0.1;
+        const debugPlaneHeight = SHADOW_MAP_SIZE * 0.1;
+        const debugPlanePadding = 24;
+        {
+            const { vertices, uv, indices } = index.createPlane({
+                width: debugPlaneWidth,
+                height: debugPlaneHeight,
+            });
+            const indexBuffer = new IndexBuffer(device, indices);
+            const vertexBuffer = new VertexBuffer(device, 0, vertices, 3 * Float32Array.BYTES_PER_ELEMENT).addAttribute('position', 0, 3, 'float32x3');
+            const uvBuffer = new VertexBuffer(device, 1, uv, 2 * Float32Array.BYTES_PER_ELEMENT).addAttribute('uv', 0, 2, 'float32x2');
+            debugPlaneGeometry
+                .addIndexBuffer(indexBuffer)
+                .addVertexBuffer(vertexBuffer)
+                .addVertexBuffer(uvBuffer);
+        }
+        const debugPlaneMesh = new Mesh(device, {
+            geometry: debugPlaneGeometry,
+            vertexShaderSource: {
+                main: generateVertexShaderSnippet({
+                    useNormal: false,
+                    useUV: true,
+                }),
+            },
+            textures: [shadowDepthTexture],
+            samplers: [depthDebugSampler],
+            fragmentShaderSource: {
+                main: `
+        let depth: f32 = textureSample(
+          my_depth_texture,
+          my_depth_debug_sampler,
+          vec2<f32>(input.uv.x, 1.0 - input.uv.y)
+        );
+        output.Color = vec4<f32>(vec3<f32>(depth), 1.0);
+      `,
+            },
+            targets: [
+                {
+                    format: presentationFormat,
+                },
+            ],
+        })
+            .setPosition({
+            x: -canvas.width / 2 + debugPlaneWidth / 2 + debugPlanePadding,
+            y: -canvas.height / 2 + debugPlaneHeight / 2 + debugPlanePadding,
         })
             .setRotation({ x: Math.PI })
             .updateModelMatrix();
         requestAnimationFrame(drawFrame);
         function drawFrame(ts) {
+            ts /= 1000;
             requestAnimationFrame(drawFrame);
-            const commandEncoder = device.createCommandEncoder();
-            // Update the lights positions via the compute shader
-            const computeLightPositionPass = commandEncoder.beginComputePass();
-            lightsUpdateCompute.dispatch(computeLightPositionPass, Math.ceil(MAX_LIGHTS_COUNT / 64));
-            computeLightPositionPass.endPass();
-            // gbuffers pass
-            const gBufferPass = commandEncoder.beginRenderPass(gBufferPassDescriptor);
-            gBufferRootNode.traverseGraph((node) => {
-                if (node.renderable) {
-                    node.render(gBufferPass, perspCamera);
-                }
+            // Update lights & camera for shading
+            if (OPTIONS.animateLight) {
+                lightTypedPosition[0] = Math.cos(ts * OPTIONS.timeScaleFactor) * 40;
+                // lightTypedPosition[1] = 20 + Math.sin(lightTypedPosition[0] * 0.15) * 2
+                lightTypedPosition[2] = Math.sin(ts * OPTIONS.timeScaleFactor) * 40;
+            }
+            lightMesh.setPosition({
+                x: lightTypedPosition[0],
+                y: lightTypedPosition[1],
+                z: lightTypedPosition[2],
             });
-            gBufferPass.endPass();
+            lightCamera
+                .setPosition({
+                x: lightTypedPosition[0],
+                y: lightTypedPosition[1],
+                z: lightTypedPosition[2],
+            })
+                .updateViewMatrix()
+                .updateProjectionMatrix();
+            cameraTypedPosition[0] = perspCamera.position[0];
+            cameraTypedPosition[1] = perspCamera.position[1];
+            cameraTypedPosition[2] = perspCamera.position[2];
             const swapChainTexture = context.getCurrentTexture();
-            const renderPass = commandEncoder.beginRenderPass({
-                colorAttachments: [
-                    {
-                        view: swapChainTexture.createView(),
-                        loadValue: [0.1, 0.1, 0.1, 1.0],
-                        storeOp: 'store',
+            const commandEncoder = device.createCommandEncoder();
+            // Shadow render pass
+            {
+                const shadowPassDescriptor = {
+                    colorAttachments: [],
+                    depthStencilAttachment: {
+                        view: shadowDepthTexture.get().createView(),
+                        depthLoadValue: 1.0,
+                        depthStoreOp: 'store',
+                        stencilLoadValue: 0,
+                        stencilStoreOp: 'store',
                     },
-                ],
-                depthStencilAttachment: {
-                    view: textureDepth.get().createView(),
-                    depthLoadValue: 1,
-                    depthStoreOp: 'store',
-                    stencilLoadValue: 0,
-                    stencilStoreOp: 'store',
-                },
-            });
-            // fullscreen quad postprocessing pass
-            quadMesh.render(renderPass, orthoCamera);
-            renderPass.endPass();
+                };
+                const shadowRenderPass = commandEncoder.beginRenderPass(shadowPassDescriptor);
+                shadowRoot.traverseGraph((node) => {
+                    if (node.renderable) {
+                        node.render(shadowRenderPass, lightCamera);
+                    }
+                });
+                shadowRenderPass.endPass();
+            }
+            // Result render pass
+            {
+                const renderPassDescriptor = {
+                    colorAttachments: [
+                        {
+                            view: swapChainTexture.createView(),
+                            loadValue: [0.1, 0.1, 0.1, 1.0],
+                            storeOp: 'store',
+                        },
+                    ],
+                    depthStencilAttachment: {
+                        view: textureDepth.get().createView(),
+                        depthLoadValue: 1,
+                        depthStoreOp: 'store',
+                        stencilLoadValue: 0,
+                        stencilStoreOp: 'store',
+                    },
+                };
+                const renderPass = commandEncoder.beginRenderPass(renderPassDescriptor);
+                rootNode.traverseGraph((node) => {
+                    if (node.renderable) {
+                        node.render(renderPass, perspCamera);
+                    }
+                });
+                lighedMeshesRoot.traverseGraph((node) => {
+                    if (node.renderable) {
+                        node
+                            .setUniform('lightPosition', lightTypedPosition)
+                            .setUniform('cameraPosition', cameraTypedPosition)
+                            .setUniform('lightCamViewMatrix', lightCamera.viewMatrix)
+                            .setUniform('lightCamProjectionMatrix', lightCamera.projectionMatrix);
+                    }
+                });
+                if (OPTIONS.showDebug) {
+                    debugPlaneMesh.render(renderPass, orthoCamera);
+                }
+                renderPass.endPass();
+            }
             device.queue.submit([commandEncoder.finish()]);
         }
-        function traverseSceneGraph(currentNode, parentNode = null, gBufferParentNode = null) {
+        function traverseSceneGraph(currentNode, parentNode = null, shadowParentNode = null) {
             // handle mesh node
             const sceneNode = new SceneObject();
-            const gBufferSceneNode = new SceneObject();
+            const shadowSceneNode = new SceneObject();
             if (currentNode.mesh) {
                 currentNode.mesh.primitives.map((primitive) => {
                     const geometry = new Geometry(device);
                     if (primitive.attributes.POSITION) {
-                        const vertexBuffer = new VertexBuffer(device, 0, primitive.attributes.POSITION.value, primitive.attributes.POSITION.bytesPerElement).addAttribute('position', 0, primitive.attributes.POSITION.bytesPerElement, 'float32x3');
-                        geometry.addVertexBuffer(vertexBuffer);
+                        const buffer = new VertexBuffer(device, 0, primitive.attributes.POSITION.value, primitive.attributes.POSITION.bytesPerElement).addAttribute('position', 0, 3, 'float32x3');
+                        geometry.addVertexBuffer(buffer);
                     }
                     if (primitive.attributes.NORMAL) {
-                        const vertexBuffer = new VertexBuffer(device, 1, primitive.attributes.NORMAL.value, primitive.attributes.NORMAL.bytesPerElement).addAttribute('normal', 0, primitive.attributes.NORMAL.bytesPerElement, 'float32x3');
-                        geometry.addVertexBuffer(vertexBuffer);
+                        const buffer = new VertexBuffer(device, 1, primitive.attributes.NORMAL.value, primitive.attributes.NORMAL.bytesPerElement).addAttribute('normal', 0, 3, 'float32x3');
+                        geometry.addVertexBuffer(buffer);
                     }
                     if (primitive.attributes.TEXCOORD_0) {
-                        const vertexBuffer = new VertexBuffer(device, 2, primitive.attributes.TEXCOORD_0.value, primitive.attributes.TEXCOORD_0.bytesPerElement).addAttribute('uv', 0, primitive.attributes.TEXCOORD_0.bytesPerElement, 'float32x2');
-                        geometry.addVertexBuffer(vertexBuffer);
+                        const buffer = new VertexBuffer(device, 2, primitive.attributes.TEXCOORD_0.value, primitive.attributes.TEXCOORD_0.bytesPerElement).addAttribute('uv', 0, 2, 'float32x2');
+                        geometry.addVertexBuffer(buffer);
                     }
                     const indexBuffer = new IndexBuffer(device, primitive.indices.value);
                     geometry.addIndexBuffer(indexBuffer);
-                    const { material: { pbrMetallicRoughness: { baseColorFactor, baseColorTexture }, }, } = currentNode.mesh.primitives[0];
-                    const uniforms = {};
-                    const textures = [];
-                    const samplers = [];
-                    if (baseColorTexture) {
-                        const { texture: { source: { image }, }, } = baseColorTexture;
-                        const texture = new Texture(device, 'sampler_texture').fromImageBitmap(image);
-                        const sampler = new Sampler(device, 'my_sampler');
-                        samplers.push(sampler);
-                        textures.push(texture);
-                    }
-                    if (baseColorFactor) {
-                        uniforms['baseColor'] = {
-                            type: 'vec4<f32>',
-                            value: new Float32Array(baseColorFactor),
-                        };
-                    }
-                    const gBufferMesh = new Mesh(device, {
+                    const { material: { pbrMetallicRoughness: { baseColorFactor }, }, } = currentNode.mesh.primitives[0];
+                    const baseMeshState = {
                         geometry,
-                        uniforms,
-                        textures,
-                        samplers,
-                        vertexShaderSource: {
-                            main: getVertexShaderSnippet({
-                                useUV: !!baseColorTexture,
-                            }),
-                        },
-                        fragmentShaderSource: {
+                        primitiveType,
+                    };
+                    const mesh = new Mesh(device, Object.assign(Object.assign({}, baseMeshState), { uniforms: Object.assign(Object.assign({}, lightUniforms), { baseColor: {
+                                type: 'vec4<f32>',
+                                value: new Float32Array(baseColorFactor),
+                            } }), vertexShaderSource: {
                             outputs: {
-                                normal: {
-                                    format: 'float32x4',
-                                },
-                                albedo: {
-                                    format: 'float32x4',
+                                shadowPos: {
+                                    format: 'float32x3',
                                 },
                             },
-                            main: getFragmentShaderSnippet({ useTexture: !!baseColorTexture }),
-                        },
-                        primitiveType,
-                        depthStencil: {
+                            main: generateVertexShaderSnippet({
+                                useUV: false,
+                                useLightUv: true,
+                            }),
+                        }, samplers: [depthSampler], textures: [shadowDepthTexture], fragmentShaderSource: {
+                            inputs: {
+                                shadowPos: {
+                                    format: 'float32x3',
+                                },
+                            },
+                            main: SHADED_FRAGMENT_SNIPPET,
+                        }, targets: [
+                            {
+                                format: presentationFormat,
+                            },
+                        ] }));
+                    mesh.setParent(sceneNode);
+                    const shadowMesh = new Mesh(device, Object.assign(Object.assign({}, baseMeshState), { vertexShaderSource: {
+                            main: generateVertexShaderSnippet({
+                                useUV: false,
+                                useNormal: false,
+                                usePosition: false,
+                            }),
+                        }, fragmentShaderSource: {
+                            // this should be omitted and we can use a vertex-only pipeline, but it's
+                            // not yet implemented.
+                            main: FRAGMENT_SHADER_WHITE_COLOR,
+                        }, targets: [], depthStencil: {
                             depthWriteEnabled: true,
                             depthCompare: 'less',
-                            format: 'depth24plus',
-                        },
-                        targets: [
-                            // position
-                            { format: 'rgba32float' },
-                            // normal
-                            { format: 'rgba32float' },
-                            // albedo
-                            { format: 'bgra8unorm' },
-                        ],
-                    });
-                    if (!baseColorTexture) {
-                        gBufferMesh.setPosition({ y: 5 }).updateModelMatrix();
-                    }
-                    gBufferMesh.setParent(gBufferSceneNode);
+                            format: 'depth32float',
+                        } }));
+                    shadowMesh.setParent(shadowSceneNode);
                 });
             }
             if (currentNode.matrix) {
                 sceneNode.copyFromMatrix(currentNode.matrix);
-                gBufferSceneNode.copyFromMatrix(currentNode.matrix);
+                shadowSceneNode.copyFromMatrix(currentNode.matrix);
             }
             else {
                 const matrix = create$6();
@@ -12958,18 +13208,18 @@ ${String.fromCharCode(dataView.getUint8(byteOffset + 3))}`;
                     scale$2(matrix, matrix, currentNode.scale);
                 }
                 sceneNode.copyFromMatrix(matrix);
-                gBufferSceneNode.copyFromMatrix(matrix);
+                shadowSceneNode.copyFromMatrix(matrix);
             }
             if (parentNode) {
                 sceneNode.setParent(parentNode);
             }
-            if (gBufferParentNode) {
-                gBufferSceneNode.setParent(gBufferParentNode);
+            if (shadowParentNode) {
+                shadowSceneNode.setParent(shadowParentNode);
             }
             const children = currentNode.nodes || currentNode.children;
             if (children && children.length) {
                 children.forEach((childNode) => {
-                    traverseSceneGraph(childNode, sceneNode, gBufferSceneNode);
+                    traverseSceneGraph(childNode, sceneNode, shadowSceneNode);
                 });
             }
         }
