@@ -257,15 +257,15 @@ testForWebGPUSupport()
       ),
     },
     lightPosition: {
-      type: 'vec3<f32>',
+      type: 'vec4<f32>',
       value: new Float32Array([1, 0, 1]),
     },
     cameraPosition: {
-      type: 'vec3<f32>',
+      type: 'vec4<f32>',
       value: cameraPosition,
     },
     lightShininessAndPower: {
-      type: 'vec2<f32>',
+      type: 'vec4<f32>',
       value: lightShininessAndPower,
     },
   }

@@ -76,5 +76,14 @@
         "title": "Deferred Shading"
       }
     ]
+  },
+  {
+    "title": "GPU Compute",
+    "entries": [
+      {
+        "id": "gpu-compute-matrix",
+        "title": "GPU Compute"
+      }
+    ]
   }
 ]

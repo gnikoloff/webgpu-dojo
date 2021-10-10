@@ -17,8 +17,7 @@
       },
       {
         "id": "scene-graph",
-        "title": "Scene Graph",
-        "description": "Position object nodes in accordance with their parent nodes"
+        "title": "Scene Graph"
       },
       {
         "id": "textured-cube",
@@ -41,7 +40,6 @@
       },
       {
         "id": "gltf-buggy",
-        "description": "Parse complex glTF with multiple primitives. Use scene-graph to position nodes correctly",
         "title": "glTF Buggy"
       }
     ]
@@ -73,19 +71,23 @@
         "title": "Shadow Mapping",
         "description": [
           "Implement shadows from scratch with hwoa-rang-gpu.",
-          "• <a href=\"http://learnwebgl.brown37.net/11_advanced_rendering/shadows.html\">http://learnwebgl.brown37.net/11_advanced_rendering/shadows.html</a>",
-          "• <a href=\"https://austin-eng.com/webgpu-samples/samples/shadowMapping\">https://austin-eng.com/webgpu-samples/samples/shadowMapping</a>"
+          "- <a href=\"http://learnwebgl.brown37.net/11_advanced_rendering/shadows.html\">http://learnwebgl.brown37.net/11_advanced_rendering/shadows.html</a>",
+          "- <a href=\"https://austin-eng.com/webgpu-samples/samples/shadowMapping\">https://austin-eng.com/webgpu-samples/samples/shadowMapping</a>"
         ]
       },
       {
         "id": "deferred-rendering",
-        "title": "Deferred Shading",
-        "description": [
-          "Implement deferred shading from scratch with MRT.",
-          "Use compute shader to calculate new positions and velocities for the lights.",
-          "• <a href=\"https://github.com/gnikoloff/gpgpu-hwoa-rang-gl\">https://github.com/gnikoloff/gpgpu-hwoa-rang-gl</a>",
-          "• <a href=\"https://austin-eng.com/webgpu-samples/samples/deferredRendering#main.ts\">https://austin-eng.com/webgpu-samples/samples/deferredRendering#main.ts</a>"
-        ]
+        "title": "Deferred Shading"
+      }
+    ]
+  },
+  {
+    "title": "GPU Compute",
+    "entries": [
+      {
+        "id": "gpu-compute-matrix",
+        "title": "GPU Compute",
+        "description": "Use compute pipeline to update 100 000 particles on the GPU"
       }
     ]
   }
