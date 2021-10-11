@@ -6,7 +6,7 @@ https://gnikoloff.github.io/webgpu-dojo/
 
 A collection of experiments with the emerging [WebGPU API](https://gpuweb.github.io/gpuweb/).
 
-Most of the samples are built with my micro WebGPU rendering & compute library [hwoa-rang-gpu](https://gnikoloff.github.io/hwoa-rang-gpu/)
+Most of the samples are built with my micro WebGPU rendering & compute library [hwoa-rang-gpu](https://github.com/gnikoloff/hwoa-rang-gpu)
 
 ### Running the samples
 
