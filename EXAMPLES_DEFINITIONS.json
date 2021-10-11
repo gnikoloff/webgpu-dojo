@@ -77,7 +77,13 @@
       },
       {
         "id": "deferred-rendering",
-        "title": "Deferred Shading"
+        "title": "Deferred Shading",
+        "description": [
+          "Implement deferred shading from scratch with MRT.",
+          "Use compute shaders to update the lights positions and velocities on the GPU.",
+          "- <a href=\"https://gpgpu-boxes.georgi-nikolov.com/\">https://gpgpu-boxes.georgi-nikolov.com/</a>",
+          "- <a href=\"https://austin-eng.com/webgpu-samples/samples/deferredRendering#main.ts\">https://austin-eng.com/webgpu-samples/samples/deferredRendering#main.ts</a>"
+        ]
       }
     ]
   },

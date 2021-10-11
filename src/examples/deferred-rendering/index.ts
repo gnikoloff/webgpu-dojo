@@ -26,7 +26,6 @@ const MAX_LIGHTS_COUNT = 1024
 
 const OPTIONS = {
   lightsCount: 256,
-  debugMode: false,
 }
 
 const getVertexShaderSnippet = ({ useUV = false }) => `
@@ -64,72 +63,49 @@ const DEFERRED_RENDER_VERTEX_SNIPPET = `
 const DEFERRED_RENDER_FRAGMENT_SNIPPET = `
   let normalisedCoords = input.coords.xy / inputUBO.canvasSize;
 
-  if (inputUBO.debugMode == 0) {
-    let position = textureLoad(
-      position_texture,
-      vec2<i32>(floor(input.coords.xy)),
-      0
-    ).xyz;
+  let position = textureLoad(
+    position_texture,
+    vec2<i32>(floor(input.coords.xy)),
+    0
+  ).xyz;
 
-    if (position.z > 10000.0) {
-      discard;
-    }
-
-    let normal = textureLoad(
-      normal_texture,
-      vec2<i32>(floor(input.coords.xy)),
-      0
-    ).xyz;
-
-    let diffuse = textureLoad(
-      diffuse_texture,
-      vec2<i32>(floor(input.coords.xy)),
-      0
-    ).rgb;
-
-    var result = vec3<f32>(0.0);
-
-    for (var i : u32 = 0u; i < inputUBO.maxLightsCount; i = i + 1u) {
-      let L = lightCollection.lights[i].position.xyz - position;
-      let distance = length(L);
-      
-      if (distance > lightCollection.lights[i].radius) {
-        continue;
-      }
-
-      let lambert = max(dot(normal, normalize(L)), 0.0);
-      result = result + vec3<f32>(
-        lambert *
-        pow(1.0 - distance / lightCollection.lights[i].radius, 2.0) *
-        lightCollection.lights[i].color.rgb *
-        diffuse
-      );
-    }
-
-    output.Color = vec4<f32>(result, 1.0);
-  } else {
-    if (normalisedCoords.x < 0.33) {
-      output.Color = textureLoad(
-        position_texture,
-        vec2<i32>(floor(input.coords.xy)),
-        0
-      );
-
-    } elseif (normalisedCoords.x < 0.667) {
-      output.Color = textureLoad(
-        normal_texture,
-        vec2<i32>(floor(input.coords.xy)),
-        0
-      );
-    } else {
-      output.Color = textureLoad(
-        diffuse_texture,
-        vec2<i32>(floor(input.coords.xy)),
-        0
-      );
-      // output.Color = vec4<f32>(0.0, 1.0, 0.0, 1.0);
-    }
+  if (position.z > 10000.0) {
+    discard;
   }
+
+  let normal = textureLoad(
+    normal_texture,
+    vec2<i32>(floor(input.coords.xy)),
+    0
+  ).xyz;
+
+  let diffuse = textureLoad(
+    diffuse_texture,
+    vec2<i32>(floor(input.coords.xy)),
+    0
+  ).rgb;
+
+  var result = vec3<f32>(0.0);
+
+  for (var i : u32 = 0u; i < inputUBO.maxLightsCount; i = i + 1u) {
+    let L = lightCollection.lights[i].position.xyz - position;
+    let distance = length(L);
+    
+    if (distance > lightCollection.lights[i].radius) {
+      continue;
+    }
+
+    let lambert = max(dot(normal, normalize(L)), 0.0);
+    result = result + vec3<f32>(
+      lambert *
+      pow(1.0 - distance / lightCollection.lights[i].radius, 2.0) *
+      lightCollection.lights[i].color.rgb *
+      diffuse
+    );
+  }
+
+  output.Color = vec4<f32>(result, 1.0);
+  
 `
 
 const GPU_COMPUTE_SHADER_SNIPPET = `
@@ -178,9 +154,6 @@ testForWebGPUSupport()
   console.log(gltf)
 
   const gui = new dat.GUI()
-  gui.add(OPTIONS, 'debugMode').onChange((v) => {
-    quadMesh.setUniform('debugMode', new Int32Array([v]))
-  })
   gui
     .add(OPTIONS, 'lightsCount')
     .min(1)
@@ -407,10 +380,6 @@ testForWebGPUSupport()
       canvasSize: {
         type: 'vec2<f32>',
         value: new Float32Array([canvas.width, canvas.height]),
-      },
-      debugMode: {
-        type: 'i32',
-        value: new Int32Array([0]),
       },
       maxLightsCount: {
         type: 'u32',
