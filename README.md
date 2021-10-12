@@ -17,7 +17,7 @@ Keep in mind that WebGPU is still considered an experimental API and some of the
 ### Tools used
 
 - [Typescript](https://www.typescriptlang.org/)
-- [hwoa-rang-gpu](https://gnikoloff.github.io/hwoa-rang-gpu/)
+- [hwoa-rang-gpu](https://github.com/gnikoloff/hwoa-rang-gpu)
 - [glMatrix](https://glmatrix.net/)
 
 ### References
