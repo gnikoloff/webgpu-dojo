@@ -1,33 +1,50 @@
 <!DOCTYPE html>
 <html lang="en-US">
   <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <!-- Primary Meta Tags -->
     <title>WebGPU Sketch Dojo</title>
-    <meta name="title" content="WebGPU Sketch Dojo">
-    <meta name="description" content="Experiments with the WebGPU API">
+    <meta name="title" content="WebGPU Sketch Dojo" />
+    <meta name="description" content="Experiments with the WebGPU API" />
 
     <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://gnikoloff.github.io/webgpu-dojo/">
-    <meta property="og:title" content="WebGPU Sketch Dojo">
-    <meta property="og:description" content="Experiments with the WebGPU API">
-    <meta property="og:image" content="/webgpu-dojo/assets/webgpu-sketch-dojo-social.png">
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:url"
+      content="https://gnikoloff.github.io/webgpu-dojo/"
+    />
+    <meta property="og:title" content="WebGPU Sketch Dojo" />
+    <meta property="og:description" content="Experiments with the WebGPU API" />
+    <meta
+      property="og:image"
+      content="/webgpu-dojo/assets/webgpu-sketch-dojo-social.png"
+    />
 
     <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://gnikoloff.github.io/webgpu-dojo/">
-    <meta property="twitter:title" content="WebGPU Sketch Dojo">
-    <meta property="twitter:description" content="Experiments with the WebGPU API">
-    <meta property="twitter:image" content="/webgpu-dojo/assets/webgpu-sketch-dojo-social.png">
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta
+      property="twitter:url"
+      content="https://gnikoloff.github.io/webgpu-dojo/"
+    />
+    <meta property="twitter:title" content="WebGPU Sketch Dojo" />
+    <meta
+      property="twitter:description"
+      content="Experiments with the WebGPU API"
+    />
+    <meta
+      property="twitter:image"
+      content="/webgpu-dojo/assets/webgpu-sketch-dojo-social.png"
+    />
 
-    <meta http-equiv="origin-trial" content="AppXZuuGNgkmmH5oQGMOn+g4PRyIwZQC+2OuIlU+KOP8aq7RR/s/NWGxv4ReawsIqlVXXvyYB7u7OR8B8XfI+wwAAABmeyJvcmlnaW4iOiJodHRwczovL2duaWtvbG9mZi5naXRodWIuaW86NDQzIiwiZmVhdHVyZSI6IldlYkdQVSIsImV4cGlyeSI6MTY0MzE1NTE5OSwiaXNTdWJkb21haW4iOnRydWV9">
+    <meta
+      http-equiv="origin-trial"
+      content="AppXZuuGNgkmmH5oQGMOn+g4PRyIwZQC+2OuIlU+KOP8aq7RR/s/NWGxv4ReawsIqlVXXvyYB7u7OR8B8XfI+wwAAABmeyJvcmlnaW4iOiJodHRwczovL2duaWtvbG9mZi5naXRodWIuaW86NDQzIiwiZmVhdHVyZSI6IldlYkdQVSIsImV4cGlyeSI6MTY0MzE1NTE5OSwiaXNTdWJkb21haW4iOnRydWV9"
+    />
 
-    <link rel="stylesheet" href="/webgpu-dojo/assets/css/main.css">
-    
+    <link rel="stylesheet" href="/webgpu-dojo/assets/css/main.css" />
   </head>
   <body class="post-page">
     <canvas id="gpu-c"></canvas>
@@ -35,7 +52,17 @@
       <a href="/webgpu-dojo/" class="go-back-link">&larr;&nbsp;&nbsp;Home</a>
       <small></small>
       <h1 class="example-title">Deferred Shading</h1>
-      <p class="example-desc"></p>
+      <p class="example-desc">
+        Implement deferred shading from scratch with MRT.<br />Use compute
+        shaders to update the lights positions and velocities on the GPU.<br />-
+        <a href="https://gpgpu-boxes.georgi-nikolov.com/"
+          >https://gpgpu-boxes.georgi-nikolov.com/</a
+        ><br />-
+        <a
+          href="https://austin-eng.com/webgpu-samples/samples/deferredRendering#main.ts"
+          >https://austin-eng.com/webgpu-samples/samples/deferredRendering#main.ts</a
+        >
+      </p>
       <a
         class="example-source"
         href="https://github.com/gnikoloff/webgpu-dojo/blob/master/src/examples/deferred-rendering"
@@ -54,20 +81,24 @@
     </nav>
 
     <script type="text/javascript">
-      window.ASSETS_BASE_URL = "/webgpu-dojo/assets/"    
+      window.ASSETS_BASE_URL = '/webgpu-dojo/assets/'
     </script>
-    
+
     <script src="/webgpu-dojo/examples/deferred-rendering/bundle.js"></script>
 
     <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-209778909-1"></script>
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=UA-209778909-1"
+    ></script>
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
+      window.dataLayer = window.dataLayer || []
+      function gtag() {
+        dataLayer.push(arguments)
+      }
+      gtag('js', new Date())
 
-      gtag('config', 'UA-209778909-1');
+      gtag('config', 'UA-209778909-1')
     </script>
-
   </body>
 </html>
