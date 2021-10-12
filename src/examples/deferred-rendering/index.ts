@@ -25,7 +25,7 @@ import { testForWebGPUSupport } from '../shared/test-for-webgpu-support'
 const MAX_LIGHTS_COUNT = 1024
 
 const OPTIONS = {
-  lightsCount: 256,
+  lightsCount: 43,
 }
 
 const getVertexShaderSnippet = ({ useUV = false }) => `
@@ -342,8 +342,8 @@ testForWebGPUSupport()
   const quadGeometry = new Geometry(device)
   {
     const { vertices, uv, indices } = GeometryUtils.createPlane({
-      width: innerWidth,
-      height: innerHeight,
+      width: canvas.width,
+      height: canvas.height,
     })
     const vertexBuffer = new VertexBuffer(
       device,

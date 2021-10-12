@@ -122,8 +122,8 @@ testForWebGPUSupport()
   } = generateGPUBuffersFromGeometry(
     device,
     GeometryUtils.createPlane({
-      width: innerWidth,
-      height: innerHeight,
+      width: canvas.width,
+      height: canvas.height,
     }),
   )
 
